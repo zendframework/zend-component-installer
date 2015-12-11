@@ -1,0 +1,35 @@
+{
+    "name": "zendframework/component-installer",
+    "description": "Composer scripts for automating component registration in zend-mvc applications",
+    "license": "BSD-3-Clause",
+    "require": {
+        "php": "^5.5 || ^7.0",
+        "zendframework/zend-console": "^2.5",
+        "zfcampus/zf-console": "^1.0"
+    },
+    "require-dev": {
+        "composer/composer": ">=1.0.0-alpha10",
+        "phpunit/phpunit": "^4.7",
+        "roave/security-advisories": "dev-master",
+        "squizlabs/php_codesniffer": "^2.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zend\\ComponentInstaller\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\ComponentInstaller\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs",
+            "@test"
+        ],
+        "cs": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit"
+    }
+}

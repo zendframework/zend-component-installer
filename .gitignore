@@ -1,0 +1,6 @@
+vendor/
+box.json
+component-installer.phar
+component-installer.phar.pubkey
+composer.lock
+phpunit.xml
