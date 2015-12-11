@@ -13,10 +13,10 @@ static methods as scripts for the above events.
 To do that, this repository also provides a PHAR file that provides an
 installer. It is available at:
 
-- https://weierophinney.github.io/zend-component-installer/component-installer.phar
+- https://weierophinney.github.io/component-installer/component-installer.phar
 
 The public key for verifying the package is at:
 
-- https://weierophinney.github.io/zend-component-installer/component-installer.phar.pubkey
+- https://weierophinney.github.io/component-installer/component-installer.phar.pubkey
 
 The PHAR file is self-updateable.
