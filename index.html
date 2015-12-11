@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Component Installer ( prototype ) for ZF3">
+  <meta name="author" content="https://mwop.net">
+
+  <title>Component Installer (prototype) for ZF3</title>
+
+  <!-- Bootstrap via CDN -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+  <!-- Optional bootstrap theme via CDN -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+</head>
+<body>
+  <!-- Fixed navbar -->
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Component Installer</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" role="main">
+    <div class="jumbotron">
+      <h1>Component Installer</h1>
+
+      <p>A (prototype) component installer for ZF3 components.</p>
+    </div>
+  </div>
+
+  <h2>Why?</h2>
+
+  <p>
+    We're planning on reducing the <em>required</em> components for the MVC and
+    framework. Currently in v2, however, zend-mvc provides copious amounts of
+    integrations with other components; removing them as dependencies means
+    their factories, plugin managers, and event listeners will not be wired
+    automatically. One proposed solution is to provide each component with a
+    <code>Module</code> class that could provide those; however, one issue with
+    that approach is ensuring that the components are then added to the list of
+    enabled modules.
+  </p>
+
+  <p>
+    The approach this package takes is to provide <a
+      href="https://getcomposer.org">Composer</a> event hooks that will update
+    the enabled module list when a package providing a module is installed or
+    uninstalled. However, Composer has a few limitations with regards to such
+    hook scripts:
+  </p>
+
+  <ul>
+    <li>If the code is in a package on which the project depends, a warning
+      is emitted for each package installed until the package containing the
+      scripts is processed. This will likely raise a lot of support questions.</li>
+    <li>If the event hook classes are present inside the project, they <em>must</em>
+      be autoloadable. Additionally, the must <em>always</em> be autoloadable;
+      you cannot define a <code>autoload-dev</code> rule for the
+      classes/namespaces; only a production one will work.</li>
+  </ul>
+
+  <p>
+    These limitations are easily accommodated for <em>new</em> projects, as we
+    can include them in project skeletons. However, for those <em>migrating</em>
+    to ZF3, we want to provide a mechanism for adding the scripts.
+  </p>
+
+  <p>
+    The solution presented here is to provide a downloadable PHAR that will copy
+    the classfiles for the scripts into your project, and then manipulate the
+    <code>composer.json</code> to add autoload rules for them, and to add
+    entries for the event hook scripts.
+  </p>
+
+  <h2>Get the PHAR</h2>
+
+  <ul>
+    <li><a href="component-installer.phar">component-installer.phar</a></li>
+    <li><a href="component-installer.phar.pubkey">public OpenSSL key (to verify
+      the PHAR)</a></li>
+  </ul>
+
+  <h2>Using the PHAR</h2>
+
+  <pre><code class="lang-bash" data-trim>
+$ component-installer.phar install
+# Or specify a path to a project
+$ component-installer.phar install /path/to/my/project
+  </code></pre>
+
+  <p>
+    Once installed, whenever your install a component that implements a module,
+    it will update the <code>config/application.config.php</code> file to add
+    the component to the module list. Components are always added to the top of
+    the list, to ensure that your own modules can override any settings they
+    introduce.
+  </p>
+
+  <h2>Defining a component that implements a module</h2>
+
+  <p>
+    There are two things you must do to have your package opt-in to this
+    workflow:
+  </p>
+
+  <ul>
+    <li>The component must have a <code>Module</code> class in the namespace it
+      defines.</li>
+    <li>The <code>composer.json</code> must specify the module namespace in the
+      <code>extra</code> section:
+      <pre><code class="lang-javascript" data-trim>
+"extra": {
+  "module": "Some\Component"
+}
+      </code></pre>
+    </li>
+  </ul>
+
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Bootstrap JS via CDN -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+</body>
+</html>
