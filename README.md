@@ -19,4 +19,5 @@ The public key for verifying the package is at:
 
 - https://weierophinney.github.io/component-installer/component-installer.phar.pubkey
 
-The PHAR file is self-updateable.
+The PHAR file is self-updateable via the `self-update` command; this feature
+requires PHP 5.6, however, due to SSL/TLS negotiation requirements.
