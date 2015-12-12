@@ -1,15 +1,34 @@
 <?php
-namespace Zend\ComponentInstaller;
-
-/*
-use Composer\IO\IOInterface;
-use Composer\Script\Event;
-use Composer\Script\PackageEvent;
+/**
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
+ * @copyright Copyright (c) 2015 Matthew Weier O'Phinney (https://mwop.net)
  */
 
+namespace Zend\ComponentInstaller;
+
+/* These are commented out for a reason.
+ *
+ * If we type-hint on these classes, then the project needs to depend on
+ * the composer/composer package. Considering that the package itself likely
+ * has no direct requirement on that package, and it's only purpose is for
+ * this installer, it's an artificial requirement.
+ *
+ * Throughout the code, where typehints could be of use, they are annotated
+ * in docblocks.
+ *
+ * use Composer\IO\IOInterface;
+ * use Composer\Script\PackageEvent;
+ */
+
+/**
+ * If a package represents a component module, update the application configuration.
+ */
 class ComponentInstaller
 {
-    public static function postPackageInstall(/* PackageEvent */ $event)
+    /**
+     * @param \Composer\Script\PackageEvent $event
+     */
+    public static function postPackageInstall($event)
     {
         if (! $event->isDevMode()) {
             // Do nothing in production mode.
@@ -37,7 +56,19 @@ class ComponentInstaller
         self::updateApplicationConfig($module, $io);
     }
 
-    private static function updateApplicationConfig($module, /* IOInterface */ $io)
+    /**
+     * @todo Needs implementation!
+     * @param \Composer\Script\PackageEvent $event
+     */
+    public static function postPackageUninstall($event)
+    {
+    }
+
+    /**
+     * @param string $module
+     * @param \Composer\IO\IOInterface $io
+     */
+    private static function updateApplicationConfig($module, $io)
     {
         $config = file_get_contents('config/application.config.php');
 
@@ -52,6 +83,11 @@ class ComponentInstaller
         file_put_contents('config/application.config.php', $config);
     }
 
+    /**
+     * @param string $module
+     * @param string $config
+     * @return bool
+     */
     private static function moduleIsRegistered($module, $config)
     {
         return preg_match(

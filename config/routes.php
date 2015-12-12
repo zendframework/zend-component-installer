@@ -1,4 +1,10 @@
 <?php
+/**
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
+ * @copyright Copyright (c) 2015 Matthew Weier O'Phinney (https://mwop.net)
+ */
+
+use Zend\ComponentInstaller\Command;
 
 return [
     [
@@ -9,12 +15,12 @@ return [
         'options_descriptions' => [
             '[<path>]' => 'Path to the project, if not the current working directory'
         ],
-        'handler' => Zend\ComponentInstaller\Command\Installer::class,
+        'handler' => Command\Installer::class,
     ],
     [
         'name' => 'self-update',
         'description' => 'Update to the latest version of the component installer.',
         'short_description' => 'Update this PHAR',
-        'handler' => Zend\ComponentInstaller\Command\SelfUpdate::class,
+        'handler' => Command\SelfUpdate::class,
     ]
 ];

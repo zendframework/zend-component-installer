@@ -1,16 +1,29 @@
 <?php
+/**
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
+ * @copyright Copyright (c) 2015 Matthew Weier O'Phinney (https://mwop.net)
+ */
+
 namespace Zend\ComponentInstaller\Command;
 
 use Zend\Console\Adapter\AdapterInterface as Console;
 use Zend\Console\ColorInterface as Color;
 use ZF\Console\Route;
 
+/**
+ * Command for installing the ComponentInstaller class and related composer scripts.
+ */
 class Installer
 {
     const SCRIPT_POST_PACKAGE_INSTALL = 'Zend\ComponentInstaller\ComponentInstaller::postPackageInstall';
     const SCRIPT_POST_PACKAGE_UNINSTALL = 'Zend\ComponentInstaller\ComponentInstaller::postPackageUninstall';
 
-    public function __invoke($route, $console)
+    /**
+     * @param Route $route
+     * @param Console $console
+     * @return int
+     */
+    public function __invoke(Route$route, Console $console)
     {
         $path = $route->getMatchedParam('path', realpath(getcwd()));
 
@@ -55,6 +68,10 @@ class Installer
         return 0;
     }
 
+    /**
+     * @param string $path
+     * @return false|string
+     */
     private function createComponentInstallerDirectory($path)
     {
         $newPath = sprintf('%s/component-installer', $path);
@@ -67,6 +84,10 @@ class Installer
         return $newPath;
     }
 
+    /**
+     * @param string $path
+     * @return false|array
+     */
     private function getComposer($path)
     {
         $composerFile = sprintf('%s/composer.json', $path);
@@ -77,6 +98,10 @@ class Installer
         return json_decode($composerJson, true);
     }
 
+    /**
+     * @param array $composer
+     * @return array
+     */
     private function injectAutoloadEntry(array $composer)
     {
         if (isset($composer['autoload']['psr-4']['Zend\\ComponentInstaller\\'])) {
@@ -86,6 +111,10 @@ class Installer
         return $composer;
     }
 
+    /**
+     * @param array $composer
+     * @return array
+     */
     private function injectScripts(array $composer)
     {
         if (! isset($composer['scripts']['post-package-install'])) {
@@ -103,6 +132,11 @@ class Installer
         return $composer;
     }
 
+    /**
+     * @param array $composer
+     * @param string $path
+     * @return bool
+     */
     private function writeComposer(array $composer, $path)
     {
         return file_put_contents(

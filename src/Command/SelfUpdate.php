@@ -1,4 +1,9 @@
 <?php
+/**
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
+ * @copyright Copyright (c) 2015 Matthew Weier O'Phinney (https://mwop.net)
+ */
+
 namespace Zend\ComponentInstaller\Command;
 
 use Exception;
@@ -7,11 +12,19 @@ use Zend\Console\Adapter\AdapterInterface as Console;
 use Zend\Console\ColorInterface as Color;
 use ZF\Console\Route;
 
+/**
+ * Command for performing a phar self-update.
+ */
 class SelfUpdate
 {
     const URL_PHAR = 'https://weierophinney.github.io/component-installer/component-installer.phar';
     const URL_VERSION = 'https://weierophinney.github.io/component-installer/component-installer.phar.version';
 
+    /**
+     * @param Route $route
+     * @param Console $console
+     * @return int
+     */
     public function __invoke(Route $route, Console $console)
     {
         $updater = new Updater();
