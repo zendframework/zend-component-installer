@@ -27,6 +27,14 @@ class SelfUpdate
      */
     public function __invoke(Route $route, Console $console)
     {
+        if (version_compare(\PHP_VERSION, '5.6', 'lt')) {
+            $console->writeLine(sprintf(
+                'self-update requires PHP >=5.6 (version %s was used); aborting',
+                \PHP_VERSION
+            ), Color::RED);
+            exit(1);
+        }
+
         $updater = new Updater();
         $updater->getStrategy()->setPharUrl(self::URL_PHAR);
         $updater->getStrategy()->setVersionUrl(self::URL_VERSION);
