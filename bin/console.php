@@ -10,7 +10,7 @@ use Zend\Console\Console;
 use ZF\Console\Application;
 use ZF\Console\Dispatcher;
 
-$version = '0.0.1';
+$version = '@package_version@';
 
 $application = new Application(
     'Component Installer',
