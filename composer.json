@@ -5,7 +5,8 @@
     "require": {
         "php": "^5.5 || ^7.0",
         "zendframework/zend-console": "^2.5",
-        "zfcampus/zf-console": "^1.0"
+        "zfcampus/zf-console": "^1.0",
+        "padraic/phar-updater": "^1.0"
     },
     "require-dev": {
         "composer/composer": ">=1.0.0-alpha10",
