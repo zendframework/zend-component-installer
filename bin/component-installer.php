@@ -12,6 +12,12 @@ use ZF\Console\Dispatcher;
 
 $version = '@package_version@';
 
+// Reset version if not rewritten (which happens when using
+// a phar)
+$version = ($version === '@' . 'package_version' . '@')
+    ? 'dev-master'
+    : $version;
+
 $application = new Application(
     'Component Installer',
     $version,

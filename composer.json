@@ -24,6 +24,10 @@
             "ZendTest\\ComponentInstaller\\": "test/"
         }
     },
+    "bin": [
+        "bin/component-installer",
+        "bin/component-installer.bat"
+    ],
     "scripts": {
         "check": [
             "@cs",

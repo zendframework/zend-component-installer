@@ -22,7 +22,7 @@
     "intercept": true,
     "key": "<path to openssl private key>",
     "key-pass": true,
-    "main": "bin/console.php",
+    "main": "bin/component-installer.php",
     "output": "component-installer.phar",
     "stub": true
 }
