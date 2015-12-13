@@ -39,6 +39,7 @@ after_script:
 - if [[ $EXECUTE_TEST_COVERALLS == 'true' ]]; then composer coveralls ; fi
 
 after_success:
+- if [[ $EXECUTE_DEPLOYMENT == 'true' ]]; then composer update --no-dev ; fi
 - if [[ $EXECUTE_DEPLOYMENT == 'true' ]]; then ./bin/deploy.sh ; fi
 
 notifications:
