@@ -84,11 +84,18 @@
     </p>
 
     <p>
-      The solution presented here is to provide a downloadable PHAR that will copy
+      The solution presented here is to provide a utility that will will copy
       the classfiles for the scripts into your project, and then manipulate the
       <code>composer.json</code> to add autoload rules for them, and to add
       entries for the event hook scripts.
     </p>
+
+    <p>
+      You have two options: using a downloadable, self-updateable PHAR, or
+      installation as a global Composer package.
+    </p>
+
+    <hr />
 
     <h2>Get the PHAR</h2>
 
@@ -107,12 +114,12 @@
       <kbd>component-installer.phar help</kbd> to verify that it works.
     </p>
 
-    <h2>Using the PHAR</h2>
+    <h3>Using the PHAR</h3>
 
     <pre><code class="lang-bash" data-trim>
-  $ component-installer.phar install
-  # Or specify a path to a project
-  $ component-installer.phar install /path/to/my/project
+$ component-installer.phar install
+# Or specify a path to a project
+$ component-installer.phar install /path/to/my/project
     </code></pre>
 
     <p>
@@ -123,27 +130,7 @@
       introduce.
     </p>
 
-    <h2>Defining a component that implements a module</h2>
-
-    <p>
-      There are two things you must do to have your package opt-in to this
-      workflow:
-    </p>
-
-    <ul>
-      <li>The component must have a <code>Module</code> class in the namespace it
-        defines.</li>
-      <li>The <code>composer.json</code> must specify the module namespace in the
-        <code>extra</code> section:
-        <pre><code class="lang-javascript" data-trim>
-  "extra": {
-    "module": "Some\Component"
-  }
-        </code></pre>
-      </li>
-    </ul>
-
-    <h2>Keeping up-to-date</h2>
+    <h3>Keeping up-to-date</h3>
 
     <p>
       Periodically, we may make changes to the tool. To update, you can use the
@@ -168,6 +155,50 @@ $ component-installer.phar self-update
       <li>The command will put a copy of the previous version of the command in
         the sibling file <code>component-installer-old.phar</code>. This allows
        you to rollback to the previous version should you detect a problem.</li>
+    </ul>
+
+    <hr />
+
+    <h2>Global Composer Installation</h2>
+
+    <p>
+      You can also install the utility as a global Composer package:
+    </p>
+
+    <pre><code class="lang-bash" data-trim>
+$ composer global require zendframework/component-installer
+    </code></pre>
+
+    <p>
+      This will install the package globally. In order to use it, the
+      <code>$COMPOSER_HOME/bin</code> directory must be in your user's
+      <code>$PATH</code>. From there, invocation is:
+    </p>
+
+    <pre><code class="lang-bash" data-trim>
+$ component-installer installer [<path>]
+    </code></pre>
+
+    <hr />
+
+    <h2>Defining a component that implements a module</h2>
+
+    <p>
+      There are two things you must do to have your package opt-in to this
+      workflow:
+    </p>
+
+    <ul>
+      <li>The component must have a <code>Module</code> class in the namespace it
+        defines.</li>
+      <li>The <code>composer.json</code> must specify the module namespace in the
+        <code>extra</code> section:
+        <pre><code class="lang-javascript" data-trim>
+  "extra": {
+    "module": "Some\Component"
+  }
+        </code></pre>
+      </li>
     </ul>
   </div>
 
