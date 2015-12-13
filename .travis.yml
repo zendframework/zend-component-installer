@@ -20,11 +20,8 @@ matrix:
   - php: hhvm
 
 before_install:
-- openssl aes-256-cbc -K $encrypted_bdfd67bd0d47_key -iv $encrypted_bdfd67bd0d47_iv
-  -in build_key.pem.enc -out .travis/build_key.pem -d
-- openssl aes-256-cbc -K $encrypted_bdfd67bd0d47_key -iv $encrypted_bdfd67bd0d47_iv
-  -in .travis/component-installer-private.pem.enc -out .travis/component-installer-private.pem
-  -d
+- openssl aes-256-cbc -K $encrypted_bdfd67bd0d47_key -iv $encrypted_bdfd67bd0d47_iv -in build_key.pem.enc -out .travis/build_key.pem -d
+- openssl aes-256-cbc -K $encrypted_bdfd67bd0d47_key -iv $encrypted_bdfd67bd0d47_iv -in .travis/component-installer-private.pem.enc -out .travis/component-installer-private.pem -d
 - if [[ $EXECUTE_TEST_COVERALLS != 'true' ]]; then phpenv config-rm xdebug.ini ||
   return 0 ; fi
 - composer self-update
