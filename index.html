@@ -157,6 +157,18 @@ $ component-installer.phar self-update
        you to rollback to the previous version should you detect a problem.</li>
     </ul>
 
+    <h3>Rolling back</h3>
+
+    <p>
+      When using the PHAR, you can also rollback to a previously installed
+      version, if you have kept the <code>component-installer-old.phar</code>
+      file:
+    </p>
+
+    <pre><code class="lang-bash" data-trim>
+$ component-installer.phar rollback
+    </code></pre>
+
     <hr />
 
     <h2>Global Composer Installation</h2>
@@ -177,6 +189,16 @@ $ composer global require zendframework/component-installer
 
     <pre><code class="lang-bash" data-trim>
 $ component-installer installer [<path>]
+    </code></pre>
+
+    <h3>Keeping up-to-date</h3>
+
+    <p>
+      To keep your utility up-to-date, periodically perform the following:
+    </p>
+
+    <pre><code class="lang-bash" data-trim>
+$ composer global update zendframework/component-installer
     </code></pre>
 
     <hr />
