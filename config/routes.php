@@ -22,5 +22,11 @@ return [
         'description' => 'Update to the latest version of the component installer.',
         'short_description' => 'Update this PHAR',
         'handler' => Command\SelfUpdate::class,
-    ]
+    ],
+    [
+        'name' => 'rollback',
+        'description' => 'Rollback to a previously installed version of the PHAR, if available.',
+        'short_description' => 'Rollback to the previously installed version',
+        'handler' => Command\Rollback::class,
+    ],
 ];
