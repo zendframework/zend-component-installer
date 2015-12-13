@@ -17,5 +17,5 @@
 
     <!-- Paths to check -->
     <file>src</file>
-    <file>test</file>
+    <!-- no tests currently; skip <file>test</file> -->
 </ruleset>
