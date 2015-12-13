@@ -36,13 +36,18 @@ class Installer
             return 1;
         }
 
-        if (false === copy(__DIR__ . '/../ComponentInstaller.php', sprintf('%s/ComponentInstaller.php', $installPath))) {
+        $copied = copy(
+            __DIR__ . '/../ComponentInstaller.php',
+            sprintf('%s/ComponentInstaller.php', $installPath)
+        );
+        if (false === $copied) {
             $console->writeLine(sprintf(
                 'Unable to copy ComponentInstaller.php to %s/component-installer/; aborting',
                 $path
             ), Color::RED);
             return 1;
         }
+
         $composer = $this->getComposer($path);
         if (false === $composer
             || empty($composer)

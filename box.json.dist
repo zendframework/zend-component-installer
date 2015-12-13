@@ -21,7 +21,6 @@
     "git-version": "package_version",
     "intercept": true,
     "key": "<path to openssl private key>",
-    "key-pass": true,
     "main": "bin/component-installer.php",
     "output": "component-installer.phar",
     "stub": true

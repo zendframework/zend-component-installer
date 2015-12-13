@@ -1,0 +1,40 @@
+sudo: false
+
+language: php
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+    - vendor
+
+matrix:
+  fast_finish: true
+  include:
+    - php: 5.5
+      env:
+        - EXECUTE_CS_CHECK=true
+    - php: 5.6
+    - php: 7
+    - php: hhvm 
+  allow_failures:
+    - php: 7
+    - php: hhvm
+
+before_install:
+  - if [[ $EXECUTE_TEST_COVERALLS != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
+  - composer self-update
+
+install:
+  - travis_retry composer install --no-interaction
+  - composer info -i
+
+script:
+  - if [[ $EXECUTE_TEST_COVERALLS == 'true' ]]; then composer test-coverage ; fi
+  - if [[ $EXECUTE_TEST_COVERALLS != 'true' ]]; then composer test ; fi
+  - if [[ $EXECUTE_CS_CHECK == 'true' ]]; then composer cs ; fi
+
+after_script:
+  - if [[ $EXECUTE_TEST_COVERALLS == 'true' ]]; then composer coveralls ; fi
+
+notifications:
+  email: true
