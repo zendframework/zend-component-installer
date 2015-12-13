@@ -1,6 +1,6 @@
 vendor/
-.travis/build_key.pem
-.travis/component-installer-private.pem
+.travis/secrets.tar
+.travis/*.pem
 box.json
 component-installer.phar
 component-installer.phar.pubkey
