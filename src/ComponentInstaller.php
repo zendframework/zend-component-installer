@@ -53,7 +53,7 @@ class ComponentInstaller
         $module = $extra['module'];
 
         $io->write(sprintf('<info>Installing module %s from package %s</info>', $module, $name));
-        self::updateApplicationConfig($module, $io);
+        self::addModuleToApplicationConfig($module, $io);
     }
 
     /**
@@ -62,13 +62,37 @@ class ComponentInstaller
      */
     public static function postPackageUninstall($event)
     {
+        if (! $event->isDevMode()) {
+            // Do nothing in production mode.
+            return;
+        }
+
+        if (! is_file('config/application.config.php')) {
+            // Do nothing if config/application.config.php does not exist
+            return;
+        }
+
+        $io = $event->getIo();
+
+        $package = $event->getOperation()->getPackage();
+        $name  = $package->getName();
+        $extra = $package->getExtra();
+
+        if (! isset($extra['module'])) {
+            // Do nothing if the package is not a module
+            return;
+        }
+        $module = $extra['module'];
+
+        $io->write(sprintf('<info>Uninstalling module %s (from package %s)</info>', $module, $name));
+        self::removeModuleFromApplicationConfig($module, $io);
     }
 
     /**
      * @param string $module
      * @param \Composer\IO\IOInterface $io
      */
-    private static function updateApplicationConfig($module, $io)
+    private static function addModuleToApplicationConfig($module, $io)
     {
         $config = file_get_contents('config/application.config.php');
 
@@ -80,6 +104,25 @@ class ComponentInstaller
         $pattern = '/^(\s+)(\'modules\'\s*\=\>\s*(array\(|\[))\s*$/m';
         $replacement = '$1$2' . "\n" . '$1    \'' . $module . '\',';
         $config = preg_replace($pattern, $replacement, $config);
+        file_put_contents('config/application.config.php', $config);
+    }
+
+    /**
+     * @param string $module
+     * @param \Composer\IO\IOInterface $io
+     */
+    private static function removeModuleFromApplicationConfig($module, $io)
+    {
+        $config = file_get_contents('config/application.config.php');
+
+        if (! self::moduleIsRegistered($module, $config)) {
+            $io->write(sprintf('<info>    Module was not registered with application; skipping</info>'));
+            return;
+        }
+
+        $pattern = '/^\s+\'' . preg_quote($module) . '\',\s*$/m';
+        $config = preg_replace($pattern, '', $config);
+        $config = preg_replace("/(\r?\n){2}/s", "\n", $config);
         file_put_contents('config/application.config.php', $config);
     }
 
