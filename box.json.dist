@@ -20,7 +20,7 @@
     ],
     "git-version": "package_version",
     "intercept": true,
-    "key": "<path to openssl private key>",
+    "key": ".travis/component-installer-private.pem",
     "main": "bin/component-installer.php",
     "output": "component-installer.phar",
     "stub": true
