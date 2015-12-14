@@ -11,6 +11,9 @@ ssh-add .travis/build_key.pem
 git config --global user.email "matthew+component@weierophinney.net"
 git config --global user.name "Matthew Weier O'Phinney"
 
+# Remove dev dependencies
+composer update --no-dev
+
 # Get box and build PHAR
 curl -LSs https://box-project.github.io/box2/installer.php | php
 php box.phar build -vv
