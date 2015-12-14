@@ -38,12 +38,11 @@ script:
 after_script:
 - if [[ $EXECUTE_TEST_COVERALLS == 'true' ]]; then composer coveralls ; fi
 
-deploy:
-  provider: script
-  script: bin/deploy.sh
-  on:
-      branch: master
-      condition: $EXECUTE_DEPLOYMENT == 'true'
+after_success:
+- if [[ $EXECUTE_DEPLOYMENT == 'true' ]]; then composer update --no-dev ; fi
+- if [[ $EXECUTE_DEPLOYMENT == 'true' ]]; then git remote -v ; fi
+- if [[ $EXECUTE_DEPLOYMENT == 'true' ]]; then git branch -a ; fi
+- if [[ $EXECUTE_DEPLOYMENT == 'true' ]]; then ./bin/deploy.sh ; fi
 
 notifications:
   email: true
