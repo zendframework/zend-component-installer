@@ -4,8 +4,8 @@ tar xvf .travis/secrets.tar -C .travis
 
 # Setup SSH agent
 eval "$(ssh-agent -s)" #start the ssh agent
-chmod 600 .travis/build_key.pem
-ssh-add .travis/build_key.pem
+chmod 600 .travis/build-key.pem
+ssh-add .travis/build-key.pem
 
 # Setup git defaults
 git config --global user.email "matthew+component@weierophinney.net"
