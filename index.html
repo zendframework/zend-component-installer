@@ -213,15 +213,49 @@ $ composer global update zendframework/component-installer
     <ul>
       <li>The component must have a <code>Module</code> class in the namespace it
         defines.</li>
-      <li>The <code>composer.json</code> must specify the module namespace in the
-        <code>extra</code> section:
+      <li>The <code>composer.json</code> must specify the component namespace in the
+        <code>extra.zf</code> section:
         <pre><code class="lang-javascript" data-trim>
   "extra": {
-    "module": "Some\Component"
+    "zf": {
+      "component": "Some\Component"
+    }
   }
         </code></pre>
       </li>
     </ul>
+
+    <p>
+      Component modules are placed at the <em>top</em> of the module list, so
+      that userland modules may override the defaults they provide.
+    </p>
+
+    <h2>Defining a userland module</h2>
+
+    <p>
+      There are two things you must do to have your package opt-in to this
+      workflow:
+    </p>
+
+    <ul>
+      <li>The module must have a <code>Module</code> class in the namespace it
+        defines.</li>
+      <li>The <code>composer.json</code> must specify the module namespace in the
+        <code>extra.zf</code> section:
+        <pre><code class="lang-javascript" data-trim>
+  "extra": {
+    "zf": {
+      "module": "Some\Component"
+    }
+  }
+        </code></pre>
+      </li>
+    </ul>
+
+    <p>
+      Userland modules are placed at the <em>bottom</em> of the module list, so
+      that their settings may override component settings.
+    </p>
   </div>
 
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
