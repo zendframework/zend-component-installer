@@ -25,11 +25,27 @@ namespace Zend\ComponentInstaller;
  */
 class ComponentInstaller
 {
+    const PLACEMENT_COMPONENT = 1;
+    const PLACEMENT_MODULE = 2;
+
+    private static $placementPatterns = [
+        self::PLACEMENT_COMPONENT => [
+            'pattern' => '/^(\s+)(\'modules\'\s*\=\>\s*(array\(|\[))\s*$/m',
+            'replacement' => "\$1\$2\n\$1    '%s',",
+        ],
+        self::PLACEMENT_MODULE => [
+            'pattern' => "/('modules'\s*\=\>\s*(?:array\s*\(|\[).*?)\n(\s+)\)/s",
+            'replacement' => "\$1\n\$2    '%s',\n\$2)",
+        ],
+    ];
+
     /**
      * @param \Composer\Script\PackageEvent $event
      */
     public static function postPackageInstall($event)
     {
+        $io = $event->getIo();
+
         if (! $event->isDevMode()) {
             // Do nothing in production mode.
             return;
@@ -40,20 +56,19 @@ class ComponentInstaller
             return;
         }
 
-        $io = $event->getIo();
-
         $package = $event->getOperation()->getPackage();
         $name  = $package->getName();
-        $extra = $package->getExtra();
+        $extra = self::getExtraMetadata($package->getExtra());
 
-        if (! isset($extra['module'])) {
-            // Do nothing if the package is not a module
-            return;
+        if (isset($extra['module'])) {
+            $io->write(sprintf('<info>Installing module %s from package %s</info>', $extra['module'], $name));
+            self::addModuleToApplicationConfig($extra['module'], $io, self::PLACEMENT_MODULE);
         }
-        $module = $extra['module'];
 
-        $io->write(sprintf('<info>Installing module %s from package %s</info>', $module, $name));
-        self::addModuleToApplicationConfig($module, $io);
+        if (isset($extra['component'])) {
+            $io->write(sprintf('<info>Installing component module %s from package %s</info>', $extra['component'], $name));
+            self::addModuleToApplicationConfig($extra['component'], $io, self::PLACEMENT_COMPONENT);
+        }
     }
 
     /**
@@ -76,23 +91,25 @@ class ComponentInstaller
 
         $package = $event->getOperation()->getPackage();
         $name  = $package->getName();
-        $extra = $package->getExtra();
+        $extra = self::getExtraMetadata($package->getExtra());
 
-        if (! isset($extra['module'])) {
-            // Do nothing if the package is not a module
-            return;
+        if (isset($extra['module'])) {
+            $io->write(sprintf('<info>Uninstalling module %s (from package %s)</info>', $extra['module'], $name));
+            self::removeModuleFromApplicationConfig($extra['module'], $io);
         }
-        $module = $extra['module'];
 
-        $io->write(sprintf('<info>Uninstalling module %s (from package %s)</info>', $module, $name));
-        self::removeModuleFromApplicationConfig($module, $io);
+        if (isset($extra['component'])) {
+            $io->write(sprintf('<info>Uninstalling component module %s (from package %s)</info>', $extra['component'], $name));
+            self::removeModuleFromApplicationConfig($extra['component'], $io);
+        }
     }
 
     /**
      * @param string $module
      * @param \Composer\IO\IOInterface $io
+     * @param int $placement One of the PLACEMENT_* constants
      */
-    private static function addModuleToApplicationConfig($module, $io)
+    private static function addModuleToApplicationConfig($module, $io, $placement)
     {
         $config = file_get_contents('config/application.config.php');
 
@@ -101,8 +118,12 @@ class ComponentInstaller
             return;
         }
 
-        $pattern = '/^(\s+)(\'modules\'\s*\=\>\s*(array\(|\[))\s*$/m';
-        $replacement = '$1$2' . "\n" . '$1    \'' . $module . '\',';
+        $pattern = self::$placementPatterns[$placement]['pattern'];
+        $replacement = sprintf(
+            self::$placementPatterns[$placement]['replacement'],
+            $module
+        );
+
         $config = preg_replace($pattern, $replacement, $config);
         file_put_contents('config/application.config.php', $config);
     }
@@ -137,5 +158,19 @@ class ComponentInstaller
             '/\'modules\'\s*\=\>\s*(array\(|\[)[^)\]]*\'' . $module . '\'/s',
             $config
         );
+    }
+
+    /**
+     * Retrieve the zf-specific metadata from the "extra" section
+     *
+     * @param array $extra
+     * @return array
+     */
+    private static function getExtraMetadata(array $extra)
+    {
+        return isset($extra['zf']) && is_array($extra['zf'])
+            ? $extra['zf']
+            : []
+        ;
     }
 }
