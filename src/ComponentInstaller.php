@@ -6,28 +6,51 @@
 
 namespace Zend\ComponentInstaller;
 
-/* These are commented out for a reason.
- *
- * If we type-hint on these classes, then the project needs to depend on
- * the composer/composer package. Considering that the package itself likely
- * has no direct requirement on that package, and it's only purpose is for
- * this installer, it's an artificial requirement.
- *
- * Throughout the code, where typehints could be of use, they are annotated
- * in docblocks.
- *
- * use Composer\IO\IOInterface;
- * use Composer\Script\PackageEvent;
- */
+use Composer\IO\IOInterface;
+use Composer\Script\PackageEvent;
 
 /**
  * If a package represents a component module, update the application configuration.
+ *
+ * Packages opt-in to this workflow by defining one or both of the keys:
+ *
+ * - extra.zf.component
+ * - extra.zf.module
+ *
+ * with the value being the string namespace the component and/or module
+ * defines:
+ *
+ * <code class="lang-javascript">
+ * {
+ *   "extra": {
+ *     "zf": {
+ *       "component": "Zend\\Form",
+ *       "module": "ZF\\Apigility\\ContentNegotiation"
+ *     }
+ *   }
+ * }
+ * </code>
+ *
+ * Additionally, for this to work correctly, the package MUST define a `Module`
+ * in the namespace listed in either the extra.zf.component or extra.zf.module
+ * definition.
+ *
+ * Components are added to the TOP of the modules list, to ensure that userland
+ * code and/or modules can override the settings. Modules are added to the
+ * bottom of the modules list.
+ *
+ * In either case, you can edit the modules list when complete to create a
+ * specific order.
  */
 class ComponentInstaller
 {
     const PLACEMENT_COMPONENT = 1;
     const PLACEMENT_MODULE = 2;
 
+    /**
+     * @var string[] patterns and replacements used based on placement in the
+     *     application configuration.
+     */
     private static $placementPatterns = [
         self::PLACEMENT_COMPONENT => [
             'pattern' => '/^(\s+)(\'modules\'\s*\=\>\s*(array\(|\[))\s*$/m',
@@ -40,9 +63,25 @@ class ComponentInstaller
     ];
 
     /**
-     * @param \Composer\Script\PackageEvent $event
+     * post-package-install event hook.
+     *
+     * This routine exits early if any of the following conditions apply:
+     *
+     * - Executed in non-development mode
+     * - No config/application.config.php is available
+     * - The composer.json does not define one of either extra.zf.component
+     *   or extra.zf.module
+     * - The value used for either extra.zf.component or extra.zf.module are
+     *   empty or not strings.
+     *
+     * Otherwise, it will attempt to update the application configuration
+     * using the value(s) discovered in extra.zf.component and/or extra.zf.module,
+     * writing their values into the `modules` list.
+     *
+     * @param PackageEvent $event
+     * @return void
      */
-    public static function postPackageInstall($event)
+    public static function postPackageInstall(PackageEvent $event)
     {
         $io = $event->getIo();
 
@@ -60,22 +99,37 @@ class ComponentInstaller
         $name  = $package->getName();
         $extra = self::getExtraMetadata($package->getExtra());
 
-        if (isset($extra['module'])) {
+        if (isset($extra['module']) && is_string($extra['module'] && ! empty($extra['module']))) {
             $io->write(sprintf('<info>Installing module %s from package %s</info>', $extra['module'], $name));
             self::addModuleToApplicationConfig($extra['module'], $io, self::PLACEMENT_MODULE);
         }
 
-        if (isset($extra['component'])) {
+        if (isset($extra['component']) && is_string($extra['component'] && ! empty($extra['component']))) {
             $io->write(sprintf('<info>Installing component module %s from package %s</info>', $extra['component'], $name));
             self::addModuleToApplicationConfig($extra['component'], $io, self::PLACEMENT_COMPONENT);
         }
     }
 
     /**
-     * @todo Needs implementation!
-     * @param \Composer\Script\PackageEvent $event
+     * post-package-uninstall event hook
+     *
+     * This routine exits early if any of the following conditions apply:
+     *
+     * - Executed in non-development mode
+     * - No config/application.config.php is available
+     * - The composer.json does not define one of either extra.zf.component
+     *   or extra.zf.module
+     * - The value used for either extra.zf.component or extra.zf.module are
+     *   empty or not strings.
+     *
+     * Otherwise, it will attempt to update the application configuration
+     * using the value(s) discovered in extra.zf.component and/or extra.zf.module,
+     * removing their values from the `modules` list.
+     *
+     * @param PackageEvent $event
+     * @return void
      */
-    public static function postPackageUninstall($event)
+    public static function postPackageUninstall(PackageEvent $event)
     {
         if (! $event->isDevMode()) {
             // Do nothing in production mode.
@@ -105,11 +159,20 @@ class ComponentInstaller
     }
 
     /**
+     * Add a module to the application config, at the specified location.
+     *
+     * If the module is detected in the application config, this method returns
+     * early.
+     *
+     * Otherwise, it reads the application config and injects the module name
+     * based on the $placement provided, writing the changes back to the disk.
+     *
      * @param string $module
-     * @param \Composer\IO\IOInterface $io
+     * @param IOInterface $io
      * @param int $placement One of the PLACEMENT_* constants
+     * @return void
      */
-    private static function addModuleToApplicationConfig($module, $io, $placement)
+    private static function addModuleToApplicationConfig($module, IOInterface $io, $placement)
     {
         $config = file_get_contents('config/application.config.php');
 
@@ -129,10 +192,18 @@ class ComponentInstaller
     }
 
     /**
+     * Add a module to the application config, at the specified location.
+     *
+     * If the module is NOT detected in the application config, this method
+     * returns early.
+     *
+     * Otherwise, it reads the application config and removes the module name,
+     * writing the changes back to the disk.
+     *
      * @param string $module
-     * @param \Composer\IO\IOInterface $io
+     * @param IOInterface $io
      */
-    private static function removeModuleFromApplicationConfig($module, $io)
+    private static function removeModuleFromApplicationConfig($module, IOInterface $io)
     {
         $config = file_get_contents('config/application.config.php');
 
@@ -148,6 +219,8 @@ class ComponentInstaller
     }
 
     /**
+     * Is the module already present in the configuration?
+     *
      * @param string $module
      * @param string $config
      * @return bool
