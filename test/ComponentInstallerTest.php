@@ -16,10 +16,6 @@ use Prophecy\Argument;
 use Zend\ComponentInstaller\ComponentInstaller;
 use Zend\ComponentInstaller\FileInfoStub;
 
-// @codingStandardsIgnoreStart
-require_once __DIR__ . '/TestAsset/functions.php';
-// @codingStandardsIgnoreEnd
-
 class ComponentInstallerTest extends TestCase
 {
     public function setUp()

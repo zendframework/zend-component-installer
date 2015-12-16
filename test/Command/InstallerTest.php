@@ -17,10 +17,6 @@ use Zend\Console\Adapter\AdapterInterface as Console;
 use Zend\Console\ColorInterface as Color;
 use ZF\Console\Route;
 
-// @codingStandardsIgnoreStart
-require_once __DIR__ . '/TestAsset/functions.php';
-// @codingStandardsIgnoreEnd
-
 class InstallerTest extends TestCase
 {
     public $classFilePath;

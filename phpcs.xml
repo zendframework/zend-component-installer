@@ -17,5 +17,8 @@
 
     <!-- Paths to check -->
     <file>src</file>
-    <!-- no tests currently; skip <file>test</file> -->
+    <file>test</file>
+    <exclude-pattern>test/TestAsset/application*.config.php</exclude-pattern>
+    <exclude-pattern>test/TestAsset/functions.php</exclude-pattern>
+    <exclude-pattern>test/Command/TestAsset/functions.php</exclude-pattern>
 </ruleset>
