@@ -2,7 +2,7 @@ vendor/
 .travis/secrets.tar
 .travis/*.pem
 box.json
-component-installer.phar
-component-installer.phar.pubkey
+zend-component-installer.phar
+zend-component-installer.phar.pubkey
 composer.lock
 phpunit.xml
