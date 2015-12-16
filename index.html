@@ -100,8 +100,8 @@
     <h2>Get the PHAR</h2>
 
     <ul>
-      <li><a href="component-installer.phar">component-installer.phar</a></li>
-      <li><a href="component-installer.phar.pubkey">public OpenSSL key (to verify
+      <li><a href="zend-component-installer.phar">zend-component-installer.phar</a></li>
+      <li><a href="zend-component-installer.phar.pubkey">public OpenSSL key (to verify
         the PHAR)</a></li>
     </ul>
 
@@ -111,15 +111,15 @@
 
     <p>
       Once downloaded, make the PHAR executable, and execute
-      <kbd>component-installer.phar help</kbd> to verify that it works.
+      <kbd>zend-component-installer.phar help</kbd> to verify that it works.
     </p>
 
     <h3>Using the PHAR</h3>
 
     <pre><code class="lang-bash" data-trim>
-$ component-installer.phar install
+$ zend-component-installer.phar install
 # Or specify a path to a project
-$ component-installer.phar install /path/to/my/project
+$ zend-component-installer.phar install /path/to/my/project
     </code></pre>
 
     <p>
@@ -138,7 +138,7 @@ $ component-installer.phar install /path/to/my/project
     </p>
 
     <pre><code class="lang-bash" data-trim>
-$ component-installer.phar self-update
+$ zend-component-installer.phar self-update
     </code></pre>
 
     <p>
@@ -153,7 +153,7 @@ $ component-installer.phar self-update
         defaults. <em>You can use the installer with 5.5, just not the
         self-updater.</em></li>
       <li>The command will put a copy of the previous version of the command in
-        the sibling file <code>component-installer-old.phar</code>. This allows
+        the sibling file <code>zend-component-installer-old.phar</code>. This allows
        you to rollback to the previous version should you detect a problem.</li>
     </ul>
 
@@ -161,12 +161,12 @@ $ component-installer.phar self-update
 
     <p>
       When using the PHAR, you can also rollback to a previously installed
-      version, if you have kept the <code>component-installer-old.phar</code>
+      version, if you have kept the <code>zend-component-installer-old.phar</code>
       file:
     </p>
 
     <pre><code class="lang-bash" data-trim>
-$ component-installer.phar rollback
+$ zend-component-installer.phar rollback
     </code></pre>
 
     <hr />
@@ -178,7 +178,7 @@ $ component-installer.phar rollback
     </p>
 
     <pre><code class="lang-bash" data-trim>
-$ composer global require zendframework/component-installer
+$ composer global require zendframework/zend-component-installer
     </code></pre>
 
     <p>
@@ -188,7 +188,7 @@ $ composer global require zendframework/component-installer
     </p>
 
     <pre><code class="lang-bash" data-trim>
-$ component-installer installer [<path>]
+$ zend-component-installer installer [<path>]
     </code></pre>
 
     <h3>Keeping up-to-date</h3>
@@ -198,7 +198,7 @@ $ component-installer installer [<path>]
     </p>
 
     <pre><code class="lang-bash" data-trim>
-$ composer global update zendframework/component-installer
+$ composer global update zendframework/zend-component-installer
     </code></pre>
 
     <hr />
