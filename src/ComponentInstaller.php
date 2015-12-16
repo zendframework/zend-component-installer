@@ -83,8 +83,6 @@ class ComponentInstaller
      */
     public static function postPackageInstall(PackageEvent $event)
     {
-        $io = $event->getIo();
-
         if (! $event->isDevMode()) {
             // Do nothing in production mode.
             return;
@@ -95,16 +93,18 @@ class ComponentInstaller
             return;
         }
 
+
         $package = $event->getOperation()->getPackage();
         $name  = $package->getName();
         $extra = self::getExtraMetadata($package->getExtra());
+        $io = $event->getIO();
 
-        if (isset($extra['module']) && is_string($extra['module'] && ! empty($extra['module']))) {
+        if (isset($extra['module']) && is_string($extra['module']) && ! empty($extra['module'])) {
             $io->write(sprintf('<info>Installing module %s from package %s</info>', $extra['module'], $name));
             self::addModuleToApplicationConfig($extra['module'], $io, self::PLACEMENT_MODULE);
         }
 
-        if (isset($extra['component']) && is_string($extra['component'] && ! empty($extra['component']))) {
+        if (isset($extra['component']) && is_string($extra['component']) && ! empty($extra['component'])) {
             $io->write(sprintf('<info>Installing component module %s from package %s</info>', $extra['component'], $name));
             self::addModuleToApplicationConfig($extra['component'], $io, self::PLACEMENT_COMPONENT);
         }
@@ -141,18 +141,17 @@ class ComponentInstaller
             return;
         }
 
-        $io = $event->getIo();
-
         $package = $event->getOperation()->getPackage();
         $name  = $package->getName();
         $extra = self::getExtraMetadata($package->getExtra());
+        $io = $event->getIO();
 
-        if (isset($extra['module'])) {
+        if (isset($extra['module']) && is_string($extra['module']) && ! empty($extra['module'])) {
             $io->write(sprintf('<info>Uninstalling module %s (from package %s)</info>', $extra['module'], $name));
             self::removeModuleFromApplicationConfig($extra['module'], $io);
         }
 
-        if (isset($extra['component'])) {
+        if (isset($extra['component']) && is_string($extra['component']) && ! empty($extra['component'])) {
             $io->write(sprintf('<info>Uninstalling component module %s (from package %s)</info>', $extra['component'], $name));
             self::removeModuleFromApplicationConfig($extra['component'], $io);
         }
@@ -228,7 +227,7 @@ class ComponentInstaller
     private static function moduleIsRegistered($module, $config)
     {
         return preg_match(
-            '/\'modules\'\s*\=\>\s*(array\(|\[)[^)\]]*\'' . $module . '\'/s',
+            '/\'modules\'\s*\=\>\s*(array\(|\[)[^)\]]*\'' . preg_quote($module) . '\'/s',
             $config
         );
     }
