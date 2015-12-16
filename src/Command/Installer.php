@@ -15,15 +15,24 @@ use ZF\Console\Route;
  */
 class Installer
 {
-    const SCRIPT_POST_PACKAGE_INSTALL = 'Zend\ComponentInstaller\ComponentInstaller::postPackageInstall';
-    const SCRIPT_POST_PACKAGE_UNINSTALL = 'Zend\ComponentInstaller\ComponentInstaller::postPackageUninstall';
+    const SCRIPT_POST_PACKAGE_INSTALL = 'post-package-install';
+    const SCRIPT_POST_PACKAGE_UNINSTALL = 'post-package-uninstall';
+
+    /**
+     * Maps script keys to the handlers
+     * @var string[]
+     */
+    private $scriptMap = [
+        self::SCRIPT_POST_PACKAGE_INSTALL => 'Zend\ComponentInstaller\ComponentInstaller::postPackageInstall',
+        self::SCRIPT_POST_PACKAGE_UNINSTALL => 'Zend\ComponentInstaller\ComponentInstaller::postPackageUninstall',
+    ];
 
     /**
      * @param Route $route
      * @param Console $console
      * @return int
      */
-    public function __invoke(Route$route, Console $console)
+    public function __invoke(Route $route, Console $console)
     {
         $path = $route->getMatchedParam('path', realpath(getcwd()));
 
@@ -37,7 +46,7 @@ class Installer
         }
 
         $copied = copy(
-            __DIR__ . '/../ComponentInstaller.php',
+            realpath(__DIR__ . '/../ComponentInstaller.php'),
             sprintf('%s/ComponentInstaller.php', $installPath)
         );
         if (false === $copied) {
@@ -122,18 +131,19 @@ class Installer
      */
     private function injectScripts(array $composer)
     {
-        if (! isset($composer['scripts']['post-package-install'])) {
-            $composer['scripts']['post-package-install'] = [];
+        foreach ($this->scriptMap as $script => $handler) {
+            if (! isset($composer['scripts'][$script])) {
+                $composer['scripts'][$script] = [];
+            }
+            if (! is_array($composer['scripts'][$script])) {
+                $composer['scripts'][$script] = (array) $composer['scripts'][$script];
+            }
+
+            if (! in_array($handler, $composer['scripts'][$script])) {
+                $composer['scripts'][$script][] = $handler;
+            }
         }
-        if (! isset($composer['scripts']['post-package-uninstall'])) {
-            $composer['scripts']['post-package-uninstall'] = [];
-        }
-        if (! in_array(self::SCRIPT_POST_PACKAGE_INSTALL, $composer['scripts']['post-package-install'])) {
-            $composer['scripts']['post-package-install'][] = self::SCRIPT_POST_PACKAGE_INSTALL;
-        }
-        if (! in_array(self::SCRIPT_POST_PACKAGE_UNINSTALL, $composer['scripts']['post-package-uninstall'])) {
-            $composer['scripts']['post-package-uninstall'][] = self::SCRIPT_POST_PACKAGE_UNINSTALL;
-        }
+
         return $composer;
     }
 

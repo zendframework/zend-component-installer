@@ -105,7 +105,11 @@ class ComponentInstaller
         }
 
         if (isset($extra['component']) && is_string($extra['component']) && ! empty($extra['component'])) {
-            $io->write(sprintf('<info>Installing component module %s from package %s</info>', $extra['component'], $name));
+            $io->write(sprintf(
+                '<info>Installing component module %s from package %s</info>',
+                $extra['component'],
+                $name
+            ));
             self::addModuleToApplicationConfig($extra['component'], $io, self::PLACEMENT_COMPONENT);
         }
     }
@@ -152,7 +156,11 @@ class ComponentInstaller
         }
 
         if (isset($extra['component']) && is_string($extra['component']) && ! empty($extra['component'])) {
-            $io->write(sprintf('<info>Uninstalling component module %s (from package %s)</info>', $extra['component'], $name));
+            $io->write(sprintf(
+                '<info>Uninstalling component module %s (from package %s)</info>',
+                $extra['component'],
+                $name
+            ));
             self::removeModuleFromApplicationConfig($extra['component'], $io);
         }
     }
