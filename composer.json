@@ -1,5 +1,5 @@
 {
-    "name": "zendframework/component-installer",
+    "name": "zendframework/zend-component-installer",
     "description": "Composer scripts for automating component registration in zend-mvc applications",
     "license": "BSD-3-Clause",
     "require": {

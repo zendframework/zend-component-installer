@@ -18,14 +18,14 @@ via a downloadable, self-updateable PHAR.
 To install the utility via Composer:
 
 ```bash
-$ composer global require zendframework/component-installer
+$ composer global require zendframework/zend-component-installer
 ```
 
 Once installed, assuming that the Composer `bin/` directory is on your `$PATH`,
 you can then execute the following:
 
 ```bash
-$ component-installer install <path>
+$ zend-component-installer install <path>
 ```
 
 where `<path>` is the path to a project in which you want to install the
@@ -41,11 +41,11 @@ current working directory should be used.
 
 The PHAR file is downloadable at:
 
-- https://weierophinney.github.io/component-installer/component-installer.phar
+- https://weierophinney.github.io/component-installer/zend-component-installer.phar
 
 The public key for verifying the package is at:
 
-- https://weierophinney.github.io/component-installer/component-installer.phar.pubkey
+- https://weierophinney.github.io/component-installer/zend-component-installer.phar.pubkey
 
 You will need to download both files, to the same directory, for the utility to
 work; additionally, the name of the key must not be changed.. Once downloaded,
@@ -54,7 +54,7 @@ make the the PHAR file executable.
 Once installed, you can then execute the following:
 
 ```bash
-$ component-installer.phar install <path>
+$ zend-component-installer.phar install <path>
 ```
 
 where `<path>` is the path to a project in which you want to install the

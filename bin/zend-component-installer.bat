@@ -6,4 +6,4 @@ GOTO RUN
 :USE_PEAR_PATH
 set PHPBIN=%PHP_PEAR_PHP_BIN%
 :RUN
-"%PHPBIN%" "@bin_dir@\component-installer.php" %*
+"%PHPBIN%" "@bin_dir@\zend-component-installer.php" %*

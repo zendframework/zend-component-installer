@@ -14,7 +14,7 @@ git config --global user.name "Matthew Weier O'Phinney"
 # Get box and build PHAR
 curl -LSs https://box-project.github.io/box2/installer.php | php
 php box.phar build -vv
-mv component-installer.phar component-installer.phar.tmp
+mv zend-component-installer.phar zend-component-installer.phar.tmp
 
 # Add SSH-based remote
 git remote add deploy git@github.com:weierophinney/component-installer.git
@@ -22,9 +22,9 @@ git fetch deploy
 
 # Checkout gh-pages and add PHAR file and version
 git checkout -b gh-pages deploy/gh-pages
-mv component-installer.phar.tmp component-installer.phar
-sha1sum component-installer.phar > component-installer.phar.version
-git add component-installer.phar component-installer.phar.version
+mv zend-component-installer.phar.tmp zend-component-installer.phar
+sha1sum zend-component-installer.phar > zend-component-installer.phar.version
+git add zend-component-installer.phar zend-component-installer.phar.version
 
 # Commit and push
 git commit -m 'Rebuilt phar'
