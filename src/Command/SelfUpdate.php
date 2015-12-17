@@ -17,6 +17,8 @@ use ZF\Console\Route;
  */
 class SelfUpdate
 {
+    use ProvideDetailsTrait;
+
     // @codingStandardsIgnoreStart
     const URL_PHAR = 'https://zendframework.github.io/zend-component-installer/zend-component-installer.phar';
     const URL_VERSION = 'https://zendframework.github.io/zend-component-installer/zend-component-installer.phar.version';
@@ -62,30 +64,5 @@ class SelfUpdate
 
             return 1;
         }
-    }
-
-    /**
-     * Provide execution error details
-     *
-     * @param Exception $exception
-     * @param Console $console
-     */
-    private function provideDetails(Exception $exception, Console $console)
-    {
-        $console->writeLine('Details:');
-
-        do {
-            $console->writeLine(sprintf(
-                '(%d) %s in %s:%d:',
-                $exception->getCode(),
-                $exception->getMessage(),
-                $exception->getFile(),
-                $exception->getLine()
-            ), Color::RED);
-            $trace = $exception->getTraceAsString();
-            $trace = preg_replace('/^/m', '    ', $trace);
-            $trace = preg_replace("/(\r?\n)/s", PHP_EOL, $trace);
-            $console->writeLine($trace);
-        } while ($exception = $exception->getPrevious());
     }
 }

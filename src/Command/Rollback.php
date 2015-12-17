@@ -17,6 +17,8 @@ use ZF\Console\Route;
  */
 class Rollback
 {
+    use ProvideDetailsTrait;
+
     /**
      * @param Route $route
      * @param Console $console
@@ -24,6 +26,8 @@ class Rollback
      */
     public function __invoke(Route $route, Console $console)
     {
+        $verbose = $route->getMatchedParam('verbose', false);
+
         $console->writeLine('Rolling back to a previous installed version...', Color::GREEN);
         $updater = new Updater();
 
@@ -35,6 +39,11 @@ class Rollback
             }
         } catch (Exception $e) {
             $console->writeLine('[ERROR] Could not rollback', Color::RED);
+
+            if ($verbose) {
+                $this->provideDetails($e, $console);
+            }
+
             return 1;
         }
 
