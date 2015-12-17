@@ -29,13 +29,7 @@ class SelfUpdate
      */
     public function __invoke(Route $route, Console $console)
     {
-        if (version_compare(\PHP_VERSION, '5.6', 'lt')) {
-            $console->writeLine(sprintf(
-                'self-update requires PHP >=5.6 (version %s was used); aborting',
-                \PHP_VERSION
-            ), Color::RED);
-            exit(1);
-        }
+        $verbose = $route->getMatchedParam('verbose', false);
 
         $updater = new Updater();
         $updater->getStrategy()->setPharUrl(self::URL_PHAR);
@@ -61,7 +55,37 @@ class SelfUpdate
                 '[ERROR] Could not update',
                 Color::RED
             );
+
+            if ($verbose) {
+                $this->provideDetails($e, $console);
+            }
+
             return 1;
         }
+    }
+
+    /**
+     * Provide execution error details
+     *
+     * @param Exception $exception
+     * @param Console $console
+     */
+    private function provideDetails(Exception $exception, Console $console)
+    {
+        $console->writeLine('Details:');
+
+        do {
+            $console->writeLine(sprintf(
+                '(%d) %s in %s:%d:',
+                $exception->getCode(),
+                $exception->getMessage(),
+                $exception->getFile(),
+                $exception->getLine()
+            ), Color::RED);
+            $trace = $exception->getTraceAsString();
+            $trace = preg_replace('/^/m', '    ', $trace);
+            $trace = preg_replace("/(\r?\n)/s", PHP_EOL, $trace);
+            $console->writeLine($trace);
+        } while ($exception = $exception->getPrevious());
     }
 }
