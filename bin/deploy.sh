@@ -12,8 +12,12 @@ git config --global user.email "matthew+component@weierophinney.net"
 git config --global user.name "Matthew Weier O'Phinney"
 
 # Get box and build PHAR
-curl -LSs https://box-project.github.io/box2/installer.php | php
-php box.phar build -vv
+wget https://box-project.github.io/box2/manifest.json
+BOX_URL=$(php bin/parse-manifest.php manifest.json)
+rm manifest.json
+wget -O box.phar ${BOX_URL}
+chmod 755 box.phar
+./box.phar build -vv
 mv zend-component-installer.phar zend-component-installer.phar.tmp
 
 # Add SSH-based remote
