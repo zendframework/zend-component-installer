@@ -17,8 +17,10 @@ use ZF\Console\Route;
  */
 class SelfUpdate
 {
+    // @codingStandardsIgnoreStart
     const URL_PHAR = 'https://zendframework.github.io/zend-component-installer/zend-component-installer.phar';
     const URL_VERSION = 'https://zendframework.github.io/zend-component-installer/zend-component-installer.phar.version';
+    // @codingStandardsIgnoreEnd
 
     /**
      * @param Route $route
