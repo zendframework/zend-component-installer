@@ -32,11 +32,6 @@ where `<path>` is the path to a project in which you want to install the
 component installer tools. If `<path>` is omitted, the utility assumes the
 current working directory should be used.
 
-> ### Note: Composer installation not yet supported!
->
-> The above is a *planned* feature, but does not work currently, as the package
-> is not yet registered with Packagist.
-
 ## Via PHAR
 
 The PHAR file is downloadable at:
