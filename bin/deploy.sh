@@ -21,7 +21,7 @@ chmod 755 box.phar
 mv zend-component-installer.phar zend-component-installer.phar.tmp
 
 # Add SSH-based remote
-git remote add deploy git@github.com:weierophinney/component-installer.git
+git remote add deploy git@github.com:zendframework/zend-component-installer.git
 git fetch deploy
 
 # Checkout gh-pages and add PHAR file and version
