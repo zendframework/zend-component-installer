@@ -41,11 +41,11 @@ current working directory should be used.
 
 The PHAR file is downloadable at:
 
-- https://weierophinney.github.io/component-installer/zend-component-installer.phar
+- https://zendframework.github.io/zend-component-installer/zend-component-installer.phar
 
 The public key for verifying the package is at:
 
-- https://weierophinney.github.io/component-installer/zend-component-installer.phar.pubkey
+- https://zendframework.github.io/zend-component-installer/zend-component-installer.phar.pubkey
 
 You will need to download both files, to the same directory, for the utility to
 work; additionally, the name of the key must not be changed.. Once downloaded,
