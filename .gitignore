@@ -2,7 +2,9 @@ vendor/
 .travis/secrets.tar
 .travis/*.pem
 box.json
+box.phar
+composer.lock
+manifest.json
+phpunit.xml
 zend-component-installer.phar
 zend-component-installer.phar.pubkey
-composer.lock
-phpunit.xml
