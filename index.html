@@ -16,18 +16,10 @@
   <!-- Optional bootstrap theme via CDN -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
-  <link rel="stylesheet" href="prism.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/prism/1.3.0/themes/prism-twilight.css">
   <style>
     .jumbotron {
       margin-top: 3em;
-    }
-
-    .phar {
-      margin-left: 3em;
-    }
-
-    .composer {
-      margin-right: 2em;
     }
 
     footer {
@@ -65,174 +57,189 @@
     </div>
 
     <div class="row">
-      <div class="col-md-5 col-xs-12 well phar">
-        <h2>Get the PHAR</h2>
+      <div class="col-lg-10 col-lg-offset-1">
+        <div class="row">
 
-        <ul>
-          <li><a href="zend-component-installer.phar">zend-component-installer.phar</a></li>
-          <li><a href="zend-component-installer.phar.pubkey">public OpenSSL key (to verify
-            the PHAR)</a></li>
-        </ul>
+          <div class="col-md-6">
+            <div class="well">
+              <h2>Get the PHAR</h2>
 
-        <p>
-          You'll need to download both files, and they will need to reside together.
-        </p>
+              <ul>
+                <li><a href="zend-component-installer.phar">zend-component-installer.phar</a></li>
+                <li><a href="zend-component-installer.phar.pubkey">public OpenSSL key (to verify
+                  the PHAR)</a></li>
+              </ul>
 
-        <p>
-          Once downloaded, make the PHAR executable, and execute
-          <kbd>zend-component-installer.phar help</kbd> to verify that it works.
-        </p>
+              <p>
+                You'll need to download both files, and they will need to reside together.
+              </p>
 
-        <h3>Using the PHAR</h3>
+              <p>
+                Once downloaded, make the PHAR executable, and execute
+                <kbd>zend-component-installer.phar help</kbd> to verify that it works.
+              </p>
 
-        <pre><code class="lang-bash" data-trim>
+              <h3>Using the PHAR</h3>
+
+              <pre><code class="lang-bash" data-trim>
 $ zend-component-installer.phar install
 # Or specify a path to a project
 $ zend-component-installer.phar install /path/to/my/project
-        </code></pre>
+              </code></pre>
 
-        <p>
-          Once installed, whenever your install a component that implements a module,
-          it will update the <code>config/application.config.php</code> file to add
-          the component to the module list. Components are always added to the top of
-          the list, to ensure that your own modules can override any settings they
-          introduce.
-        </p>
+              <p>
+                Once installed, whenever your install a component that implements a module,
+                it will update the <code>config/application.config.php</code> file to add
+                the component to the module list. Components are always added to the top of
+                the list, to ensure that your own modules can override any settings they
+                introduce.
+              </p>
 
-        <h3>Keeping up-to-date</h3>
+              <h3>Keeping up-to-date</h3>
 
-        <p>
-          Periodically, we may make changes to the tool. To update, you can use the
-          self-update command:
-        </p>
+              <p>
+                Periodically, we may make changes to the tool. To update, you can use the
+                self-update command:
+              </p>
 
-        <pre><code class="lang-bash" data-trim>
+              <pre><code class="lang-bash" data-trim>
 $ zend-component-installer.phar self-update
-        </code></pre>
+              </code></pre>
 
-        <p>
-          Two notes on this command:
-        </p>
+              <p>
+                Two notes on this command:
+              </p>
 
-        <ul>
-          <li>The self-update features require PHP 5.6 or above. This is due to the
-            fact that it is doing SSL/TLS negotiation in order to both check for an
-            update, as well as download the new PHAR file; PHP 5.6 is the first
-            version of PHP that provides proper SSL/TLS negotiation with the shipped
-            defaults. <em>You can use the installer with 5.5, just not the
-            self-updater.</em></li>
-          <li>The command will put a copy of the previous version of the command in
-            the sibling file <code>zend-component-installer-old.phar</code>. This allows
-            you to rollback to the previous version should you detect a problem.</li>
-        </ul>
+              <ul>
+                <li>The self-update features require PHP 5.6 or above. This is due to the
+                  fact that it is doing SSL/TLS negotiation in order to both check for an
+                  update, as well as download the new PHAR file; PHP 5.6 is the first
+                  version of PHP that provides proper SSL/TLS negotiation with the shipped
+                  defaults. <em>You can use the installer with 5.5, just not the
+                    self-updater.</em></li>
+                <li>The command will put a copy of the previous version of the command in
+                  the sibling file <code>zend-component-installer-old.phar</code>. This allows
+                  you to rollback to the previous version should you detect a problem.
+                </li>
+              </ul>
 
-        <h3>Rolling back</h3>
+              <h3>Rolling back</h3>
 
-        <p>
-          When using the PHAR, you can also rollback to a previously installed
-          version, if you have kept the <code>zend-component-installer-old.phar</code>
-          file:
-        </p>
+              <p>
+                When using the PHAR, you can also rollback to a previously installed
+                version, if you have kept the <code>zend-component-installer-old.phar</code>
+                file:
+              </p>
 
-        <pre><code class="lang-bash" data-trim>
+              <pre><code class="lang-bash" data-trim>
 $ zend-component-installer.phar rollback
-        </code></pre>
-      </div>
+              </code></pre>
+            </div>
+          </div>
 
-      <div class="col-md-5 col-md-offset-1 col-xs-12 well composer">
-        <h2>Global Composer Installation</h2>
+          <div class="col-md-6">
+            <div class="well">
+              <h2>Global Composer Installation</h2>
 
-        <p>
-          You can also install the utility as a global Composer package:
-        </p>
+              <p>
+                You can also install the utility as a global Composer package:
+              </p>
 
-        <pre><code class="lang-bash" data-trim>
+              <pre><code class="lang-bash" data-trim>
 $ composer global require zendframework/zend-component-installer
-        </code></pre>
+              </code></pre>
 
-        <p>
-          This will install the package globally. In order to use it, the
-          <code>$COMPOSER_HOME/bin</code> directory must be in your user's
-          <code>$PATH</code>. From there, invocation is:
-        </p>
+              <p>
+                This will install the package globally. In order to use it, the
+                <code>$COMPOSER_HOME/bin</code> directory must be in your user's
+                <code>$PATH</code>. From there, invocation is:
+              </p>
 
-        <pre><code class="lang-bash" data-trim>
+              <pre><code class="lang-bash" data-trim>
 $ zend-component-installer install [&lt;path&gt;]
-        </code></pre>
+              </code></pre>
 
-        <h3>Keeping up-to-date</h3>
+              <h3>Keeping up-to-date</h3>
 
-        <p>
-          To keep your utility up-to-date, periodically perform the following:
-        </p>
+              <p>
+                To keep your utility up-to-date, periodically perform the following:
+              </p>
 
-        <pre><code class="lang-bash" data-trim>
+              <pre><code class="lang-bash" data-trim>
 $ composer global update zendframework/zend-component-installer
-        </code></pre>
+              </code></pre>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
 
     <div class="row">
-      <div class="col-md-10 col-md-offset-1 col-xs-12 well">
+      <div class="col-lg-10 col-lg-offset-1">
+        <div class="well">
 
-        <h2>Defining a component that implements a module</h2>
+          <h2>Defining a component that implements a module</h2>
 
-        <p>
-          There are two things you must do to have your package opt-in to this
-          workflow:
-        </p>
+          <p>
+            There are two things you must do to have your package opt-in to this
+            workflow:
+          </p>
 
-        <ul>
-          <li>The component must have a <code>Module</code> class in the namespace it
-            defines.</li>
-          <li>The <code>composer.json</code> must specify the component namespace in the
-            <code>extra.zf</code> section:
-            <pre><code class="lang-javascript" data-trim>
+          <ul>
+            <li>The component must have a <code>Module</code> class in the namespace it
+              defines.
+            </li>
+            <li>The <code>composer.json</code> must specify the component namespace in the
+              <code>extra.zf</code> section:
+              <pre><code class="lang-javascript" data-trim>
 "extra": {
   "zf": {
     "component": "Some\Component"
   }
 }
-            </code></pre>
-          </li>
-        </ul>
+              </code></pre>
+            </li>
+          </ul>
 
-        <p>
-          Component modules are placed at the <em>top</em> of the module list, so
-          that userland modules may override the defaults they provide.
-        </p>
+          <p>
+            Component modules are placed at the <em>top</em> of the module list, so
+            that userland modules may override the defaults they provide.
+          </p>
 
-        <h2>Defining a userland module</h2>
+          <h2>Defining a userland module</h2>
 
-        <p>
-          There are two things you must do to have your package opt-in to this
-          workflow:
-        </p>
+          <p>
+            There are two things you must do to have your package opt-in to this
+            workflow:
+          </p>
 
-        <ul>
-          <li>The module must have a <code>Module</code> class in the namespace it
-            defines.</li>
-          <li>The <code>composer.json</code> must specify the module namespace in the
-            <code>extra.zf</code> section:
-            <pre><code class="lang-javascript" data-trim>
+          <ul>
+            <li>The module must have a <code>Module</code> class in the namespace it
+              defines.
+            </li>
+            <li>The <code>composer.json</code> must specify the module namespace in the
+              <code>extra.zf</code> section:
+                <pre><code class="lang-javascript" data-trim>
 "extra": {
   "zf": {
     "module": "Some\Component"
   }
 }
-            </code></pre>
-          </li>
-        </ul>
+                </code></pre>
+            </li>
+          </ul>
 
-        <p>
-          Userland modules are placed at the <em>bottom</em> of the module list, so
-          that their settings may override component settings.
-        </p>
+          <p>
+            Userland modules are placed at the <em>bottom</em> of the module list, so
+            that their settings may override component settings.
+          </p>
+        </div>
       </div>
     </div>
 
     <div class="row">
-      <div class="col-md-12 col-xs-12">
+      <div class="col-lg-10 col-lg-offset-1">
         <h2>Why?</h2>
 
         <p>
@@ -257,11 +264,13 @@ $ composer global update zendframework/zend-component-installer
         <ul>
           <li>If the code is in a package on which the project depends, a warning
             is emitted for each package installed until the package containing the
-            scripts is processed. This will likely raise a lot of support questions.</li>
+            scripts is processed. This will likely raise a lot of support questions.
+          </li>
           <li>If the event hook classes are present inside the project, they <em>must</em>
             be autoloadable. Additionally, the must <em>always</em> be autoloadable;
             you cannot define a <code>autoload-dev</code> rule for the
-            classes/namespaces; only a production one will work.</li>
+            classes/namespaces; only a production one will work.
+          </li>
         </ul>
 
         <p>
@@ -287,7 +296,7 @@ $ composer global update zendframework/zend-component-installer
 
   <footer class="container-fluid">
     <div class="row">
-      <div class="col-xs-12 col-md-6 col-md-offset-3">
+      <div class="col-md-6 col-md-offset-3">
         &copy; 2015, Zend Technologies Ltd
       </div>
     </div>
@@ -297,6 +306,7 @@ $ composer global update zendframework/zend-component-installer
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <!-- Bootstrap JS via CDN -->
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-  <script src="prism.js"></script>
+  <!-- PrismJS via jsDelivr -->
+  <script src="https://cdn.jsdelivr.net/g/prism@1.3.0(prism.js+components/prism-php.min.js+components/prism-markup.min.js+components/prism-javascript.min.js+components/prism-bash.min.js+components/prism-clike.min.js+plugins/remove-initial-line-feed/prism-remove-initial-line-feed.min.js)"></script>
 </body>
 </html>
