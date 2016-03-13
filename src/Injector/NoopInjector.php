@@ -13,11 +13,23 @@ class NoopInjector implements InjectorInterface
     /**
      * {@inheritDoc}
      *
-     * @return false
+     * @return true
      */
     public function registersType($type)
     {
-        return false;
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getTypesAllowed()
+    {
+        return [
+            self::TYPE_CONFIG_PROVIDER,
+            self::TYPE_COMPONENT,
+            self::TYPE_MODULE,
+        ];
     }
 
     /**

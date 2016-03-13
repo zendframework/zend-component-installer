@@ -23,6 +23,13 @@ interface InjectorInterface
     public function registersType($type);
 
     /**
+     * Return a list of types the injector handles.
+     *
+     * @return int[]
+     */
+    public function getTypesAllowed();
+
+    /**
      * Register a package with the configuration.
      *
      * @param string $package Package to inject into configuration.

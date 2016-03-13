@@ -6,41 +6,47 @@
 
 namespace Zend\ComponentInstaller;
 
+use Composer\Installer\InstallerEvent;
 use Composer\IO\IOInterface;
+use Composer\Script\Event as CommandEvent;
 use Composer\Script\PackageEvent;
 
 /**
  * If a package represents a component module, update the application configuration.
  *
- * Packages opt-in to this workflow by defining one or both of the keys:
+ * Packages opt-in to this workflow by defining one or more of the keys:
  *
  * - extra.zf.component
  * - extra.zf.module
+ * - extra.zf.config-provider
  *
  * with the value being the string namespace the component and/or module
- * defines:
+ * defines, or, in the case of config-provider, the fully qualified class name
+ * of the provider:
  *
  * <code class="lang-javascript">
  * {
  *   "extra": {
  *     "zf": {
  *       "component": "Zend\\Form",
- *       "module": "ZF\\Apigility\\ContentNegotiation"
+ *       "module": "ZF\\Apigility\\ContentNegotiation",
+ *       "config-provider": "Zend\\Expressive\\PlatesRenderer\\ConfigProvider"
  *     }
  *   }
  * }
  * </code>
  *
- * Additionally, for this to work correctly, the package MUST define a `Module`
- * in the namespace listed in either the extra.zf.component or extra.zf.module
- * definition.
+ * With regards to components and modules, for this to work correctly, the
+ * package MUST define a `Module` in the namespace listed in either the
+ * extra.zf.component or extra.zf.module definition.
  *
  * Components are added to the TOP of the modules list, to ensure that userland
  * code and/or modules can override the settings. Modules are added to the
- * bottom of the modules list.
+ * BOTTOM of the modules list. Config providers are added to the TOP of
+ * configuration providers.
  *
- * In either case, you can edit the modules list when complete to create a
- * specific order.
+ * In either case, you can edit the appropriate configuration file when
+ * complete to create a specific order.
  */
 class ComponentInstaller
 {
@@ -54,6 +60,34 @@ class ComponentInstaller
         Injector\InjectorInterface::TYPE_COMPONENT => 'component',
         Injector\InjectorInterface::TYPE_MODULE => 'module',
     ];
+
+    /**
+     * post-dependencies-solving event hook: prepare the injector cache.
+     *
+     * Removes any existing installer cache in order to ensure any prompts to
+     * remember selections are only current for this install event.
+     *
+     * @param InstallerEvent $event
+     * @return void
+     */
+    public static function postDependenciesSolving(InstallerEvent $event)
+    {
+        InjectorCache::removeInstallerCache();
+    }
+
+    /**
+     * pre-autoload-dump event hook: remove the injector cache.
+     *
+     * Removes any existing installer cache in order to ensure any prompts to
+     * remember selections are forgotten after this install.
+     *
+     * @param CommandEvent $event
+     * @return void
+     */
+    public static function preAutoloadDump(CommandEvent $event)
+    {
+        InjectorCache::removeInstallerCache();
+    }
 
     /**
      * post-package-install event hook.
@@ -94,7 +128,7 @@ class ComponentInstaller
             return;
         }
 
-        $injector = self::promptForConfigOption($name, $options, $io);
+        $injector = self::promptForConfigOption($name, $options, $packageTypes, $io);
         self::injectPackageIntoConfig($name, $extra, $injector, $io);
     }
 
@@ -177,11 +211,16 @@ class ComponentInstaller
      *
      * @param string $name
      * @param ConfigOption[] $options
+     * @param int[] $packageTypes
      * @param IOInterface $io
      * @return Injector\InjectorInterface
      */
-    private static function promptForConfigOption($name, array $options, IOInterface $io)
+    private static function promptForConfigOption($name, array $options, array $packageTypes, IOInterface $io)
     {
+        if ($cachedInjector = InjectorCache::getCachedInjector($packageTypes)) {
+            return $cachedInjector;
+        }
+
         $ask = [sprintf(
             "\n  <question>Please select which config file you wish to inject '%s' into:</question>\n",
             $name
@@ -201,10 +240,42 @@ class ComponentInstaller
             $answer = $io->ask($ask, 0);
 
             if (is_numeric($answer) && isset($options[(int) $answer])) {
+                self::promptToRememberOption($options[(int) $answer]->getInjector(), $packageTypes, $io);
                 return $options[(int) $answer]->getInjector();
             }
 
             $io->write('<error>Invalid selection</error>');
+        }
+    }
+
+    /**
+     * Prompt the user to determine if the selection should be remembered for later packages.
+     *
+     * @todo Will need to store selection in filesystem and remove when all packages are complete
+     * @param Injector\InjectorInterface $injector
+     * @param int[] $packageTypes
+     * @param IOInterface $io
+     * return void
+     */
+    private static function promptToRememberOption(
+        Injector\InjectorInterface $injector,
+        array $packageTypes,
+        IOInterface $io
+    ) {
+        $ask = ["\n  <question>Remember this option for other packages of the same type? (y/N)</question>"];
+
+        while (true) {
+            $answer = strtolower($io->ask($ask, 'n'));
+
+            switch ($answer) {
+                case 'y':
+                    InjectorCache::cacheInjector($injector);
+                    return;
+                case 'n':
+                    // intentionaly fall-through
+                default:
+                    return;
+            }
         }
     }
 

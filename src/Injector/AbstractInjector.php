@@ -110,6 +110,14 @@ abstract class AbstractInjector implements InjectorInterface
     /**
      * {@inheritDoc}
      */
+    public function getTypesAllowed()
+    {
+        return $this->allowedTypes;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function inject($package, $type, IOInterface $io)
     {
         $config = file_get_contents($this->configFile);
