@@ -37,22 +37,24 @@ class ConfigDiscovery
      *
      * @param array $availableTypes List of TYPE_* constants indicating valid
      *     package types that could be injected.
+     * @param string $projectRoot Path to the project root; assumes PWD by
+     *     default.
      * @return ConfigOption[]
      */
-    public function getAvailableConfigOptions(array $availableTypes)
+    public function getAvailableConfigOptions(array $availableTypes, $projectRoot = '')
     {
         $discovered = [
             new ConfigOption('Do not inject', new Injector\NoopInjector()),
         ];
 
         foreach ($this->discovery as $file => $discoveryClass) {
-            $discovery = new $discoveryClass();
+            $discovery = new $discoveryClass($projectRoot);
             if (! $discovery->locate()) {
                 continue;
             }
 
             $injectorClass = $this->injectors[$file];
-            $injector = new $injectorClass();
+            $injector = new $injectorClass($projectRoot);
 
             if (! $this->injectorCanRegisterAvailableType($injector, $availableTypes)) {
                 continue;
