@@ -27,23 +27,25 @@ class ExpressiveConfigInjector extends AbstractInjector
     /**
      * Patterns and replacements to use when registering a code item.
      *
+     * Pattern is set in constructor due to PCRE quoting issues.
+     *
      * @var string[]
      */
     protected $injectionPatterns = [
         self::TYPE_CONFIG_PROVIDER => [
-            'pattern' => '/(new (?:\\?Zend\\Expressive\\ConfigManager\\\\)?ConfigManager\(\s*(?:array\(|\[)\s*)$/m',
+            'pattern'     => '',
             'replacement' => "\$1\n    %s::class,",
         ],
     ];
 
-    // @codingStandardsIgnoreStart
     /**
      * Pattern to use to determine if the code item is registered.
      *
+     * Set in constructor due to PCRE quoting issues.
+     *
      * @var string
      */
-    protected $isRegisteredPattern = '/new (?:\\?Zend\\Expressive\\ConfigManager\\\\)?ConfigManager\(\s*(?:array\(|\[).*\s+%s::class/s';
-    // @codingStandardsIgnoreEnd
+    protected $isRegisteredPattern = '';
 
     /**
      * Patterns and replacements to use when removing a code item.
@@ -51,9 +53,32 @@ class ExpressiveConfigInjector extends AbstractInjector
      * @var string[]
      */
     protected $removalPatterns = [
-        'pattern' => '/^\s+%s::class,\s*$/m',
+        'pattern'     => '/^\s+%s::class,\s*$/m',
         'replacement' => '',
     ];
+
+    /**
+     * {@inheritDoc}
+     *
+     * Sets $isRegisteredPattern and pattern for $injectionPatterns to ensure
+     * proper PCRE quoting.
+     */
+    public function __construct($projectRoot = '')
+    {
+        $this->isRegisteredPattern = '/new (?:'
+            . preg_quote('\\')
+            . '?'
+            . preg_quote('Zend\Expressive\ConfigManager\\')
+            . ')?ConfigManager\(\s*(?:array\(|\[).*\s+%s::class/s';
+
+        $this->injectionPatterns[self::TYPE_CONFIG_PROVIDER]['pattern'] = sprintf(
+            '/(new (?:%s?%s)?ConfigManager\(\s*(?:array\(|\[)\s*)$/m',
+            preg_quote('\\'),
+            preg_quote('Zend\Expressive\ConfigManager\\')
+        );
+
+        parent::__construct($projectRoot);
+    }
 
     /**
      * {@inheritDoc}

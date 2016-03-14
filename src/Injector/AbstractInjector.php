@@ -100,6 +100,21 @@ abstract class AbstractInjector implements InjectorInterface
     protected $removalPatterns = [];
 
     /**
+     * Constructor
+     *
+     * Optionally accept the project root directory; if non-empty, it is used
+     * to prefix the $configFile.
+     *
+     * @param string $projectRoot
+     */
+    public function __construct($projectRoot = '')
+    {
+        if (is_string($projectRoot) && ! empty($projectRoot)) {
+            $this->configFile = sprintf('%s/%s', $projectRoot, $this->configFile);
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function registersType($type)
@@ -165,6 +180,8 @@ abstract class AbstractInjector implements InjectorInterface
         );
 
         file_put_contents($this->configFile, $config);
+
+        $io->write(sprintf('<info>    Removed package from %s</info>', $this->configFile));
     }
 
     /**
