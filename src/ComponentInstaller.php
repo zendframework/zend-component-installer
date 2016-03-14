@@ -6,8 +6,11 @@
 
 namespace Zend\ComponentInstaller;
 
+use Composer\Composer;
+use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Installer\InstallerEvent;
 use Composer\IO\IOInterface;
+use Composer\Plugin\PluginInterface;
 use Composer\Script\Event as CommandEvent;
 use Composer\Script\PackageEvent;
 
@@ -48,45 +51,86 @@ use Composer\Script\PackageEvent;
  * In either case, you can edit the appropriate configuration file when
  * complete to create a specific order.
  */
-class ComponentInstaller
+class ComponentInstaller implements
+    EventSubscriberInterface,
+    PluginInterface
 {
+    /**
+     * Cached injectors to re-use for packages installed later in the current process.
+     *
+     * @var Injector\InjectorInterface[]
+     */
+    private $cachedInjectors = [];
+
+    /**
+     * @var Composer
+     */
+    private $composer;
+
+    /**
+     * @var IOInterface
+     */
+    private $io;
+
     /**
      * Map of known package types to composer config keys.
      *
      * @param array
      */
-    private static $packageTypes = [
+    private $packageTypes = [
         Injector\InjectorInterface::TYPE_CONFIG_PROVIDER => 'config-provider',
         Injector\InjectorInterface::TYPE_COMPONENT => 'component',
         Injector\InjectorInterface::TYPE_MODULE => 'module',
     ];
 
     /**
-     * post-dependencies-solving event hook: prepare the injector cache.
+     * Project root in which to install.
      *
-     * Removes any existing installer cache in order to ensure any prompts to
-     * remember selections are only current for this install event.
-     *
-     * @param InstallerEvent $event
-     * @return void
+     * @var string
      */
-    public static function postDependenciesSolving(InstallerEvent $event)
+    private $projectRoot;
+
+    /**
+     * Constructor
+     *
+     * Optionally accept the project root into which to install.
+     *
+     * @param string $projectRoot
+     */
+    public function __construct($projectRoot = '')
     {
-        InjectorCache::removeInstallerCache();
+        if (is_string($projectRoot) && ! empty($projectRoot) && is_dir($projectRoot)) {
+            $this->projectRoot = $projectRoot;
+        }
     }
 
     /**
-     * pre-autoload-dump event hook: remove the injector cache.
+     * Activate plugin.
      *
-     * Removes any existing installer cache in order to ensure any prompts to
-     * remember selections are forgotten after this install.
+     * Does nothing.
      *
-     * @param CommandEvent $event
+     * @param Composer $composer
+     * @param IOInterface $io
      * @return void
      */
-    public static function preAutoloadDump(CommandEvent $event)
+    public function activate(Composer $composer, IOInterface $io)
     {
-        InjectorCache::removeInstallerCache();
+        $this->composer        = $composer;
+        $this->io              = $io;
+        $this->cachedInjectors = [];
+    }
+
+    /**
+     * Return list of event handlers in this class.
+     *
+     * @return array
+     */
+    public static function getSubscribedEvents()
+    {
+        return [
+            'post-package-install'      => 'onPostPackageInstall',
+            'post-package-uninstall'    => 'onPostPackageUninstall',
+        ];
     }
 
     /**
@@ -108,7 +152,7 @@ class ComponentInstaller
      * @param PackageEvent $event
      * @return void
      */
-    public static function postPackageInstall(PackageEvent $event)
+    public function onPostPackageInstall(PackageEvent $event)
     {
         if (! $event->isDevMode()) {
             // Do nothing in production mode.
@@ -118,18 +162,24 @@ class ComponentInstaller
 
         $package = $event->getOperation()->getPackage();
         $name  = $package->getName();
-        $extra = self::getExtraMetadata($package->getExtra());
-        $io = $event->getIO();
-        $packageTypes = self::discoverPackageTypes($extra);
-        $options = (new ConfigDiscovery())->getAvailableConfigOptions($packageTypes);
+        $extra = $this->getExtraMetadata($package->getExtra());
+
+        if (empty($extra)) {
+            // Package does not define anything of interest; do nothing.
+            return;
+        }
+
+        $packageTypes = $this->discoverPackageTypes($extra);
+        $options = (new ConfigDiscovery())
+            ->getAvailableConfigOptions($packageTypes, $this->projectRoot);
 
         if (empty($options)) {
             // No configuration options found; do nothing.
             return;
         }
 
-        $injector = self::promptForConfigOption($name, $options, $packageTypes, $io);
-        self::injectPackageIntoConfig($name, $extra, $injector, $io);
+        $injector = $this->promptForConfigOption($name, $options, $packageTypes);
+        $this->injectPackageIntoConfig($name, $extra, $injector);
     }
 
     /**
@@ -151,14 +201,15 @@ class ComponentInstaller
      * @param PackageEvent $event
      * @return void
      */
-    public static function postPackageUninstall(PackageEvent $event)
+    public function onPostPackageUninstall(PackageEvent $event)
     {
         if (! $event->isDevMode()) {
             // Do nothing in production mode.
             return;
         }
 
-        $options = (new ConfigDiscovery())->getAvailableConfigOptions(array_keys(self::$packageTypes));
+        $options = (new ConfigDiscovery())
+            ->getAvailableConfigOptions(array_keys($this->packageTypes), $this->projectRoot);
 
         if (empty($options)) {
             // No configuration options found; do nothing.
@@ -167,9 +218,8 @@ class ComponentInstaller
 
         $package = $event->getOperation()->getPackage();
         $name  = $package->getName();
-        $extra = self::getExtraMetadata($package->getExtra());
-        $io = $event->getIO();
-        self::removePackageFromConfig($name, $extra, $options, $io);
+        $extra = $this->getExtraMetadata($package->getExtra());
+        $this->removePackageFromConfig($name, $extra, $options);
     }
 
     /**
@@ -178,7 +228,7 @@ class ComponentInstaller
      * @param array $extra
      * @return array
      */
-    private static function getExtraMetadata(array $extra)
+    private function getExtraMetadata(array $extra)
     {
         return isset($extra['zf']) && is_array($extra['zf'])
             ? $extra['zf']
@@ -193,9 +243,9 @@ class ComponentInstaller
      * @param string[] $extra
      * @return int[] Array of Injector\InjectorInterface::TYPE_* constants.
      */
-    private static function discoverPackageTypes(array $extra)
+    private function discoverPackageTypes(array $extra)
     {
-        $packageTypes = array_flip(self::$packageTypes);
+        $packageTypes = array_flip($this->packageTypes);
         $discoveredTypes = [];
         foreach (array_keys($extra) as $type) {
             if (! in_array($type, array_keys($packageTypes), true)) {
@@ -212,12 +262,11 @@ class ComponentInstaller
      * @param string $name
      * @param ConfigOption[] $options
      * @param int[] $packageTypes
-     * @param IOInterface $io
      * @return Injector\InjectorInterface
      */
-    private static function promptForConfigOption($name, array $options, array $packageTypes, IOInterface $io)
+    private function promptForConfigOption($name, array $options, array $packageTypes)
     {
-        if ($cachedInjector = InjectorCache::getCachedInjector($packageTypes)) {
+        if ($cachedInjector = $this->getCachedInjector($packageTypes)) {
             return $cachedInjector;
         }
 
@@ -237,14 +286,14 @@ class ComponentInstaller
         $ask[] = '  Make your selection (default is <comment>0</comment>):';
 
         while (true) {
-            $answer = $io->ask($ask, 0);
+            $answer = $this->io->ask($ask, 0);
 
             if (is_numeric($answer) && isset($options[(int) $answer])) {
-                self::promptToRememberOption($options[(int) $answer]->getInjector(), $packageTypes, $io);
+                $this->promptToRememberOption($options[(int) $answer]->getInjector(), $packageTypes);
                 return $options[(int) $answer]->getInjector();
             }
 
-            $io->write('<error>Invalid selection</error>');
+            $this->io->write('<error>Invalid selection</error>');
         }
     }
 
@@ -254,22 +303,18 @@ class ComponentInstaller
      * @todo Will need to store selection in filesystem and remove when all packages are complete
      * @param Injector\InjectorInterface $injector
      * @param int[] $packageTypes
-     * @param IOInterface $io
      * return void
      */
-    private static function promptToRememberOption(
-        Injector\InjectorInterface $injector,
-        array $packageTypes,
-        IOInterface $io
-    ) {
+    private function promptToRememberOption(Injector\InjectorInterface $injector, array $packageTypes)
+    {
         $ask = ["\n  <question>Remember this option for other packages of the same type? (y/N)</question>"];
 
         while (true) {
-            $answer = strtolower($io->ask($ask, 'n'));
+            $answer = strtolower($this->io->ask($ask, 'n'));
 
             switch ($answer) {
                 case 'y':
-                    InjectorCache::cacheInjector($injector);
+                    $this->cacheInjector($injector);
                     return;
                 case 'n':
                     // intentionaly fall-through
@@ -285,26 +330,21 @@ class ComponentInstaller
      * @param string $package Package name
      * @param array $metadata Package metadata with potential injections.
      * @param Injector\InjectorInterface $injector Injector to use.
-     * @param IOInterface $io
      * @return void
      */
-    private static function injectPackageIntoConfig(
-        $package,
-        array $metadata,
-        Injector\InjectorInterface $injector,
-        IOInterface $io
-    ) {
-        foreach (self::$packageTypes as $type => $key) {
+    private function injectPackageIntoConfig($package, array $metadata, Injector\InjectorInterface $injector)
+    {
+        foreach ($this->packageTypes as $type => $key) {
             if (! $injector->registersType($type)) {
                 continue;
             }
 
-            if (! self::metadataKeyIsValid($key, $metadata)) {
+            if (! $this->metadataKeyIsValid($key, $metadata)) {
                 continue;
             }
 
-            $io->write(sprintf('<info>Installing %s from package %s</info>', $metadata[$key], $package));
-            $injector->inject($metadata[$key], $type, $io);
+            $this->io->write(sprintf('<info>Installing %s from package %s</info>', $metadata[$key], $package));
+            $injector->inject($metadata[$key], $type, $this->io);
         }
     }
 
@@ -315,16 +355,11 @@ class ComponentInstaller
      * @param ConfigOption[] $configOptions Discovered configuration locations
      *     to remove package from.
      * @param Injector\InjectorInterface $injector Injector to use.
-     * @param IOInterface $io
      * @return void
      */
-    private static function removePackageFromConfig(
-        $package,
-        array $metadata,
-        array $configOptions,
-        IOInterface $io
-    ) {
-        foreach (self::$packageTypes as $type => $key) {
+    private function removePackageFromConfig($package, array $metadata, array $configOptions)
+    {
+        foreach ($this->packageTypes as $type => $key) {
             foreach ($configOptions as $configOption) {
                 $injector = $configOption->getInjector();
 
@@ -332,12 +367,12 @@ class ComponentInstaller
                     continue;
                 }
 
-                if (! self::metadataKeyIsValid($key, $metadata)) {
+                if (! $this->metadataKeyIsValid($key, $metadata)) {
                     continue;
                 }
 
-                $io->write(sprintf('<info>Removing %s from package %s</info>', $metadata[$key], $package));
-                $injector->remove($metadata[$key], $type, $io);
+                $this->io->write(sprintf('<info>Removing %s from package %s</info>', $metadata[$key], $package));
+                $injector->remove($metadata[$key], $type, $this->io);
             }
         }
     }
@@ -349,8 +384,42 @@ class ComponentInstaller
      * @param array $metadata
      * @return bool
      */
-    private static function metadataKeyIsValid($key, array $metadata)
+    private function metadataKeyIsValid($key, array $metadata)
     {
         return (isset($metadata[$key]) && is_string($metadata[$key]) && ! empty($metadata[$key]));
+    }
+
+    /**
+     * Attempt to retrieve a cached injector, based on the current package types.
+     *
+     * @param int[] $packageTypes
+     * @return null|Injector\InjectorInterface
+     */
+    private function getCachedInjector(array $packageTypes)
+    {
+        foreach ($packageTypes as $type) {
+            if (! isset($this->cachedInjectors[$type])) {
+                continue;
+            }
+
+            return $this->cachedInjectors[$type];
+        }
+    }
+
+    /**
+     * Cache an injector for later use.
+     *
+     * @param Injector\InjectorInterface $injector
+     * @parram int[] $packageTypes
+     * @return void
+     */
+    private function cacheInjector(Injector\InjectorInterface $injector)
+    {
+        foreach ($injector->getTypesAllowed() as $type) {
+            if (isset($this->cachedInjectors[$type])) {
+                continue;
+            }
+            $this->cachedInjectors[$type] = $injector;
+        }
     }
 }

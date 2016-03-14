@@ -18,7 +18,5 @@
     <!-- Paths to check -->
     <file>src</file>
     <file>test</file>
-    <exclude-pattern>test/TestAsset/application*.config.php</exclude-pattern>
-    <exclude-pattern>test/TestAsset/functions.php</exclude-pattern>
-    <exclude-pattern>test/Command/TestAsset/functions.php</exclude-pattern>
+    <exclude-pattern>test/Injector/TestAsset/*.php</exclude-pattern>
 </ruleset>

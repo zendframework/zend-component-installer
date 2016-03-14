@@ -6,6 +6,9 @@
 
 namespace ZendTest\ComponentInstaller;
 
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
+use Composer\Composer;
 use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\IO\IOInterface;
@@ -18,37 +21,39 @@ use Zend\ComponentInstaller\FileInfoStub;
 
 class ComponentInstallerTest extends TestCase
 {
+    private $projectRoot;
+
     public function setUp()
     {
-        FileInfoStub::clear();
+        $this->projectRoot = vfsStream::setup('project');
+        $this->installer = new ComponentInstaller(vfsStream::url('project'));
+
+        $this->io = $this->prophesize(IOInterface::class);
+        $this->installer->activate(
+            $this->prophesize(Composer::class)->reveal(),
+            $this->io->reveal()
+        );
     }
 
-    public function testPostPackageInstallReturnsEarlyIfEventIsNotInDevMode()
+    public function createApplicationConfig($contents = null)
+    {
+        $contents = $contents ?: '<' . "?php\nreturn [\n    'modules' => [\n    ]\n];";
+        vfsStream::newFile('config/application.config.php')
+            ->at($this->projectRoot)
+            ->setContent($contents);
+    }
+
+    public function testOnPostPackageInstallReturnsEarlyIfEventIsNotInDevMode()
     {
         $event = $this->prophesize(PackageEvent::class);
         $event->isDevMode()->willReturn(false);
         $event->getOperation()->shouldNotBeCalled();
-        $event->getIO()->shouldNotBeCalled();
 
-        $this->assertNull(ComponentInstaller::postPackageInstall($event->reveal()));
-        $this->assertSame(0, FileInfoStub::getInvocationCount('exists'));
-    }
-
-    public function testPostPackageInstallReturnsEarlyIfApplicationConfigIsMissing()
-    {
-        $event = $this->prophesize(PackageEvent::class);
-        $event->isDevMode()->willReturn(true);
-        $event->getOperation()->shouldNotBeCalled();
-        $event->getIO()->shouldNotBeCalled();
-
-        $this->assertNull(ComponentInstaller::postPackageInstall($event->reveal()));
-        $this->assertSame(1, FileInfoStub::getInvocationCount('exists'));
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
     }
 
     public function testPostPackageInstallDoesNothingIfComposerExtraIsEmpty()
     {
-        FileInfoStub::defineFile('config/application.config.php');
-
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
         $package->getExtra()->willReturn([]);
@@ -56,476 +61,239 @@ class ComponentInstallerTest extends TestCase
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
 
-        $io = $this->prophesize(IOInterface::class);
-
         $event = $this->prophesize(PackageEvent::class);
         $event->isDevMode()->willReturn(true);
         $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
 
-        $this->assertNull(ComponentInstaller::postPackageInstall($event->reveal()));
-        $this->assertSame(1, FileInfoStub::getInvocationCount('exists'));
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
     }
 
-    public function testPostPackageInstallDoesNothingIfComposerExtraDoesNotContainZFSection()
+    public function testOnPostPackageInstallReturnsEarlyIfApplicationConfigIsMissing()
     {
-        FileInfoStub::defineFile('config/application.config.php');
-
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['branch-alias' => ['master' => '1.0-dev']]);
+        $package->getExtra()->willReturn(['zf' => [
+            'component' => 'Some\\Component',
+            'config-provider' => 'Some\\Component\\ConfigProvider',
+            'module' => 'Some\\Component',
+        ]]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
 
-        $io = $this->prophesize(IOInterface::class);
-
         $event = $this->prophesize(PackageEvent::class);
         $event->isDevMode()->willReturn(true);
         $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
 
-        $this->assertNull(ComponentInstaller::postPackageInstall($event->reveal()));
-        $this->assertSame(1, FileInfoStub::getInvocationCount('exists'));
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
     }
 
     public function testPostPackageInstallDoesNothingIfZFExtraSectionDoesNotContainComponentOrModule()
     {
-        FileInfoStub::defineFile('config/application.config.php');
+        $package = $this->prophesize(PackageInterface::class);
+        $package->getName()->willReturn('some/component');
+        $package->getExtra()->willReturn(['zf' => []]);
+
+        $operation = $this->prophesize(InstallOperation::class);
+        $operation->getPackage()->willReturn($package->reveal());
+
+        $event = $this->prophesize(PackageEvent::class);
+        $event->isDevMode()->willReturn(true);
+        $event->getOperation()->willReturn($operation->reveal());
+
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
+    }
+
+    public function testOnPostPackageInstallPromptsForConfigOptions()
+    {
+        $this->createApplicationConfig();
 
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['zf' => ['unknown' => 'operation']]);
-
-        $operation = $this->prophesize(InstallOperation::class);
-        $operation->getPackage()->willReturn($package->reveal());
-
-        $io = $this->prophesize(IOInterface::class);
-
-        $event = $this->prophesize(PackageEvent::class);
-        $event->isDevMode()->willReturn(true);
-        $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
-
-        $this->assertNull(ComponentInstaller::postPackageInstall($event->reveal()));
-        $this->assertSame(1, FileInfoStub::getInvocationCount('exists'));
-    }
-
-    public function testPostPackageInstallAddsListedModuleToEndOfApplicationConfig()
-    {
-        FileInfoStub::defineFile(
-            'config/application.config.php',
-            \file_get_contents(__DIR__ . '/TestAsset/application.config.php')
-        );
-
-        $package = $this->prophesize(PackageInterface::class);
-        $package->getName()->willReturn('some/module');
-        $package->getExtra()->willReturn(['zf' => ['module' => 'Some\\Module']]);
-
-        $operation = $this->prophesize(InstallOperation::class);
-        $operation->getPackage()->willReturn($package->reveal());
-
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::type('string'))->shouldBeCalledTimes(1);
-
-        $event = $this->prophesize(PackageEvent::class);
-        $event->isDevMode()->willReturn(true);
-        $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
-
-        $this->assertNull(ComponentInstaller::postPackageInstall($event->reveal()));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('exists'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('get'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('put'));
-
-        $escaped = preg_quote('Some\\Module');
-        $this->assertRegExp(
-            '/\'modules\' \=\> array\([^)]+\'' . $escaped . '\',[^\']+\),/s',
-            FileInfoStub::get('config/application.config.php')
-        );
-    }
-
-    public function testPostPackageInstallAddsListedComponentToTopOfApplicationConfig()
-    {
-        FileInfoStub::defineFile(
-            'config/application.config.php',
-            \file_get_contents(__DIR__ . '/TestAsset/application.config.php')
-        );
-
-        $package = $this->prophesize(PackageInterface::class);
-        $package->getName()->willReturn('some/module');
-        $package->getExtra()->willReturn(['zf' => ['component' => 'Some\\Component']]);
-
-        $operation = $this->prophesize(InstallOperation::class);
-        $operation->getPackage()->willReturn($package->reveal());
-
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::type('string'))->shouldBeCalledTimes(1);
-
-        $event = $this->prophesize(PackageEvent::class);
-        $event->isDevMode()->willReturn(true);
-        $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
-
-        $this->assertNull(ComponentInstaller::postPackageInstall($event->reveal()));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('exists'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('get'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('put'));
-
-        $escaped = preg_quote('Some\\Component');
-        $this->assertRegExp(
-            '/\'modules\' \=\> array\(\s+\'' . $escaped . '\',/s',
-            FileInfoStub::get('config/application.config.php')
-        );
-    }
-
-    public function testPostPackageInstallCanAddBothComponentAndModule()
-    {
-        FileInfoStub::defineFile(
-            'config/application.config.php',
-            \file_get_contents(__DIR__ . '/TestAsset/application.config.php')
-        );
-
-        $package = $this->prophesize(PackageInterface::class);
-        $package->getName()->willReturn('some/module');
         $package->getExtra()->willReturn(['zf' => [
             'component' => 'Some\\Component',
-            'module' => 'Some\\Module',
         ]]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
 
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::type('string'))->shouldBeCalledTimes(2);
-
         $event = $this->prophesize(PackageEvent::class);
         $event->isDevMode()->willReturn(true);
         $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
 
-        $this->assertNull(ComponentInstaller::postPackageInstall($event->reveal()));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('exists'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('get'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('put'));
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
 
-        $config = FileInfoStub::get('config/application.config.php');
-        $escaped = preg_quote('Some\\Component');
-        $this->assertRegExp(
-            '/\'modules\' \=\> array\(\s+\'' . $escaped . '\',/s',
-            $config
-        );
+            if (! strstr($argument[0], "Please select which config file you wish to inject 'some/component' into")) {
+                return false;
+            }
 
-        $escaped = preg_quote('Some\\Module');
-        $this->assertRegExp(
-            '/\'modules\' \=\> array\([^)]+\'' . $escaped . '\',[^\']+\),/s',
-            $config
-        );
+            if (! strstr($argument[1], 'Do not inject')) {
+                return false;
+            }
+
+            if (! strstr($argument[2], 'application.config.php')) {
+                return false;
+            }
+
+            return true;
+        }), 0)->willReturn(1);
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+            if (! strstr($argument[0], 'Remember')) {
+                return false;
+            }
+
+            return true;
+        }), 'n')->willReturn('n');
+
+        $this->io->write(Argument::that(function ($argument) {
+            return strstr($argument, 'Installing Some\Component from package some/component');
+        }))->shouldBeCalled();
+
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
+        $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
+        $this->assertContains("'Some\Component'", $config);
     }
 
-    public function testPostPackageInstallDoesNothingIfComponentAlreadyInConfig()
+    public function testMultipleInvocationsOfOnPostPackageInstallCanReuseOptions()
     {
-        FileInfoStub::defineFile(
-            'config/application.config.php',
-            \file_get_contents(__DIR__ . '/TestAsset/application-with-component.config.php')
-        );
+        // Do a first pass, with an initial package
+        $this->createApplicationConfig();
 
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['zf' => ['component' => 'Some\\Component']]);
+        $package->getExtra()->willReturn(['zf' => [
+            'component' => 'Some\\Component',
+        ]]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
 
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::type('string'))->shouldBeCalledTimes(2);
-
         $event = $this->prophesize(PackageEvent::class);
         $event->isDevMode()->willReturn(true);
         $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
 
-        $this->assertNull(ComponentInstaller::postPackageInstall($event->reveal()));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('exists'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('get'));
-        $this->assertSame(0, FileInfoStub::getInvocationCount('put'));
-    }
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
 
-    public function testPostPackageInstallDoesNothingIfModuleAlreadyInConfig()
-    {
-        FileInfoStub::defineFile(
-            'config/application.config.php',
-            \file_get_contents(__DIR__ . '/TestAsset/application-with-module.config.php')
-        );
+            if (! strstr($argument[0], "Please select which config file you wish to inject 'some/component' into")) {
+                return false;
+            }
 
+            if (! strstr($argument[1], 'Do not inject')) {
+                return false;
+            }
+
+            if (! strstr($argument[2], 'application.config.php')) {
+                return false;
+            }
+
+            return true;
+        }), 0)->willReturn(1);
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+            if (! strstr($argument[0], 'Remember')) {
+                return false;
+            }
+
+            return true;
+        }), 'n')->willReturn('y');
+
+        $this->io->write(Argument::that(function ($argument) {
+            return strstr($argument, 'Installing Some\Component from package some/component');
+        }))->shouldBeCalled();
+
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
+        $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
+        $this->assertContains("'Some\Component'", $config);
+
+        // Now do a second pass, with another package
         $package = $this->prophesize(PackageInterface::class);
-        $package->getName()->willReturn('some/module');
-        $package->getExtra()->willReturn(['zf' => ['module' => 'Some\\Module']]);
+        $package->getName()->willReturn('other/component');
+        $package->getExtra()->willReturn(['zf' => [
+            'component' => 'Other\\Component',
+        ]]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
 
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::type('string'))->shouldBeCalledTimes(2);
-
         $event = $this->prophesize(PackageEvent::class);
         $event->isDevMode()->willReturn(true);
         $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
 
-        $this->assertNull(ComponentInstaller::postPackageInstall($event->reveal()));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('exists'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('get'));
-        $this->assertSame(0, FileInfoStub::getInvocationCount('put'));
+        $this->io->write(Argument::that(function ($argument) {
+            return strstr($argument, 'Installing Other\Component from package other/component');
+        }))->shouldBeCalled();
+
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
+        $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
+        $this->assertContains("'Some\Component'", $config);
     }
 
-    public function testPostPackageUninstallReturnsEarlyIfEventIsNotInDevMode()
+    public function testOnPostPackageUninstallReturnsEarlyIfEventIsNotInDevMode()
     {
         $event = $this->prophesize(PackageEvent::class);
         $event->isDevMode()->willReturn(false);
         $event->getOperation()->shouldNotBeCalled();
-        $event->getIO()->shouldNotBeCalled();
 
-        $this->assertNull(ComponentInstaller::postPackageUninstall($event->reveal()));
-        $this->assertSame(0, FileInfoStub::getInvocationCount('exists'));
+        $this->assertNull($this->installer->onPostPackageUninstall($event->reveal()));
     }
 
-    public function testPostPackageUninstallReturnsEarlyIfApplicationConfigIsMissing()
+    public function testOnPostPackageUninstallReturnsEarlyIfNoRelevantConfigFilesAreFound()
     {
         $event = $this->prophesize(PackageEvent::class);
         $event->isDevMode()->willReturn(true);
         $event->getOperation()->shouldNotBeCalled();
-        $event->getIO()->shouldNotBeCalled();
 
-        $this->assertNull(ComponentInstaller::postPackageUninstall($event->reveal()));
-        $this->assertSame(1, FileInfoStub::getInvocationCount('exists'));
+        $this->assertNull($this->installer->onPostPackageUninstall($event->reveal()));
     }
 
-    public function testPostPackageUninstallDoesNothingIfComposerExtraIsEmpty()
+    public function testOnPostPackageUninstallRemovesPackageFromConfiguration()
     {
-        FileInfoStub::defineFile('config/application.config.php');
-
-        $package = $this->prophesize(PackageInterface::class);
-        $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn([]);
-
-        $operation = $this->prophesize(InstallOperation::class);
-        $operation->getPackage()->willReturn($package->reveal());
-
-        $io = $this->prophesize(IOInterface::class);
-
-        $event = $this->prophesize(PackageEvent::class);
-        $event->isDevMode()->willReturn(true);
-        $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
-
-        $this->assertNull(ComponentInstaller::postPackageUninstall($event->reveal()));
-        $this->assertSame(1, FileInfoStub::getInvocationCount('exists'));
-    }
-
-    public function testPostPackageUninstallDoesNothingIfComposerExtraDoesNotContainZFSection()
-    {
-        FileInfoStub::defineFile('config/application.config.php');
-
-        $package = $this->prophesize(PackageInterface::class);
-        $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['branch-alias' => ['master' => '1.0-dev']]);
-
-        $operation = $this->prophesize(InstallOperation::class);
-        $operation->getPackage()->willReturn($package->reveal());
-
-        $io = $this->prophesize(IOInterface::class);
-
-        $event = $this->prophesize(PackageEvent::class);
-        $event->isDevMode()->willReturn(true);
-        $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
-
-        $this->assertNull(ComponentInstaller::postPackageUninstall($event->reveal()));
-        $this->assertSame(1, FileInfoStub::getInvocationCount('exists'));
-    }
-
-    public function testPostPackageUninstallDoesNothingIfZFExtraSectionDoesNotContainComponentOrModule()
-    {
-        FileInfoStub::defineFile('config/application.config.php');
-
-        $package = $this->prophesize(PackageInterface::class);
-        $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['zf' => ['unknown' => 'operation']]);
-
-        $operation = $this->prophesize(InstallOperation::class);
-        $operation->getPackage()->willReturn($package->reveal());
-
-        $io = $this->prophesize(IOInterface::class);
-
-        $event = $this->prophesize(PackageEvent::class);
-        $event->isDevMode()->willReturn(true);
-        $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
-
-        $this->assertNull(ComponentInstaller::postPackageUninstall($event->reveal()));
-        $this->assertSame(1, FileInfoStub::getInvocationCount('exists'));
-    }
-
-    public function testPostPackageUninstallRemovesListedModuleFromApplicationConfig()
-    {
-        FileInfoStub::defineFile(
-            'config/application.config.php',
-            \file_get_contents(__DIR__ . '/TestAsset/application-with-module.config.php')
-        );
-
-        $package = $this->prophesize(PackageInterface::class);
-        $package->getName()->willReturn('some/module');
-        $package->getExtra()->willReturn(['zf' => ['module' => 'Some\\Module']]);
-
-        $operation = $this->prophesize(InstallOperation::class);
-        $operation->getPackage()->willReturn($package->reveal());
-
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::type('string'))->shouldBeCalledTimes(1);
-
-        $event = $this->prophesize(PackageEvent::class);
-        $event->isDevMode()->willReturn(true);
-        $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
-
-        $this->assertNull(ComponentInstaller::postPackageUninstall($event->reveal()));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('exists'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('get'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('put'));
-
-        $escaped = preg_quote('Some\\Module');
-        $this->assertNotRegExp(
-            '/\'modules\' \=\> array\([^)]+\'' . $escaped . '\'/s',
-            FileInfoStub::get('config/application.config.php')
-        );
-    }
-
-    public function testPostPackageUninstallRemovesListedComponentFromApplicationConfig()
-    {
-        FileInfoStub::defineFile(
-            'config/application.config.php',
-            \file_get_contents(__DIR__ . '/TestAsset/application-with-component.config.php')
-        );
-
-        $package = $this->prophesize(PackageInterface::class);
-        $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['zf' => ['component' => 'Some\\Component']]);
-
-        $operation = $this->prophesize(InstallOperation::class);
-        $operation->getPackage()->willReturn($package->reveal());
-
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::type('string'))->shouldBeCalledTimes(1);
-
-        $event = $this->prophesize(PackageEvent::class);
-        $event->isDevMode()->willReturn(true);
-        $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
-
-        $this->assertNull(ComponentInstaller::postPackageUninstall($event->reveal()));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('exists'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('get'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('put'));
-
-        $escaped = preg_quote('Some\\Component');
-        $this->assertNotRegExp(
-            '/\'modules\' \=\> array\([^)]+\'' . $escaped . '\'/s',
-            FileInfoStub::get('config/application.config.php')
-        );
-    }
-
-    public function testPostPackageUninstallCanRemoveBothComponentAndModule()
-    {
-        FileInfoStub::defineFile(
-            'config/application.config.php',
-            \file_get_contents(__DIR__ . '/TestAsset/application-with-component-and-module.config.php')
+        $this->createApplicationConfig(
+            '<' . "?php\nreturn [\n    'modules' => [\n        'Some\Component',\n    ]\n];"
         );
 
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
         $package->getExtra()->willReturn(['zf' => [
             'component' => 'Some\\Component',
-            'module' => 'Some\\Module',
         ]]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
 
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::type('string'))->shouldBeCalledTimes(2);
-
         $event = $this->prophesize(PackageEvent::class);
         $event->isDevMode()->willReturn(true);
         $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
 
-        $this->assertNull(ComponentInstaller::postPackageUninstall($event->reveal()));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('exists'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('get'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('put'));
+        $this->io
+            ->write('<info>Removing Some\Component from package some/component</info>')
+            ->shouldBeCalled();
 
-        foreach (['Some\\Component', 'Some\\Module'] as $test) {
-            $this->assertNotRegExp(
-                '/\'modules\' \=\> array\([^)]+\'' . preg_quote($test) . '\'/s',
-                FileInfoStub::get('config/application.config.php')
-            );
-        }
-    }
+        $this->io
+            ->write(Argument::that(function ($argument) {
+                return (bool) preg_match(
+                    '#Removed package from .*?config/application.config.php#',
+                    $argument
+                );
+            }))
+            ->shouldBeCalled();
 
-    public function testPostPackageUninstallDoesNothingIfComponentNotInConfig()
-    {
-        FileInfoStub::defineFile(
-            'config/application.config.php',
-            \file_get_contents(__DIR__ . '/TestAsset/application.config.php')
-        );
+        $this->assertNull($this->installer->onPostPackageUninstall($event->reveal()));
 
-        $package = $this->prophesize(PackageInterface::class);
-        $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['zf' => ['component' => 'Some\\Component']]);
-
-        $operation = $this->prophesize(InstallOperation::class);
-        $operation->getPackage()->willReturn($package->reveal());
-
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::type('string'))->shouldBeCalledTimes(2);
-
-        $event = $this->prophesize(PackageEvent::class);
-        $event->isDevMode()->willReturn(true);
-        $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
-
-        $this->assertNull(ComponentInstaller::postPackageUninstall($event->reveal()));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('exists'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('get'));
-        $this->assertSame(0, FileInfoStub::getInvocationCount('put'));
-    }
-
-    public function testPostPackageUninstallDoesNothingIfModuleNotInConfig()
-    {
-        FileInfoStub::defineFile(
-            'config/application.config.php',
-            \file_get_contents(__DIR__ . '/TestAsset/application.config.php')
-        );
-
-        $package = $this->prophesize(PackageInterface::class);
-        $package->getName()->willReturn('some/module');
-        $package->getExtra()->willReturn(['zf' => ['module' => 'Some\\Module']]);
-
-        $operation = $this->prophesize(InstallOperation::class);
-        $operation->getPackage()->willReturn($package->reveal());
-
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::type('string'))->shouldBeCalledTimes(2);
-
-        $event = $this->prophesize(PackageEvent::class);
-        $event->isDevMode()->willReturn(true);
-        $event->getOperation()->willReturn($operation->reveal());
-        $event->getIO()->willReturn($io->reveal());
-
-        $this->assertNull(ComponentInstaller::postPackageUninstall($event->reveal()));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('exists'));
-        $this->assertGreaterThan(0, FileInfoStub::getInvocationCount('get'));
-        $this->assertSame(0, FileInfoStub::getInvocationCount('put'));
+        $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
+        $this->assertNotContains('Some\Component', $config);
     }
 }

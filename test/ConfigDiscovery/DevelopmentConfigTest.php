@@ -4,7 +4,7 @@
  * @copyright Copyright (c) 2016 Zend Technologies Ltd (http://www.zend.com)
  */
 
-namespace ZendTest\ComponentInstaller;
+namespace ZendTest\ComponentInstaller\ConfigDiscovery;
 
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;

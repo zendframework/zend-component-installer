@@ -174,8 +174,11 @@ class ConfigDiscoveryTest extends TestCase
     /**
      * @dataProvider configFileSubset
      */
-    public function testGetAvailableConfigOptionsCanReturnsSubsetOfOptionsBaseOnPackageType($seedMethod, $type, $expected)
-    {
+    public function testGetAvailableConfigOptionsCanReturnsSubsetOfOptionsBaseOnPackageType(
+        $seedMethod,
+        $type,
+        $expected
+    ) {
         $this->{$seedMethod}();
         $options = $this->discovery->getAvailableConfigOptions([$type], vfsStream::url('project'));
         $this->assertCount(2, $options);
