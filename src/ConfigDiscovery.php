@@ -35,8 +35,8 @@ class ConfigDiscovery
     /**
      * Return a list of available configuration options.
      *
-     * @param array $availableTypes List of TYPE_* constants indicating valid
-     *     package types that could be injected.
+     * @param array $availableTypes List of Injector\InjectorInterface::TYPE_*
+     *     constants indicating valid package types that could be injected.
      * @param string $projectRoot Path to the project root; assumes PWD by
      *     default.
      * @return ConfigOption[]
