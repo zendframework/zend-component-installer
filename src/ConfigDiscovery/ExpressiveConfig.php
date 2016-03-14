@@ -18,7 +18,20 @@ class ExpressiveConfig extends AbstractDiscovery
     /**
      * Expected pattern to match if the configuration file exists.
      *
+     * Pattern is set in constructor to ensure PCRE quoting is correct.
+     *
      * @var string
      */
-    protected $expected = '/new (?:\\?Zend\\Expressive\\ConfigManager\\\\)?ConfigManager\(\s*(?:array\(|\[)/s';
+    protected $expected = '';
+
+    public function __construct($projectDirectory = '')
+    {
+        $this->expected = sprintf(
+            '/new (?:%s?%s)?ConfigManager\(\s*(?:array\(|\[)/s',
+            preg_quote('\\'),
+            preg_quote('Zend\Expressive\ConfigManager\\')
+        );
+
+        parent::__construct($projectDirectory);
+    }
 }
