@@ -12,7 +12,8 @@
         "composer/composer": ">=1.0.0-alpha10",
         "phpunit/phpunit": "^4.7",
         "roave/security-advisories": "dev-master",
-        "squizlabs/php_codesniffer": "^2.5"
+        "squizlabs/php_codesniffer": "^2.5",
+        "mikey179/vfsStream": "^1.6"
     },
     "autoload": {
         "psr-4": {
