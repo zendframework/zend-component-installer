@@ -1,60 +1,63 @@
 # Component Installer for Zend Framework 3 Applications
 
-This repository contains the class `Zend\ComponentInstaller\ComponentInstaller`,
+This repository contains the Composer plugin class `Zend\ComponentInstaller\ComponentInstaller`,
 which provides Composer event hooks for the events:
 
 - post-package-install
 - post-package-uninstall
 
-In order to utilize these, you will need to add the `ComponentInstaller`
-classfile to your project, make it autoloadable, and then add its relevant
-static methods as scripts for the above events.
+## Via Composer global install
 
-This package provides two ways for doing that: as a global composer utility, or
-via a downloadable, self-updateable PHAR.
-
-## Via Composer Global Install
-
-To install the utility via Composer:
+To install the utility for use with all projects you use:
 
 ```bash
 $ composer global require zendframework/zend-component-installer
 ```
 
-Once installed, assuming that the Composer `bin/` directory is on your `$PATH`,
-you can then execute the following:
+## Per project installation
+
+To install the utility for use with a specific project already managed by
+composer:
 
 ```bash
-$ zend-component-installer install <path>
+$ composer require zendframework/zend-component-installer
 ```
 
-where `<path>` is the path to a project in which you want to install the
-component installer tools. If `<path>` is omitted, the utility assumes the
-current working directory should be used.
+## Writing packages that utilize the installer
 
-## Via PHAR
+Packages can opt-in to the workflow from zend-component-installer by defining
+one or more of the following keys under the `extra.zf` configuration in their
+`composer.json` file:
 
-The PHAR file is downloadable at:
-
-- https://zendframework.github.io/zend-component-installer/zend-component-installer.phar
-
-The public key for verifying the package is at:
-
-- https://zendframework.github.io/zend-component-installer/zend-component-installer.phar.pubkey
-
-You will need to download both files, to the same directory, for the utility to
-work; additionally, the name of the key must not be changed.. Once downloaded,
-make the the PHAR file executable.
-
-Once installed, you can then execute the following:
-
-```bash
-$ zend-component-installer.phar install <path>
+```json
+"extra": {
+  "zf": {
+    "component": "Component\\Namespace",
+    "config-provider": "Classname\\For\\ConfigProvider",
+    "module": "Module\\Namespace"
+  }
+}
 ```
 
-where `<path>` is the path to a project in which you want to install the
-component installer tools. If `<path>` is omitted, the utility assumes the
-current working directory should be used.
+- A **component** is for use specifically with zend-mvc + zend-modulemanager;
+  a `Module` class **must** be present in the namespace associated with it.
+  The setting indicates a low-level component that should be injected to the top
+  of the modules list of one of:
+  - `config/application.config.php`
+  - `config/modules.config.php`
+  - `config/development.config.php`
 
-The PHAR file is self-updateable via the `self-update` command; this feature
-requires PHP 5.6, however, due to SSL/TLS negotiation requirements.
+- A **module** is for use specifically with zend-mvc + zend-modulemanager;
+  a `Module` class **must** be present in the namespace associated with it.
+  The setting indicates a userland or third-party module that should be injected
+  to the bottom of the modules list of one of:
+  - `config/application.config.php`
+  - `config/modules.config.php`
+  - `config/development.config.php`
+
+- A **config-provider** is for use with applications that utilize
+  [expressive-config-manager](https://github.com/mtymek/expressive-config-manager)
+  (which may or may not be Expressive applications). The class listed must be an
+  invokable that returns an array of configuration, and will be injected at the
+  top of:
+  - `config/config.php`
