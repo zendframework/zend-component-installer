@@ -43,6 +43,14 @@ class ComponentInstallerTest extends TestCase
             ->setContent($contents);
     }
 
+    public function testSubscribesToExpectedEvents()
+    {
+        $this->assertEquals([
+            'post-package-install'   => 'onPostPackageInstall',
+            'post-package-uninstall' => 'onPostPackageUninstall',
+        ], $this->installer->getSubscribedEvents());
+    }
+
     public function testOnPostPackageInstallReturnsEarlyIfEventIsNotInDevMode()
     {
         $event = $this->prophesize(PackageEvent::class);
