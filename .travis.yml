@@ -5,6 +5,7 @@ language: php
 cache:
   directories:
     - $HOME/.composer/cache
+    - vendor
     - $HOME/.local
     - zf-mkdoc-theme
 
