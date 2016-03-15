@@ -107,7 +107,8 @@ class ComponentInstaller implements
     /**
      * Activate plugin.
      *
-     * Does nothing.
+     * Sets internal pointers to Composer and IOInterface instances, and resets
+     * cached injector map.
      *
      * @param Composer $composer
      * @param IOInterface $io
@@ -128,8 +129,8 @@ class ComponentInstaller implements
     public static function getSubscribedEvents()
     {
         return [
-            'post-package-install'      => 'onPostPackageInstall',
-            'post-package-uninstall'    => 'onPostPackageUninstall',
+            'post-package-install'   => 'onPostPackageInstall',
+            'post-package-uninstall' => 'onPostPackageUninstall',
         ];
     }
 
@@ -277,9 +278,7 @@ class ComponentInstaller implements
             $package = $extra[$key];
 
             foreach ($options as $option) {
-                $injector = $option->getInjector();
-
-                if ($injector->isRegistered($package)) {
+                if ($option->getInjector()->isRegistered($package)) {
                     return true;
                 }
             }
