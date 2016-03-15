@@ -133,11 +133,20 @@ abstract class AbstractInjector implements InjectorInterface
     /**
      * {@inheritDoc}
      */
+    public function isRegistered($package)
+    {
+        $config = file_get_contents($this->configFile);
+        return $this->isRegisteredInConfig($package, $config);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function inject($package, $type, IOInterface $io)
     {
         $config = file_get_contents($this->configFile);
 
-        if ($this->isRegistered($package, $config)) {
+        if ($this->isRegisteredInConfig($package, $config)) {
             $io->write(sprintf('<info>    Package is already registered; skipping</info>'));
             return;
         }
@@ -191,7 +200,7 @@ abstract class AbstractInjector implements InjectorInterface
      * @var string $config
      * @return bool
      */
-    protected function isRegistered($package, $config)
+    protected function isRegisteredInConfig($package, $config)
     {
         return (1 === preg_match(sprintf($this->isRegisteredPattern, preg_quote($package)), $config));
     }

@@ -30,6 +30,14 @@ interface InjectorInterface
     public function getTypesAllowed();
 
     /**
+     * Is a given package already registered?
+     *
+     * @param string $package
+     * @return bool
+     */
+    public function isRegistered($package);
+
+    /**
      * Register a package with the configuration.
      *
      * @param string $package Package to inject into configuration.

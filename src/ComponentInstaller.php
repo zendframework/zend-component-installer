@@ -159,7 +159,6 @@ class ComponentInstaller implements
             return;
         }
 
-
         $package = $event->getOperation()->getPackage();
         $name  = $package->getName();
         $extra = $this->getExtraMetadata($package->getExtra());
@@ -175,6 +174,11 @@ class ComponentInstaller implements
 
         if (empty($options)) {
             // No configuration options found; do nothing.
+            return;
+        }
+
+        if ($this->packageIsAlreadyInstalled($extra, $options)) {
+            // Already installed; do nothing.
             return;
         }
 
@@ -254,6 +258,34 @@ class ComponentInstaller implements
             $discoveredTypes[] = $packageTypes[$type];
         }
         return $discoveredTypes;
+    }
+
+    /**
+     * Is the package already registered with one or more configuration files?
+     *
+     * @param string[] $extra
+     * @param ConfigOption[] $options
+     * @return bool
+     */
+    private function packageIsAlreadyInstalled(array $extra, array $options)
+    {
+        foreach ($this->packageTypes as $type => $key) {
+            if (! isset($extra[$key])) {
+                continue;
+            }
+
+            $package = $extra[$key];
+
+            foreach ($options as $option) {
+                $injector = $option->getInjector();
+
+                if ($injector->isRegistered($package)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

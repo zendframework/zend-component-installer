@@ -104,6 +104,32 @@ class ComponentInstallerTest extends TestCase
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
     }
 
+    public function testOnPostPackageInstallDoesNotPromptIfPackageIsAlreadyInConfiguration()
+    {
+        $this->createApplicationConfig(
+            '<' . "?php\nreturn [\n    'modules' => [\n        'Some\Component',\n    ]\n];"
+        );
+
+        $package = $this->prophesize(PackageInterface::class);
+        $package->getName()->willReturn('some/component');
+        $package->getExtra()->willReturn(['zf' => [
+            'component' => 'Some\\Component',
+        ]]);
+
+        $operation = $this->prophesize(InstallOperation::class);
+        $operation->getPackage()->willReturn($package->reveal());
+
+        $event = $this->prophesize(PackageEvent::class);
+        $event->isDevMode()->willReturn(true);
+        $event->getOperation()->willReturn($operation->reveal());
+
+        $this->io->ask(Argument::any())->shouldNotBeCalled();
+
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
+        $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
+        $this->assertContains("'Some\Component'", $config);
+    }
+
     public function testOnPostPackageInstallPromptsForConfigOptions()
     {
         $this->createApplicationConfig();
@@ -159,6 +185,117 @@ class ComponentInstallerTest extends TestCase
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
         $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
         $this->assertContains("'Some\Component'", $config);
+    }
+
+    public function testMultipleInvocationsOfOnPostPackageInstallCanPromptMultipleTimes()
+    {
+        // Do a first pass, with an initial package
+        $this->createApplicationConfig();
+
+        $package = $this->prophesize(PackageInterface::class);
+        $package->getName()->willReturn('some/component');
+        $package->getExtra()->willReturn(['zf' => [
+            'component' => 'Some\\Component',
+        ]]);
+
+        $operation = $this->prophesize(InstallOperation::class);
+        $operation->getPackage()->willReturn($package->reveal());
+
+        $event = $this->prophesize(PackageEvent::class);
+        $event->isDevMode()->willReturn(true);
+        $event->getOperation()->willReturn($operation->reveal());
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+
+            if (! strstr($argument[0], "Please select which config file you wish to inject 'some/component' into")) {
+                return false;
+            }
+
+            if (! strstr($argument[1], 'Do not inject')) {
+                return false;
+            }
+
+            if (! strstr($argument[2], 'application.config.php')) {
+                return false;
+            }
+
+            return true;
+        }), 0)->willReturn(1);
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+            if (! strstr($argument[0], 'Remember')) {
+                return false;
+            }
+
+            return true;
+        }), 'n')->willReturn('n');
+
+        $this->io->write(Argument::that(function ($argument) {
+            return strstr($argument, 'Installing Some\Component from package some/component');
+        }))->shouldBeCalled();
+
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
+        $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
+        $this->assertContains("'Some\Component'", $config);
+
+        // Now do a second pass, with another package
+        $package = $this->prophesize(PackageInterface::class);
+        $package->getName()->willReturn('other/component');
+        $package->getExtra()->willReturn(['zf' => [
+            'component' => 'Other\\Component',
+        ]]);
+
+        $operation = $this->prophesize(InstallOperation::class);
+        $operation->getPackage()->willReturn($package->reveal());
+
+        $event = $this->prophesize(PackageEvent::class);
+        $event->isDevMode()->willReturn(true);
+        $event->getOperation()->willReturn($operation->reveal());
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+
+            if (! strstr($argument[0], "Please select which config file you wish to inject 'other/component' into")) {
+                return false;
+            }
+
+            if (! strstr($argument[1], 'Do not inject')) {
+                return false;
+            }
+
+            if (! strstr($argument[2], 'application.config.php')) {
+                return false;
+            }
+
+            return true;
+        }), 0)->willReturn(1);
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+            if (! strstr($argument[0], 'Remember')) {
+                return false;
+            }
+
+            return true;
+        }), 'n')->willReturn('n');
+
+        $this->io->write(Argument::that(function ($argument) {
+            return strstr($argument, 'Installing Other\Component from package other/component');
+        }))->shouldBeCalled();
+
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
+        $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
+        $this->assertContains("'Other\Component'", $config);
     }
 
     public function testMultipleInvocationsOfOnPostPackageInstallCanReuseOptions()
@@ -238,7 +375,7 @@ class ComponentInstallerTest extends TestCase
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
         $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
-        $this->assertContains("'Some\Component'", $config);
+        $this->assertContains("'Other\Component'", $config);
     }
 
     public function testOnPostPackageUninstallReturnsEarlyIfEventIsNotInDevMode()

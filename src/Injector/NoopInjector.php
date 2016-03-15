@@ -33,6 +33,15 @@ class NoopInjector implements InjectorInterface
     }
 
     /**
+     * @param string $package
+     * @return false
+     */
+    public function isRegistered($package)
+    {
+        return false;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function inject($package, $type, IOInterface $io)
