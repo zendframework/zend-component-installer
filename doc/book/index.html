@@ -153,40 +153,52 @@ class ConfigProvider
     </div>
 
     <div class="col-xs-12 col-sm-6">
-      <h2>Global Installation</h2>
+      <div class="panel panel-success">
+        <div class="panel-heading">
+          <h2 class="panel-title">Global Installation</h2>
+        </div>
 
-      <p>
-        You can also install the plugin globally, in which case it will be
-        active for every project you manage on your machine.
-      </p>
+        <div class="panel-body">
+          <p>
+            You can also install the plugin globally, in which case it will be
+            active for every project you manage on your machine.
+          </p>
 
-      <pre><code class="language-bash">$ composer global require zendframework/zend-component-installer</code></pre>
+          <pre><code class="language-bash">$ composer global require zendframework/zend-component-installer</code></pre>
+        </div>
+      </div>
 
-      <h2>Why?</h2>
+      <div class="panel panel-info">
+        <div class="panel-heading">
+          <h2 class="panel-title">Why?</h2>
+        </div>
 
-      <p>
-        We're in the process of reducing the required components for zend-mvc
-        and the Zend Framework repository. In the current v2 series, zend-mvc
-        provides copious amounts of integrations with other components; as such,
-        we need to move the various factories, plugin managers, and event
-        listeners into the individual components themselves. Doing so, however,
-        has a side effect: they will no longer be wired automatically.
-      </p>
+        <div class="panel-body">
+          <p>
+            We're in the process of reducing the required components for zend-mvc
+            and the Zend Framework repository. In the current v2 series, zend-mvc
+            provides copious amounts of integrations with other components; as such,
+            we need to move the various factories, plugin managers, and event
+            listeners into the individual components themselves. Doing so, however,
+            has a side effect: they will no longer be wired automatically.
+          </p>
 
-      <p>
-        To provide service and event wiring, we will be adding <code>Module</code>
-        classes (and configuration providers) to all Zend Framework components.
-        This exposes a new problem, however: how do we ensure that those
-        components are then added to the application module list as you add them
-        to your application?
-      </p>
+          <p>
+            To provide service and event wiring, we will be adding <code>Module</code>
+            classes (and configuration providers) to all Zend Framework components.
+            This exposes a new problem, however: how do we ensure that those
+            components are then added to the application module list as you add them
+            to your application?
+          </p>
 
-      <p>
-        This package provides the answer to that problem. As soon as you add
-        this package to your application, whenever you add a component or module
-        that exposes itself as such, the plugin will prompt you, asking where
-        you want to inject it.
-      </p>
+          <p>
+            This package provides the answer to that problem. As soon as you add
+            this package to your application, whenever you add a component or module
+            that exposes itself as such, the plugin will prompt you, asking where
+            you want to inject it.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </div>
