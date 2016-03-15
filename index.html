@@ -1,312 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Component Installer ( prototype ) for ZF3">
-  <meta name="author" content="https://mwop.net">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Zend\Component\Installer">  
+    <link rel="shortcut icon" href="./img/favicon.ico">
 
-  <title>Component Installer for ZF3</title>
+    <title>zend-component-installer</title>
 
-  <!-- Bootstrap via CDN -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link href="./css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/font-hack/2.018/css/hack.min.css">
+    <link href="//fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic&subset=latin-ext,latin" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Libre+Baskerville:400,400italic,700&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+    <link href="./css/base.css" rel="stylesheet">
+    <link href="./css/zf.css" rel="stylesheet">
+    <link href="./css/prism-zf.css" rel="stylesheet">
 
-  <!-- Optional bootstrap theme via CDN -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/prism/1.3.0/themes/prism-twilight.css">
-  <style>
-    .jumbotron {
-      margin-top: 3em;
-    }
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js"></script>
+    <script>
+    WebFont.load({
+        google: {
+            families: ['Open Sans', 'PT Sans']
+        }
+    });
+    </script>
 
-    footer {
-      margin-top: 2em;
-      border-top: 1px solid #DCDCDC;
-      padding-top: 2em;
-      padding-bottom: 1em;
-      text-align: center;
-    }
-  </style>
+    
 </head>
-<body>
-  <a href="https://github.com/zendframework/zend-component-installer"><img style="position: absolute; top: 0; right: 0; border: 0; z-index:9999;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
 
-  <!-- Fixed navbar -->
-  <nav class="navbar navbar-inverse navbar-fixed-top">
+<body class="homepage" >
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
     <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="#">Component Installer</a>
-      </div>
-    </div>
-  </nav>
 
-  <div class="container-fluid content" role="main">
-    <div class="jumbotron">
-      <h1>Component Installer</h1>
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
 
-      <p>A component and module installer for ZF3 components.</p>
-    </div>
-
-    <div class="row">
-      <div class="col-lg-10 col-lg-offset-1">
-        <div class="row">
-
-          <div class="col-md-6">
-            <div class="well">
-              <h2>Get the PHAR</h2>
-
-              <ul>
-                <li><a href="zend-component-installer.phar">zend-component-installer.phar</a></li>
-                <li><a href="zend-component-installer.phar.pubkey">public OpenSSL key (to verify
-                  the PHAR)</a></li>
-              </ul>
-
-              <p>
-                You'll need to download both files, and they will need to reside together.
-              </p>
-
-              <p>
-                Once downloaded, make the PHAR executable, and execute
-                <kbd>zend-component-installer.phar help</kbd> to verify that it works.
-              </p>
-
-              <h3>Using the PHAR</h3>
-
-              <pre><code class="lang-bash" data-trim>
-$ zend-component-installer.phar install
-# Or specify a path to a project
-$ zend-component-installer.phar install /path/to/my/project
-              </code></pre>
-
-              <p>
-                Once installed, whenever your install a component that implements a module,
-                it will update the <code>config/application.config.php</code> file to add
-                the component to the module list. Components are always added to the top of
-                the list, to ensure that your own modules can override any settings they
-                introduce.
-              </p>
-
-              <h3>Keeping up-to-date</h3>
-
-              <p>
-                Periodically, we may make changes to the tool. To update, you can use the
-                self-update command:
-              </p>
-
-              <pre><code class="lang-bash" data-trim>
-$ zend-component-installer.phar self-update
-              </code></pre>
-
-              <p>
-                Two notes on this command:
-              </p>
-
-              <ul>
-                <li>The self-update features require PHP 5.6 or above. This is due to the
-                  fact that it is doing SSL/TLS negotiation in order to both check for an
-                  update, as well as download the new PHAR file; PHP 5.6 is the first
-                  version of PHP that provides proper SSL/TLS negotiation with the shipped
-                  defaults. <em>You can use the installer with 5.5, just not the
-                    self-updater.</em></li>
-                <li>The command will put a copy of the previous version of the command in
-                  the sibling file <code>zend-component-installer-old.phar</code>. This allows
-                  you to rollback to the previous version should you detect a problem.
-                </li>
-              </ul>
-
-              <h3>Rolling back</h3>
-
-              <p>
-                When using the PHAR, you can also rollback to a previously installed
-                version, if you have kept the <code>zend-component-installer-old.phar</code>
-                file:
-              </p>
-
-              <pre><code class="lang-bash" data-trim>
-$ zend-component-installer.phar rollback
-              </code></pre>
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="well">
-              <h2>Global Composer Installation</h2>
-
-              <p>
-                You can also install the utility as a global Composer package:
-              </p>
-
-              <pre><code class="lang-bash" data-trim>
-$ composer global require zendframework/zend-component-installer
-              </code></pre>
-
-              <p>
-                This will install the package globally. In order to use it, the
-                <code>$COMPOSER_HOME/bin</code> directory must be in your user's
-                <code>$PATH</code>. From there, invocation is:
-              </p>
-
-              <pre><code class="lang-bash" data-trim>
-$ zend-component-installer install [&lt;path&gt;]
-              </code></pre>
-
-              <h3>Keeping up-to-date</h3>
-
-              <p>
-                To keep your utility up-to-date, periodically perform the following:
-              </p>
-
-              <pre><code class="lang-bash" data-trim>
-$ composer global update zendframework/zend-component-installer
-              </code></pre>
-            </div>
-          </div>
-
+            <!-- Main title -->
+            <span class="navbar-brand">
+              <a href="http://framework.zend.com"><img src="./img/zf-logo-mark.png" height="28" alt="Zend Framework" /></a>
+              <a href=".">zend-component-installer</a>
+            </span>
         </div>
-      </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                
+                
+                    <li>
+                        <a href="https://github.com/zendframework/zend-component-installer">
+                            
+                                <i class="fa fa-github"></i>
+                            
+                            GitHub
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
     </div>
+</div>
 
-    <div class="row">
-      <div class="col-lg-10 col-lg-offset-1">
-        <div class="well">
+    <div class="container">
+  <div class="jumbotron">
+    <h1>zend-component-installer</h1>
+    
+    <p>Composer plugin for injecting modules and configuration providers into application configuration.</p>
 
-          <h2>Defining a component that implements a module</h2>
+    <pre><code class="language-bash">$ composer require --dev zendframework/zend-component-installer</code></pre>
+  </div>
+</div>
 
-          <p>
-            There are two things you must do to have your package opt-in to this
-            workflow:
-          </p>
+<div class="container features">
+  <div class="row">
+    <div class="col-xs-12 col-sm-6">
+      <h2>Installable Packages</h2>
 
-          <ul>
-            <li>The component must have a <code>Module</code> class in the namespace it
-              defines.
-            </li>
-            <li>The <code>composer.json</code> must specify the component namespace in the
-              <code>extra.zf</code> section:
-              <pre><code class="lang-javascript" data-trim>
+      <p>
+        How do you define a package for which zend-component-installer will
+        install configuration?
+      </p>
+
+      <h3>Components</h3>
+
+      <p>
+        Components are Zend Framework modules that deliver low-level
+        functionality; examples include the various Zend Framework components
+        themselves. These require the following:
+      </p>
+
+      <ul>
+        <li>A <code>Module</code> class in the package namespace.</li>
+        <li>An <code>extra.zf.component</code> entry listing the package
+          namespace in your <code>composer.json</code>.</li>
+      </ul>
+
+      <pre><code class="lang-json" data-trim>
 "extra": {
   "zf": {
     "component": "Some\Component"
   }
 }
-              </code></pre>
-            </li>
-          </ul>
+      </code></pre>
 
-          <p>
-            Component modules are placed at the <em>top</em> of the module list, so
-            that userland modules may override the defaults they provide.
-          </p>
+      <p>
+        Your application will need to have one or more of the following
+        configuration files, from which you will be prompted to choose which one
+        in which to inject the component:
+      </p>
 
-          <h2>Defining a userland module</h2>
+      <ul>
+        <li><code>config/application.config.php</code> (vanilla ZF2 application)</li>
+        <li><code>config/modules.config.php</code> (<a href="https://apigility.org">Apigility</a>
+          application)</li>
+        <li><code>config/development.config.php</code> (applications using
+          <a href="https://github.com/zendframework/zend-development-mode">zend-development-mode</a>)</li>
+      </ul>
 
-          <p>
-            There are two things you must do to have your package opt-in to this
-            workflow:
-          </p>
+      <p>
+        Components are added at the <strong>top</strong> of the application's
+        list of modules.
+      </p>
 
-          <ul>
-            <li>The module must have a <code>Module</code> class in the namespace it
-              defines.
-            </li>
-            <li>The <code>composer.json</code> must specify the module namespace in the
-              <code>extra.zf</code> section:
-                <pre><code class="lang-javascript" data-trim>
+      <h3>Modules</h3>
+
+      <p>
+        Zend Framework modules typically deliver functionality around the
+        <a href="https://zendframework.github.io/zend-mvc/">zend-mvc</a>
+        workflow, including MVC event listeners, controllers, etc.
+        To enable the installer workflow, they require the following:
+      </p>
+
+      <ul>
+        <li>A <code>Module</code> class in the package namespace.</li>
+        <li>An <code>extra.zf.module</code> entry listing the package
+          namespace in your <code>composer.json</code>.</li>
+      </ul>
+
+      <pre><code class="lang-json" data-trim>
 "extra": {
   "zf": {
     "module": "Some\Component"
   }
 }
-                </code></pre>
-            </li>
-          </ul>
+      </code></pre>
+
+      <p>
+        Your application will need to have one or more of the following
+        configuration files, from which you will be prompted to choose which one
+        in which to inject the module:
+      </p>
+
+      <ul>
+        <li><code>config/application.config.php</code> (vanilla ZF2 application)</li>
+        <li><code>config/modules.config.php</code> (<a href="https://apigility.org">Apigility</a>
+          application)</li>
+        <li><code>config/development.config.php</code> (applications using
+          <a href="https://github.com/zendframework/zend-development-mode">zend-development-mode</a>)</li>
+      </ul>
+
+      <p>
+        Modules are added at the <strong>bottom</strong> of the application's
+        list of modules.
+      </p>
+
+      <h3>Config Providers</h3>
+
+      <p>
+        Configuration providers work with
+        <a href="https://github.com/mtymek/expressive-config-manager">expressive-config-manager</a>,
+        which provides generic functionality for aggregating and merging
+        application configuration. Packages that provide configuration will
+        provide an invokable class that returns configuration for the package.
+        To enable the installer workflow, you will need:
+      </p>
+
+      <ul>
+        <li>A configuration provider class. This is a class with no constructor
+          arguments defining an <code>__invoke()</code> method returning a
+          configuration array.</li>
+        <li>An <code>extra.zf.config-provider</code> entry listing the
+          configuration provider class in your <code>composer.json</code>.</li>
+      </ul>
+
+      <pre><code class="lang-php" data-trim>
+namespace Some\Component;
+
+class ConfigProvider
+{
+    public function __invoke()
+    {
+        return [ /* ... */ ];
+    }
+}
+      </code></pre>
+
+      <pre><code class="lang-json" data-trim>
+"extra": {
+  "zf": {
+    "config-provider": "Some\Component\ConfigProvider"
+  }
+}
+      </code></pre>
+
+      <p>
+        Your application will need to define a <code>config/config.php</code>
+        file, and that file will need to have a line that instantiates a
+        <code>Zend\Expressive\ConfigManager\ConfigManager</code> instance.
+      </p>
+
+      <p>
+        Configuration providers are added at the <strong>top</strong> of the
+        <code>ConfigManager</code> provider array.
+      </p>
+    </div>
+
+    <div class="col-xs-12 col-sm-6">
+      <div class="panel panel-success">
+        <div class="panel-heading">
+          <h2 class="panel-title">Global Installation</h2>
+        </div>
+
+        <div class="panel-body">
+          <p>
+            You can also install the plugin globally, in which case it will be
+            active for every project you manage on your machine.
+          </p>
+
+          <pre><code class="language-bash">$ composer global require zendframework/zend-component-installer</code></pre>
+        </div>
+      </div>
+
+      <div class="panel panel-info">
+        <div class="panel-heading">
+          <h2 class="panel-title">Why?</h2>
+        </div>
+
+        <div class="panel-body">
+          <p>
+            We're in the process of reducing the required components for zend-mvc
+            and the Zend Framework repository. In the current v2 series, zend-mvc
+            provides copious amounts of integrations with other components; as such,
+            we need to move the various factories, plugin managers, and event
+            listeners into the individual components themselves. Doing so, however,
+            has a side effect: they will no longer be wired automatically.
+          </p>
 
           <p>
-            Userland modules are placed at the <em>bottom</em> of the module list, so
-            that their settings may override component settings.
+            To provide service and event wiring, we will be adding <code>Module</code>
+            classes (and configuration providers) to all Zend Framework components.
+            This exposes a new problem, however: how do we ensure that those
+            components are then added to the application module list as you add them
+            to your application?
+          </p>
+
+          <p>
+            This package provides the answer to that problem. As soon as you add
+            this package to your application, whenever you add a component or module
+            that exposes itself as such, the plugin will prompt you, asking where
+            you want to inject it.
           </p>
         </div>
       </div>
     </div>
-
-    <div class="row">
-      <div class="col-lg-10 col-lg-offset-1">
-        <h2>Why?</h2>
-
-        <p>
-          We're planning on reducing the <em>required</em> components for the MVC and
-          framework. Currently in v2, however, zend-mvc provides copious amounts of
-          integrations with other components; removing them as dependencies means
-          their factories, plugin managers, and event listeners will not be wired
-          automatically. One proposed solution is to provide each component with a
-          <code>Module</code> class that could provide those; however, one issue with
-          that approach is ensuring that the components are then added to the list of
-          enabled modules.
-        </p>
-
-        <p>
-          The approach this package takes is to provide <a
-            href="https://getcomposer.org">Composer</a> event hooks that will update
-          the enabled module list when a package providing a module is installed or
-          uninstalled. However, Composer has a few limitations with regards to such
-          hook scripts:
-        </p>
-
-        <ul>
-          <li>If the code is in a package on which the project depends, a warning
-            is emitted for each package installed until the package containing the
-            scripts is processed. This will likely raise a lot of support questions.
-          </li>
-          <li>If the event hook classes are present inside the project, they <em>must</em>
-            be autoloadable. Additionally, the must <em>always</em> be autoloadable;
-            you cannot define a <code>autoload-dev</code> rule for the
-            classes/namespaces; only a production one will work.
-          </li>
-        </ul>
-
-        <p>
-          These limitations are easily accommodated for <em>new</em> projects, as we
-          can include them in project skeletons. However, for those <em>migrating</em>
-          to ZF3, we want to provide a mechanism for adding the scripts.
-        </p>
-
-        <p>
-          The solution presented here is to provide a utility that will will copy
-          the classfiles for the scripts into your project, and then manipulate the
-          <code>composer.json</code> to add autoload rules for them, and to add
-          entries for the event hook scripts.
-        </p>
-
-        <p>
-          You have two options: using a downloadable, self-updateable PHAR, or
-          installation as a global Composer package.
-        </p>
-      </div>
-    </div>
   </div>
+</div>
 
-  <footer class="container-fluid">
-    <div class="row">
-      <div class="col-md-6 col-md-offset-3">
-        &copy; 2015, Zend Technologies Ltd
-      </div>
+
+    <footer class="col-md-12 text-center">
+        <hr>
+        <p>
+        <small>Copyright (c) 2016 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a><br></small>
+        </p>
+        <p><small><a href="http://framework.zend.com">Learn more about Zend Framework</a></small></p>
+    </footer>
+
+    <script src="./js/jquery-1.10.2.min.js"></script>
+    <script src="./js/bootstrap-3.0.3.min.js"></script>
+    <script src="./js/prism-zf.js"></script>
+
+    <script>var base_url = '.';</script>
+    <script data-main="./mkdocs/js/search.js" src="./mkdocs/js/require.js"></script>
+    <script src="./js/base.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        From here you can search these documents. Enter your search terms below.
+                    </p>
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        </div>
+                    </form>
+                    <div id="mkdocs-search-results"></div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
     </div>
-  </footer>
 
-  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <!-- Bootstrap JS via CDN -->
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-  <!-- PrismJS via jsDelivr -->
-  <script src="https://cdn.jsdelivr.net/g/prism@1.3.0(prism.js+components/prism-php.min.js+components/prism-markup.min.js+components/prism-javascript.min.js+components/prism-bash.min.js+components/prism-clike.min.js+plugins/remove-initial-line-feed/prism-remove-initial-line-feed.min.js)"></script>
-</body>
+    </body>
+
 </html>
+
+<!--
+MkDocs version : 0.15.0
+Build Date UTC : 2016-03-15 15:05:12.818764
+-->
