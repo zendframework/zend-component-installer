@@ -4,7 +4,7 @@
     "type": "composer-plugin",
     "license": "BSD-3-Clause",
     "require": {
-        "php": "^5.5 || ^7.0",
+        "php": "^5.6 || ^7.0",
         "composer-plugin-api": "^1.0"
     },
     "extra": {
@@ -32,11 +32,13 @@
     },
     "scripts": {
         "check": [
-            "@cs",
+            "@cs-check",
             "@test"
         ],
-        "cs": "phpcs",
-        "cs-fix": "phpcbf",
-        "test": "phpunit"
+        "upload-coverage": "coveralls -v",
+        "cs-check": "phpcbf",
+        "cs-fix": "phpcs",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     }
 }
