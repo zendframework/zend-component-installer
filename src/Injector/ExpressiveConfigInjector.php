@@ -97,8 +97,8 @@ class ExpressiveConfigInjector extends AbstractInjector
      * Prepends the package with a `\\` in order to ensure it is fully
      * qualified, preventing issues in config files that are namespaced.
      */
-    public function remove($package, $type, IOInterface $io)
+    public function remove($package, IOInterface $io)
     {
-        parent::remove('\\' . $package, $type, $io);
+        parent::remove('\\' . $package, $io);
     }
 }

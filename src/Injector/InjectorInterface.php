@@ -51,9 +51,8 @@ interface InjectorInterface
      * Remove a package from the configuration.
      *
      * @param string $package Package to remove.
-     * @param int $type One of the TYPE_* constants
      * @param IOInterface $io
      * @return void
      */
-    public function remove($package, $type, IOInterface $io);
+    public function remove($package, IOInterface $io);
 }
