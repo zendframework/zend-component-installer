@@ -273,6 +273,33 @@ class ConfigProvider
             these as separate configuration providers allows the consumer to
             choose if they want both enabled in their application.
           </p>
+
+          <div class="panel panel-warning">
+            <div class="panel-heading">
+              <h2 class="panel-title">Removing individual packages</h2>
+            </div>
+
+            <div class="panel-body">
+              <p>
+                When removing individual packages that were originally installed
+                via a metapackage, <em>the component installer will not
+                trigger</em>. As such, you will need to manually remove such
+                packages from your configuration.
+              </p>
+
+              <p>
+                Additionally, a later update may actually <em>re-install</em>
+                the package, as it's a requirement of the metapackage. As such,
+                it's typically safer to:
+              </p>
+
+              <ul>
+                <li>Remove the metapackage</li>
+                <li>Individually install the packages from the metapackage that
+                  you wish to keep.</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
