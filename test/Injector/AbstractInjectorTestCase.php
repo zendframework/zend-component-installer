@@ -103,7 +103,7 @@ abstract class AbstractInjectorTestCase extends TestCase
         $io = $this->prophesize(IOInterface::class);
         $io->write(Argument::type('string'))->shouldNotBeCalled();
 
-        $this->assertNull($this->injector->remove('Foo\Bar', $type, $io->reveal()));
+        $this->assertNull($this->injector->remove('Foo\Bar', $io->reveal()));
     }
 
     abstract public function packagePopulatedInConfiguration();
@@ -124,7 +124,7 @@ abstract class AbstractInjectorTestCase extends TestCase
             return preg_match($pattern, $message);
         }))->shouldBeCalled();
 
-        $this->injector->remove('Foo\Bar', $type, $io->reveal());
+        $this->injector->remove('Foo\Bar', $io->reveal());
 
         $result = file_get_contents(vfsStream::url('project/' . $this->configFile));
         $this->assertSame($expectedContents, $result);

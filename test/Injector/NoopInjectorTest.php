@@ -18,34 +18,25 @@ class NoopInjectorTest extends TestCase
         $this->injector = new NoopInjector();
     }
 
-    public function testWillRegisterAnyType()
+    /**
+     * @dataProvider packageTypes
+     */
+    public function testWillRegisterAnyType($type)
     {
-        $types = [
-            NoopInjector::TYPE_CONFIG_PROVIDER,
-            NoopInjector::TYPE_COMPONENT,
-            NoopInjector::TYPE_MODULE,
-        ];
-        foreach ($types as $type) {
-            $this->assertTrue($this->injector->registersType($type), 'NoopInjector does not register type ' . $type);
-        }
+        $this->assertTrue($this->injector->registersType($type), 'NoopInjector does not register type ' . $type);
     }
 
-    public function testGetTypesAllowedReturnsAllTypes()
+    public function testGetTypesAllowedReturnsNoTypes()
     {
-        $types = [
-            NoopInjector::TYPE_CONFIG_PROVIDER,
-            NoopInjector::TYPE_COMPONENT,
-            NoopInjector::TYPE_MODULE,
-        ];
-        $this->assertEquals($types, $this->injector->getTypesAllowed());
+        $this->assertEquals([], $this->injector->getTypesAllowed());
     }
 
     public function packageTypes()
     {
         return [
             'config-provider' => [NoopInjector::TYPE_CONFIG_PROVIDER],
-            'component' => [NoopInjector::TYPE_COMPONENT],
-            'module' => [NoopInjector::TYPE_MODULE],
+            'component'       => [NoopInjector::TYPE_COMPONENT],
+            'module'          => [NoopInjector::TYPE_MODULE],
         ];
     }
 
@@ -66,6 +57,6 @@ class NoopInjectorTest extends TestCase
     {
         $io = $this->prophesize(IOInterface::class);
         $io->write(Argument::any())->shouldNotBeCalled();
-        $this->assertNull($this->injector->remove('Foo\Bar', $type, $io->reveal()));
+        $this->assertNull($this->injector->remove('Foo\Bar', $io->reveal()));
     }
 }
