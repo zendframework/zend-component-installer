@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.2.0 - 2016-06-02
+
+### Added
+
+- [#5](https://github.com/zendframework/zend-component-installer/pull/5) adds
+  support for arrays of components/modules/config-providers, in the format:
+
+  ```json
+  {
+    "extra": {
+      "zf": {
+        "component": [
+          "Some\\Component",
+          "Other\\Component"
+        ]
+      }
+    }
+  }
+  ```
+
+  This feature should primarily be used for metapackages, or config-providers
+  where some configuration might not be required, and which could then be split
+  into multiple providers.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 0.1.0 - TBD
 
 First tagged release.
