@@ -160,7 +160,7 @@ class ComponentInstallerTest extends TestCase
                 return false;
             }
 
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'some/component' into")) {
+            if (! strstr($argument[0], "Please select which config file you wish to inject 'Some\Component' into")) {
                 return false;
             }
 
@@ -195,6 +195,91 @@ class ComponentInstallerTest extends TestCase
         $this->assertContains("'Some\Component'", $config);
     }
 
+    public function testOnPostPackageInstallPromptsForConfigOptionsWhenDefinedAsArrays()
+    {
+        $this->createApplicationConfig();
+
+        $package = $this->prophesize(PackageInterface::class);
+        $package->getName()->willReturn('some/component');
+        $package->getExtra()->willReturn(['zf' => [
+            'component' => [
+                'Some\\Component',
+                'Other\\Component',
+            ],
+        ]]);
+
+        $operation = $this->prophesize(InstallOperation::class);
+        $operation->getPackage()->willReturn($package->reveal());
+
+        $event = $this->prophesize(PackageEvent::class);
+        $event->isDevMode()->willReturn(true);
+        $event->getOperation()->willReturn($operation->reveal());
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+
+            if (! strstr($argument[0], "Please select which config file you wish to inject 'Some\Component' into")) {
+                return false;
+            }
+
+            if (! strstr($argument[1], 'Do not inject')) {
+                return false;
+            }
+
+            if (! strstr($argument[2], 'application.config.php')) {
+                return false;
+            }
+
+            return true;
+        }), 0)->willReturn(1);
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+
+            if (! strstr($argument[0], "Please select which config file you wish to inject 'Other\Component' into")) {
+                return false;
+            }
+
+            if (! strstr($argument[1], 'Do not inject')) {
+                return false;
+            }
+
+            if (! strstr($argument[2], 'application.config.php')) {
+                return false;
+            }
+
+            return true;
+        }), 0)->willReturn(1);
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+            if (! strstr($argument[0], 'Remember')) {
+                return false;
+            }
+
+            return true;
+        }), 'n')->willReturn('n')->shouldBeCalledTimes(2);
+
+        $this->io->write(Argument::that(function ($argument) {
+            return strstr($argument, 'Installing Some\Component from package some/component');
+        }))->shouldBeCalled();
+
+        $this->io->write(Argument::that(function ($argument) {
+            return strstr($argument, 'Installing Other\Component from package some/component');
+        }))->shouldBeCalled();
+
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
+        $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
+        $this->assertContains("'Some\Component'", $config);
+        $this->assertContains("'Other\Component'", $config);
+    }
+
     public function testMultipleInvocationsOfOnPostPackageInstallCanPromptMultipleTimes()
     {
         // Do a first pass, with an initial package
@@ -218,7 +303,7 @@ class ComponentInstallerTest extends TestCase
                 return false;
             }
 
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'some/component' into")) {
+            if (! strstr($argument[0], "Please select which config file you wish to inject 'Some\Component' into")) {
                 return false;
             }
 
@@ -271,7 +356,7 @@ class ComponentInstallerTest extends TestCase
                 return false;
             }
 
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'other/component' into")) {
+            if (! strstr($argument[0], "Please select which config file you wish to inject 'Other\Component' into")) {
                 return false;
             }
 
@@ -329,7 +414,7 @@ class ComponentInstallerTest extends TestCase
                 return false;
             }
 
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'some/component' into")) {
+            if (! strstr($argument[0], "Please select which config file you wish to inject 'Some\Component' into")) {
                 return false;
             }
 
@@ -440,5 +525,50 @@ class ComponentInstallerTest extends TestCase
 
         $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
         $this->assertNotContains('Some\Component', $config);
+    }
+
+    public function testOnPostPackageUninstallCanRemovePackageArraysFromConfiguration()
+    {
+        $this->createApplicationConfig(
+            '<' . "?php\nreturn [\n    'modules' => [\n        'Some\Component',\n    'Other\Component',\n    ]\n];"
+        );
+
+        $package = $this->prophesize(PackageInterface::class);
+        $package->getName()->willReturn('some/component');
+        $package->getExtra()->willReturn(['zf' => [
+            'component' => [
+                'Some\\Component',
+                'Other\\Component',
+            ],
+        ]]);
+
+        $operation = $this->prophesize(InstallOperation::class);
+        $operation->getPackage()->willReturn($package->reveal());
+
+        $event = $this->prophesize(PackageEvent::class);
+        $event->isDevMode()->willReturn(true);
+        $event->getOperation()->willReturn($operation->reveal());
+
+        $this->io
+            ->write('<info>Removing Some\Component from package some/component</info>')
+            ->shouldBeCalled();
+        $this->io
+            ->write('<info>Removing Other\Component from package some/component</info>')
+            ->shouldBeCalled();
+
+        $this->io
+            ->write(Argument::that(function ($argument) {
+                return (bool) preg_match(
+                    '#Removed package from .*?config/application.config.php#',
+                    $argument
+                );
+            }))
+            ->shouldBeCalled();
+
+        $this->assertNull($this->installer->onPostPackageUninstall($event->reveal()));
+
+        $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
+        $this->assertNotContains('Some\Component', $config);
+        $this->assertNotContains('Other\Component', $config);
     }
 }

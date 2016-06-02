@@ -25,11 +25,7 @@ class NoopInjector implements InjectorInterface
      */
     public function getTypesAllowed()
     {
-        return [
-            self::TYPE_CONFIG_PROVIDER,
-            self::TYPE_COMPONENT,
-            self::TYPE_MODULE,
-        ];
+        return [];
     }
 
     /**
@@ -51,7 +47,7 @@ class NoopInjector implements InjectorInterface
     /**
      * {@inheritDoc}
      */
-    public function remove($package, $type, IOInterface $io)
+    public function remove($package, IOInterface $io)
     {
     }
 }

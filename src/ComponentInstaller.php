@@ -161,30 +161,36 @@ class ComponentInstaller implements
         }
 
         $package = $event->getOperation()->getPackage();
-        $name  = $package->getName();
-        $extra = $this->getExtraMetadata($package->getExtra());
+        $name    = $package->getName();
+        $extra   = $this->getExtraMetadata($package->getExtra());
 
         if (empty($extra)) {
             // Package does not define anything of interest; do nothing.
             return;
         }
 
+
         $packageTypes = $this->discoverPackageTypes($extra);
         $options = (new ConfigDiscovery())
             ->getAvailableConfigOptions($packageTypes, $this->projectRoot);
 
-        if (empty($options)) {
+        if ($options->isEmpty()) {
             // No configuration options found; do nothing.
             return;
         }
 
-        if ($this->packageIsAlreadyInstalled($extra, $options)) {
-            // Already installed; do nothing.
-            return;
-        }
-
-        $injector = $this->promptForConfigOption($name, $options, $packageTypes);
-        $this->injectPackageIntoConfig($name, $extra, $injector);
+        $this->marshalInstallableModules($extra, $options)
+            ->each(function ($module) use ($name) {
+            })
+            // Create injectors
+            ->reduce(function ($injectors, $module) use ($options, $packageTypes) {
+                $injectors[$module] = $this->promptForConfigOption($module, $options, $packageTypes);
+                return $injectors;
+            }, new Collection([]))
+            // Inject modules into configuration
+            ->each(function ($injector, $module) use ($name) {
+                $this->injectModuleIntoConfig($name, $module, $injector);
+            });
     }
 
     /**
@@ -214,16 +220,19 @@ class ComponentInstaller implements
         }
 
         $options = (new ConfigDiscovery())
-            ->getAvailableConfigOptions(array_keys($this->packageTypes), $this->projectRoot);
+            ->getAvailableConfigOptions(
+                new Collection(array_keys($this->packageTypes)),
+                $this->projectRoot
+            );
 
-        if (empty($options)) {
+        if ($options->isEmpty()) {
             // No configuration options found; do nothing.
             return;
         }
 
         $package = $event->getOperation()->getPackage();
-        $name  = $package->getName();
-        $extra = $this->getExtraMetadata($package->getExtra());
+        $name    = $package->getName();
+        $extra   = $this->getExtraMetadata($package->getExtra());
         $this->removePackageFromConfig($name, $extra, $options);
     }
 
@@ -251,77 +260,115 @@ class ComponentInstaller implements
     private function discoverPackageTypes(array $extra)
     {
         $packageTypes = array_flip($this->packageTypes);
-        $discoveredTypes = [];
-        foreach (array_keys($extra) as $type) {
-            if (! in_array($type, array_keys($packageTypes), true)) {
-                continue;
-            }
-            $discoveredTypes[] = $packageTypes[$type];
-        }
-        return $discoveredTypes;
+        $knownTypes   = array_keys($packageTypes);
+        return Collection::create(array_keys($extra))
+            ->filter(function ($type) use ($knownTypes) {
+                return in_array($type, $knownTypes, true);
+            })
+            ->reduce(function ($discoveredTypes, $type) use ($packageTypes) {
+                $discoveredTypes[] = $packageTypes[$type];
+                return $discoveredTypes;
+            }, new Collection([]));
     }
 
     /**
-     * Is the package already registered with one or more configuration files?
+     * Marshal a collection of defined package types.
+     *
+     * @param array $extra extra.zf value
+     * @return Collection
+     */
+    private function marshalPackageTypes(array $extra)
+    {
+        // Create a collection of types registered in the package.
+        return Collection::create($this->packageTypes)
+            ->filter(function ($configKey, $type) use ($extra) {
+                return $this->metadataForKeyIsValid($configKey, $extra);
+            });
+    }
+
+    /**
+     * Marshal a collection of package modules.
+     *
+     * @param array $extra extra.zf value
+     * @param Collection $packageTypes
+     * @param Collection $options ConfigOption instances
+     * @return Collection
+     */
+    private function marshalPackageModules(array $extra, Collection $packageTypes, Collection $options)
+    {
+        // We only want to list modules that the application can configure.
+        $supportedTypes = $options
+            ->reduce(function ($allowed, $option) {
+                return $allowed->merge($option->getInjector()->getTypesAllowed());
+            }, new Collection([]))
+            ->unique()
+            ->toArray();
+
+        return $packageTypes
+            ->reduce(function ($modules, $configKey, $type) use ($extra, $supportedTypes) {
+                if (! in_array($type, $supportedTypes, true)) {
+                    return $modules;
+                }
+                return $modules->merge((array) $extra[$configKey]);
+            }, new Collection([]))
+            // Make sure the list is unique
+            ->unique();
+    }
+
+    /**
+     * Prepare a list of modules to install/register with configuration.
      *
      * @param string[] $extra
      * @param ConfigOption[] $options
-     * @return bool
+     * @return string[] List of packages to install
      */
-    private function packageIsAlreadyInstalled(array $extra, array $options)
+    private function marshalInstallableModules(array $extra, Collection $options)
     {
-        foreach ($this->packageTypes as $type => $key) {
-            if (! isset($extra[$key])) {
-                continue;
-            }
-
-            $package = $extra[$key];
-
-            foreach ($options as $option) {
-                if ($option->getInjector()->isRegistered($package)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return $this->marshalPackageModules($extra, $this->marshalPackageTypes($extra), $options)
+            // Filter out modules that do not have a registered injector
+            ->reject(function ($module) use ($options) {
+                return $options->reduce(function ($registered, $option) use ($module) {
+                    return $registered || $option->getInjector()->isRegistered($module);
+                }, false);
+            });
     }
 
     /**
      * Prompt for the user to select a configuration location to update.
      *
      * @param string $name
-     * @param ConfigOption[] $options
-     * @param int[] $packageTypes
+     * @param Collection $options
+     * @param Collection $packageTypes
      * @return Injector\InjectorInterface
      */
-    private function promptForConfigOption($name, array $options, array $packageTypes)
+    private function promptForConfigOption($name, Collection $options, Collection $packageTypes)
     {
         if ($cachedInjector = $this->getCachedInjector($packageTypes)) {
             return $cachedInjector;
         }
 
-        $ask = [sprintf(
-            "\n  <question>Please select which config file you wish to inject '%s' into:</question>\n",
-            $name
-        )];
-
-        foreach ($options as $index => $option) {
+        $ask = $options->reduce(function ($ask, $option, $index) {
             $ask[] = sprintf(
                 "  [<comment>%d</comment>] %s\n",
                 $index,
                 $option->getPromptText()
             );
-        }
+            return $ask;
+        }, []);
 
-        $ask[] = '  Make your selection (default is <comment>0</comment>):';
+        array_unshift($ask, sprintf(
+            "\n  <question>Please select which config file you wish to inject '%s' into:</question>\n",
+            $name
+        ));
+        array_push($ask, '  Make your selection (default is <comment>0</comment>):');
 
         while (true) {
             $answer = $this->io->ask($ask, 0);
 
             if (is_numeric($answer) && isset($options[(int) $answer])) {
-                $this->promptToRememberOption($options[(int) $answer]->getInjector(), $packageTypes);
-                return $options[(int) $answer]->getInjector();
+                $injector = $options[(int) $answer]->getInjector();
+                $this->promptToRememberOption($injector);
+                return $injector;
             }
 
             $this->io->write('<error>Invalid selection</error>');
@@ -333,10 +380,9 @@ class ComponentInstaller implements
      *
      * @todo Will need to store selection in filesystem and remove when all packages are complete
      * @param Injector\InjectorInterface $injector
-     * @param int[] $packageTypes
      * return void
      */
-    private function promptToRememberOption(Injector\InjectorInterface $injector, array $packageTypes)
+    private function promptToRememberOption(Injector\InjectorInterface $injector)
     {
         $ask = ["\n  <question>Remember this option for other packages of the same type? (y/N)</question>"];
 
@@ -348,7 +394,7 @@ class ComponentInstaller implements
                     $this->cacheInjector($injector);
                     return;
                 case 'n':
-                    // intentionaly fall-through
+                    // intentionally fall-through
                 default:
                     return;
             }
@@ -356,101 +402,152 @@ class ComponentInstaller implements
     }
 
     /**
-     * Inject a package into available configuration.
+     * Inject a module into available configuration.
      *
      * @param string $package Package name
-     * @param array $metadata Package metadata with potential injections.
+     * @param string $module Module to install in configuration
      * @param Injector\InjectorInterface $injector Injector to use.
      * @return void
      */
-    private function injectPackageIntoConfig($package, array $metadata, Injector\InjectorInterface $injector)
+    private function injectModuleIntoConfig($package, $module, Injector\InjectorInterface $injector)
     {
-        foreach ($this->packageTypes as $type => $key) {
-            if (! $injector->registersType($type)) {
-                continue;
-            }
+        // Find the first package type the injector can handle.
+        $type = Collection::create(array_keys($this->packageTypes))
+            ->reduce(function ($discovered, $type) use ($injector) {
+                if ($discovered) {
+                    return $discovered;
+                }
 
-            if (! $this->metadataKeyIsValid($key, $metadata)) {
-                continue;
-            }
+                $discovered = $injector->registersType($type) ? $type : $discovered;
+                return $discovered;
+            }, false);
 
-            $this->io->write(sprintf('<info>Installing %s from package %s</info>', $metadata[$key], $package));
-            $injector->inject($metadata[$key], $type, $this->io);
-        }
+        $this->io->write(sprintf('<info>Installing %s from package %s</info>', $module, $package));
+        $injector->inject($module, $type, $this->io);
     }
 
     /**
      * Remove a package from configuration.
      *
      * @param string $package Package name
-     * @param ConfigOption[] $configOptions Discovered configuration locations
-     *     to remove package from.
-     * @param Injector\InjectorInterface $injector Injector to use.
+     * @param array $metadata Metadata pulled from extra.zf
+     * @param Collection $configOptions Discovered configuration options from
+     *     which to remove package.
      * @return void
      */
-    private function removePackageFromConfig($package, array $metadata, array $configOptions)
+    private function removePackageFromConfig($package, array $metadata, Collection $configOptions)
     {
-        foreach ($this->packageTypes as $type => $key) {
-            foreach ($configOptions as $configOption) {
-                $injector = $configOption->getInjector();
+        // Create a collection of types registered in the package.
+        $packageTypes = $this->marshalPackageTypes($metadata);
 
-                if (! $injector->registersType($type)) {
-                    continue;
-                }
+        // Create a collection of configured injectors for the package types
+        // registered.
+        $injectors = $configOptions
+            ->map(function ($configOption) {
+                return $configOption->getInjector();
+            })
+            ->filter(function ($injector) use ($packageTypes) {
+                return $packageTypes->reduce(function ($registered, $key, $type) use ($injector) {
+                    return $registered || $injector->registersType($type);
+                }, false);
+            });
 
-                if (! $this->metadataKeyIsValid($key, $metadata)) {
-                    continue;
-                }
-
-                $this->io->write(sprintf('<info>Removing %s from package %s</info>', $metadata[$key], $package));
-                $injector->remove($metadata[$key], $type, $this->io);
-            }
-        }
+        // Create a collection of unique modules based on the package types present,
+        // and remove each from configuration.
+        $this->marshalPackageModules($metadata, $packageTypes, $configOptions)
+            ->each(function ($module) use ($package, $injectors) {
+                $this->removeModuleFromConfig($module, $package, $injectors);
+            });
     }
 
     /**
-     * Is a given metadata key valid and accessible?
+     * Remove an individual module defined in a package from configuration.
      *
-     * @param string $key
+     * @param string $module Module to remove
+     * @param string $package Package in which module is defined
+     * @param Collection $injectors Injectors to use for removal
+     * @return void
+     */
+    private function removeModuleFromConfig($module, $package, Collection $injectors)
+    {
+        $injectors->each(function ($injector) use ($module, $package) {
+            $this->io->write(sprintf('<info>Removing %s from package %s</info>', $module, $package));
+            $injector->remove($module, $this->io);
+        });
+    }
+
+    /**
+     * Is a given module name valid?
+     *
+     * @param string $module
+     * @return bool
+     */
+    private function moduleIsValid($module)
+    {
+        return (is_string($module) && ! empty($module));
+    }
+
+    /**
+     * Is a given metadata value (extra.zf.*) valid?
+     *
+     * @param string $key Key to examine in metadata
      * @param array $metadata
      * @return bool
      */
-    private function metadataKeyIsValid($key, array $metadata)
+    private function metadataForKeyIsValid($key, array $metadata)
     {
-        return (isset($metadata[$key]) && is_string($metadata[$key]) && ! empty($metadata[$key]));
+        if (! isset($metadata[$key])) {
+            return false;
+        }
+
+        if (is_string($metadata[$key])) {
+            return $this->moduleIsValid($metadata[$key]);
+        }
+
+        if (! is_array($metadata[$key])) {
+            return false;
+        }
+
+        return Collection::create($metadata[$key])
+            ->reduce(function ($valid, $value) {
+                if (false === $valid) {
+                    return $valid;
+                }
+                return $this->moduleIsValid($value);
+            }, null);
     }
 
     /**
      * Attempt to retrieve a cached injector, based on the current package types.
      *
-     * @param int[] $packageTypes
+     * @param Collection $packageTypes
      * @return null|Injector\InjectorInterface
      */
-    private function getCachedInjector(array $packageTypes)
+    private function getCachedInjector(Collection $packageTypes)
     {
-        foreach ($packageTypes as $type) {
-            if (! isset($this->cachedInjectors[$type])) {
-                continue;
+        return $packageTypes->reduce(function ($injector, $type) {
+            if (null !== $injector || ! isset($this->cachedInjectors[$type])) {
+                return $injector;
             }
 
             return $this->cachedInjectors[$type];
-        }
+        }, null);
     }
 
     /**
      * Cache an injector for later use.
      *
      * @param Injector\InjectorInterface $injector
-     * @parram int[] $packageTypes
      * @return void
      */
     private function cacheInjector(Injector\InjectorInterface $injector)
     {
-        foreach ($injector->getTypesAllowed() as $type) {
-            if (isset($this->cachedInjectors[$type])) {
-                continue;
-            }
-            $this->cachedInjectors[$type] = $injector;
-        }
+        Collection::create($injector->getTypesAllowed())
+            ->reject(function ($type) {
+                return isset($this->cachedInjectors[$type]);
+            })
+            ->each(function ($type) use ($injector) {
+                $this->cachedInjectors[$type] = $injector;
+            });
     }
 }

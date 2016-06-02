@@ -164,11 +164,11 @@ abstract class AbstractInjector implements InjectorInterface
     /**
      * Remove a package from the configuration.
      *
-     * @var string $package Package name.
-     * @var string $config
+     * @param string $package Package name.
+     * @param IOInterface $io
      * @return void
      */
-    public function remove($package, $type, IOInterface $io)
+    public function remove($package, IOInterface $io)
     {
         $config = file_get_contents($this->configFile);
 
@@ -202,6 +202,6 @@ abstract class AbstractInjector implements InjectorInterface
      */
     protected function isRegisteredInConfig($package, $config)
     {
-        return (1 === preg_match(sprintf($this->isRegisteredPattern, preg_quote($package)), $config));
+        return (1 === preg_match(sprintf($this->isRegisteredPattern, preg_quote($package, '/')), $config));
     }
 }

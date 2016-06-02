@@ -41,6 +41,21 @@
       </code></pre>
 
       <p>
+        You may also specify multiple components as an array:
+      </p>
+
+      <pre><code class="lang-json" data-trim>
+"extra": {
+  "zf": {
+    "component": [
+      "Some\\Component",
+      "Other\\Component"
+    ]
+  }
+}
+      </code></pre>
+
+      <p>
         Your application will need to have one or more of the following
         configuration files, from which you will be prompted to choose which one
         in which to inject the component:
@@ -78,6 +93,21 @@
 "extra": {
   "zf": {
     "module": "Some\\Component"
+  }
+}
+      </code></pre>
+
+      <p>
+        You may also specify multiple modules as an array:
+      </p>
+
+      <pre><code class="lang-json" data-trim>
+"extra": {
+  "zf": {
+    "module": [
+      "Some\\Component",
+      "Other\\Component"
+    ]
   }
 }
       </code></pre>
@@ -141,6 +171,21 @@ class ConfigProvider
       </code></pre>
 
       <p>
+        You may also specify multiple configuration providers as an array:
+      </p>
+
+      <pre><code class="lang-json" data-trim>
+"extra": {
+  "zf": {
+    "config-provider": [
+      "Some\\Component\\ConfigProvider",
+      "Some\\Component\\PluginConfigProvider",
+    ]
+  }
+}
+      </code></pre>
+
+      <p>
         Your application will need to define a <code>config/config.php</code>
         file, and that file will need to have a line that instantiates a
         <code>Zend\Expressive\ConfigManager\ConfigManager</code> instance.
@@ -197,6 +242,64 @@ class ConfigProvider
             that exposes itself as such, the plugin will prompt you, asking where
             you want to inject it.
           </p>
+        </div>
+      </div>
+
+      <div class="panel panel-info">
+        <div class="panel-heading">
+          <h2 class="panel-title">When are multiple items required?</h2>
+        </div>
+
+        <div class="panel-body">
+          <p>
+            As noted under each of the component, module, and config-provider
+            sections, you can optionally specify an <em>array</em> of items. When
+            would you do this?
+          </p>
+
+          <p>
+            The primary reason is for <a href="https://getcomposer.org/doc/04-schema.md#type">metapackages</a>.
+            Composer does not trigger either <code>post-package-install</code>
+            or <code>post-package-uninstall</code> events for packages defined
+            as metapackage requirements. As such, you would define the metadata
+            for such packages in the metapackage as well, to ensure that the
+            component installer can update the configuration accordingly.
+          </p>
+
+          <p>
+            The other use case is to allow specifying multiple configuration
+            providers from the same package. As an example, you might define
+            default configuration, plus configuration for plugins; specifying
+            these as separate configuration providers allows the consumer to
+            choose if they want both enabled in their application.
+          </p>
+
+          <div class="panel panel-warning">
+            <div class="panel-heading">
+              <h2 class="panel-title">Removing individual packages</h2>
+            </div>
+
+            <div class="panel-body">
+              <p>
+                When removing individual packages that were originally installed
+                via a metapackage, <em>the component installer will not
+                trigger</em>. As such, you will need to manually remove such
+                packages from your configuration.
+              </p>
+
+              <p>
+                Additionally, a later update may actually <em>re-install</em>
+                the package, as it's a requirement of the metapackage. As such,
+                it's typically safer to:
+              </p>
+
+              <ul>
+                <li>Remove the metapackage</li>
+                <li>Individually install the packages from the metapackage that
+                  you wish to keep.</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
