@@ -10,6 +10,7 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit_Framework_ExpectationFailedException as ExpectationFailedException;
 use PHPUnit_Framework_TestCase as TestCase;
+use Zend\ComponentInstaller\Collection;
 use Zend\ComponentInstaller\ConfigDiscovery;
 use Zend\ComponentInstaller\ConfigOption;
 use Zend\ComponentInstaller\Injector;
@@ -27,11 +28,11 @@ class ConfigDiscoveryTest extends TestCase
         $this->projectRoot = vfsStream::setup('project');
         $this->discovery = new ConfigDiscovery();
 
-        $this->allTypes = [
+        $this->allTypes = new Collection([
             InjectorInterface::TYPE_CONFIG_PROVIDER,
             InjectorInterface::TYPE_COMPONENT,
             InjectorInterface::TYPE_MODULE,
-        ];
+        ]);
 
         $this->injectorTypes = [
             'Zend\ComponentInstaller\Injector\ApplicationConfigInjector',
@@ -69,12 +70,13 @@ class ConfigDiscoveryTest extends TestCase
             ->setContent('<' . "?php\nreturn [\n]);");
     }
 
-    public function assertOptionsContainsNoopInjector(array $options)
+    public function assertOptionsContainsNoopInjector(Collection $options)
     {
-        if (0 === count($options)) {
+        if ($options->isEmpty()) {
             throw new ExpectationFailedException('Options array is empty; no NoopInjector found!');
         }
 
+        $options = $options->toArray();
         $injector = array_shift($options)->getInjector();
 
         if (! $injector instanceof NoopInjector) {
@@ -82,7 +84,7 @@ class ConfigDiscoveryTest extends TestCase
         }
     }
 
-    public function assertOptionsContainsInjector($injectorType, array $options)
+    public function assertOptionsContainsInjector($injectorType, Collection $options)
     {
         foreach ($options as $option) {
             if (! $option instanceof ConfigOption) {
@@ -106,7 +108,8 @@ class ConfigDiscoveryTest extends TestCase
     public function testGetAvailableConfigOptionsReturnsEmptyArrayWhenNoConfigFilesPresent()
     {
         $result = $this->discovery->getAvailableConfigOptions($this->allTypes);
-        $this->assertSame([], $result);
+        $this->assertInstanceOf(Collection::class, $result);
+        $this->assertTrue($result->isEmpty());
     }
 
     public function testGetAvailableConfigOptionsReturnsOptionsForEachSupportedPackageType()
@@ -180,7 +183,7 @@ class ConfigDiscoveryTest extends TestCase
         $expected
     ) {
         $this->{$seedMethod}();
-        $options = $this->discovery->getAvailableConfigOptions([$type], vfsStream::url('project'));
+        $options = $this->discovery->getAvailableConfigOptions(new Collection([$type]), vfsStream::url('project'));
         $this->assertCount(2, $options);
 
         $this->assertOptionsContainsNoopInjector($options);
@@ -191,10 +194,11 @@ class ConfigDiscoveryTest extends TestCase
     {
         $this->createApplicationConfig();
         $options = $this->discovery->getAvailableConfigOptions(
-            [InjectorInterface::TYPE_CONFIG_PROVIDER],
+            new Collection([InjectorInterface::TYPE_CONFIG_PROVIDER]),
             vfsStream::url('project')
         );
 
-        $this->assertSame([], $options);
+        $this->assertInstanceOf(Collection::class, $options);
+        $this->assertTrue($options->isEmpty());
     }
 }

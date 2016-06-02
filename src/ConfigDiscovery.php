@@ -39,7 +39,7 @@ class ConfigDiscovery
      *     constants indicating valid package types that could be injected.
      * @param string $projectRoot Path to the project root; assumes PWD by
      *     default.
-     * @return ConfigOption[]
+     * @return Collection Collection of ConfigOption instances.
      */
     public function getAvailableConfigOptions(Collection $availableTypes, $projectRoot = '')
     {

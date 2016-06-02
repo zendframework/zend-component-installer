@@ -8,6 +8,7 @@
 namespace Zend\ComponentInstaller;
 
 use ArrayAccess;
+use ArrayIterator;
 use Countable;
 use InvalidArgumentException;
 use IteratorAggregate;
