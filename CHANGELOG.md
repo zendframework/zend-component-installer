@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 0.3.0 - TBD
+## 0.3.0 - 2016-06-27
 
 ### Added
 
@@ -14,7 +14,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Removed
 
-- Nothing.
+- [#4](https://github.com/zendframework/zend-component-installer/pull/4) removes
+  support for PHP 5.5.
 
 ### Fixed
 
