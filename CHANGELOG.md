@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.3.0 - TBD
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#8](https://github.com/zendframework/zend-component-installer/pull/8) fixes
+  how the `DevelopmentConfig` discovery and injection works. Formerly, these
+  were looking for the `development.config.php` file; however, this was
+  incorrect. zf-development-mode has `development.config.php.dist` checked into
+  the repository, but specifically excludes `development.config.php` from it in
+  order to allow toggling it from the `.dist` file. The code now correctly does
+  this.
+
 ## 0.2.0 - 2016-06-02
 
 ### Added
