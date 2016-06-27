@@ -13,5 +13,5 @@ class DevelopmentConfigInjector extends ApplicationConfigInjector
      *
      * @var string
      */
-    protected $configFile = 'config/development.config.php';
+    protected $configFile = 'config/development.config.php.dist';
 }

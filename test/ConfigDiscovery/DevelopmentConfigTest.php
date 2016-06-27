@@ -32,7 +32,7 @@ class DevelopmentConfigTest extends TestCase
 
     public function testLocateReturnsFalseWhenFileDoesNotHaveExpectedContents()
     {
-        vfsStream::newFile('config/development.config.php')
+        vfsStream::newFile('config/development.config.php.dist')
             ->at($this->configDir)
             ->setContent('<' . "?php\nreturn [];");
         $this->assertFalse($this->locator->locate());
@@ -51,7 +51,7 @@ class DevelopmentConfigTest extends TestCase
      */
     public function testLocateReturnsTrueWhenFileExistsAndHasExpectedContent($contents)
     {
-        vfsStream::newFile('config/development.config.php')
+        vfsStream::newFile('config/development.config.php.dist')
             ->at($this->configDir)
             ->setContent($contents);
 

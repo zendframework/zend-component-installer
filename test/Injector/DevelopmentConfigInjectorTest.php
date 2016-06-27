@@ -10,7 +10,7 @@ use Zend\ComponentInstaller\Injector\DevelopmentConfigInjector;
 
 class DevelopmentConfigInjectorTest extends AbstractInjectorTestCase
 {
-    protected $configFile = 'config/development.config.php';
+    protected $configFile = 'config/development.config.php.dist';
 
     protected $injectorClass = DevelopmentConfigInjector::class;
 

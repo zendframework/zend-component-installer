@@ -16,7 +16,7 @@ class ConfigDiscovery
     private $discovery = [
         'config/application.config.php' => ConfigDiscovery\ApplicationConfig::class,
         'config/modules.config.php' => ConfigDiscovery\ModulesConfig::class,
-        'config/development.config.php' => ConfigDiscovery\DevelopmentConfig::class,
+        'config/development.config.php.dist' => ConfigDiscovery\DevelopmentConfig::class,
         'config/config.php' => ConfigDiscovery\ExpressiveConfig::class,
     ];
 
@@ -28,7 +28,7 @@ class ConfigDiscovery
     private $injectors = [
         'config/application.config.php' => Injector\ApplicationConfigInjector::class,
         'config/modules.config.php' => Injector\ModulesConfigInjector::class,
-        'config/development.config.php' => Injector\DevelopmentConfigInjector::class,
+        'config/development.config.php.dist' => Injector\DevelopmentConfigInjector::class,
         'config/config.php' => Injector\ExpressiveConfigInjector::class,
     ];
 
