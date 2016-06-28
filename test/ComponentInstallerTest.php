@@ -468,7 +468,6 @@ class ComponentInstallerTest extends TestCase
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
         $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
-
         $this->assertContains("'Other\Component'", $config);
     }
 
