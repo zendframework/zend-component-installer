@@ -35,10 +35,10 @@ class ConfigDiscoveryTest extends TestCase
         ]);
 
         $this->injectorTypes = [
-            'Zend\ComponentInstaller\Injector\ApplicationConfigInjector',
-            'Zend\ComponentInstaller\Injector\DevelopmentConfigInjector',
-            'Zend\ComponentInstaller\Injector\ExpressiveConfigInjector',
-            'Zend\ComponentInstaller\Injector\ModulesConfigInjector',
+            Injector\ApplicationConfigInjector::class,
+            Injector\ConfigInjectorChain::class,
+            Injector\ExpressiveConfigInjector::class,
+            Injector\ModulesConfigInjector::class,
         ];
     }
 
@@ -49,11 +49,17 @@ class ConfigDiscoveryTest extends TestCase
             ->setContent('<' . "?php\nreturn [\n    'modules' => [\n    ]\n];");
     }
 
-    public function createDevelopmentConfig()
+    public function createDevelopmentConfig($dist = true)
     {
-        vfsStream::newFile('config/development.config.php.dist')
+        $configFileName = 'config/development.config.php' . ($dist?'.dist':'');
+        vfsStream::newFile($configFileName)
             ->at($this->projectRoot)
             ->setContent('<' . "?php\nreturn [\n    'modules' => [\n    ]\n];");
+    }
+
+    public function createDevelopmentWorkConfig()
+    {
+        $this->createDevelopmentConfig(false);
     }
 
     public function createExpressiveConfig()
@@ -135,41 +141,61 @@ class ConfigDiscoveryTest extends TestCase
                 'seedMethod' => 'createApplicationConfig',
                 'type'       => InjectorInterface::TYPE_COMPONENT,
                 'expected'   => Injector\ApplicationConfigInjector::class,
+                'chain'      => false,
             ],
             [
                 'seedMethod' => 'createApplicationConfig',
                 'type'       => InjectorInterface::TYPE_MODULE,
                 'expected'   => Injector\ApplicationConfigInjector::class,
+                'chain'      => false,
             ],
             [
                 'seedMethod' => 'createDevelopmentConfig',
                 'type'       => InjectorInterface::TYPE_COMPONENT,
                 'expected'   => Injector\DevelopmentConfigInjector::class,
+                'chain'      => true,
             ],
             [
                 'seedMethod' => 'createDevelopmentConfig',
                 'type'       => InjectorInterface::TYPE_MODULE,
                 'expected'   => Injector\DevelopmentConfigInjector::class,
+                'chain'      => true,
+            ],
+            [
+                'seedMethod' => 'createDevelopmentWorkConfig',
+                'type'       => InjectorInterface::TYPE_COMPONENT,
+                'expected'   => Injector\DevelopmentWorkConfigInjector::class,
+                'chain'      => true,
+            ],
+            [
+                'seedMethod' => 'createDevelopmentWorkConfig',
+                'type'       => InjectorInterface::TYPE_MODULE,
+                'expected'   => Injector\DevelopmentWorkConfigInjector::class,
+                'chain'      => true,
             ],
             [
                 'seedMethod' => 'createExpressiveConfig',
                 'type'       => InjectorInterface::TYPE_CONFIG_PROVIDER,
                 'expected'   => Injector\ExpressiveConfigInjector::class,
+                'chain'      => false,
             ],
             [
                 'seedMethod' => 'createExpressiveConfig',
                 'type'       => InjectorInterface::TYPE_CONFIG_PROVIDER,
                 'expected'   => Injector\ExpressiveConfigInjector::class,
+                'chain'      => false,
             ],
             [
                 'seedMethod' => 'createModulesConfig',
                 'type'       => InjectorInterface::TYPE_COMPONENT,
                 'expected'   => Injector\ModulesConfigInjector::class,
+                'chain'      => false,
             ],
             [
                 'seedMethod' => 'createModulesConfig',
                 'type'       => InjectorInterface::TYPE_MODULE,
                 'expected'   => Injector\ModulesConfigInjector::class,
+                'chain'      => false,
             ],
         ];
     }
@@ -180,14 +206,19 @@ class ConfigDiscoveryTest extends TestCase
     public function testGetAvailableConfigOptionsCanReturnsSubsetOfOptionsBaseOnPackageType(
         $seedMethod,
         $type,
-        $expected
+        $expected,
+        $chain
     ) {
         $this->{$seedMethod}();
         $options = $this->discovery->getAvailableConfigOptions(new Collection([$type]), vfsStream::url('project'));
         $this->assertCount(2, $options);
 
         $this->assertOptionsContainsNoopInjector($options);
-        $this->assertOptionsContainsInjector($expected, $options);
+        if ($chain) {
+            $this->assertOptionsContainsInjector(Injector\ConfigInjectorChain::class, $options);
+        } else {
+            $this->assertOptionsContainsInjector($expected, $options);
+        }
     }
 
     public function testNoOptionReturnedIfInjectorCannotRegisterType()
