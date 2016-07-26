@@ -120,4 +120,13 @@ class ConfigInjectorChain implements InjectorInterface
                 $injector->remove($package, $io);
             });
     }
+
+    /**
+     *
+     * @return Collection
+     */
+    public function getCollection()
+    {
+        return $this->chain;
+    }
 }
