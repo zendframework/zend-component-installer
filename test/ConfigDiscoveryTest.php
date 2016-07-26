@@ -101,6 +101,29 @@ class ConfigDiscoveryTest extends TestCase
             }
 
             if ($injectorType === get_class($option->getInjector())) {
+                return $option->getInjector();
+            }
+        }
+
+        throw new ExpectationFailedException(sprintf(
+            'Injector of type %s was not found in the options',
+            $injectorType
+        ));
+    }
+
+    public function assertOptionsContainsInjectorInChain($injectorType, Collection $options)
+    {
+        $chain = $this->assertOptionsContainsInjector(Injector\ConfigInjectorChain::class, $options);
+
+        foreach ($chain->getCollection() as $injector) {
+            if (! $injector instanceof InjectorInterface) {
+                throw new ExpectationFailedException(sprintf(
+                    'Invalid Injector returned: %s',
+                    (is_object($injector) ? get_class($injector) : gettype($injector))
+                ));
+            }
+
+            if ($injectorType === get_class($injector)) {
                 return;
             }
         }
@@ -215,7 +238,7 @@ class ConfigDiscoveryTest extends TestCase
 
         $this->assertOptionsContainsNoopInjector($options);
         if ($chain) {
-            $this->assertOptionsContainsInjector(Injector\ConfigInjectorChain::class, $options);
+            $this->assertOptionsContainsInjectorInChain($expected, $options);
         } else {
             $this->assertOptionsContainsInjector($expected, $options);
         }
