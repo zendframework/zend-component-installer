@@ -169,7 +169,6 @@ class ComponentInstaller implements
             return;
         }
 
-
         $packageTypes = $this->discoverPackageTypes($extra);
         $options = (new ConfigDiscovery())
             ->getAvailableConfigOptions($packageTypes, $this->projectRoot);
@@ -188,8 +187,8 @@ class ComponentInstaller implements
                 return $injectors;
             }, new Collection([]))
             // Inject modules into configuration
-            ->each(function ($injector, $module) use ($name) {
-                $this->injectModuleIntoConfig($name, $module, $injector);
+            ->each(function ($injector, $module) use ($name, $packageTypes) {
+                $this->injectModuleIntoConfig($name, $module, $injector, $packageTypes);
             });
     }
 
@@ -407,12 +406,17 @@ class ComponentInstaller implements
      * @param string $package Package name
      * @param string $module Module to install in configuration
      * @param Injector\InjectorInterface $injector Injector to use.
+     * @param Collection $packageTypes
      * @return void
      */
-    private function injectModuleIntoConfig($package, $module, Injector\InjectorInterface $injector)
-    {
+    private function injectModuleIntoConfig(
+        $package,
+        $module,
+        Injector\InjectorInterface $injector,
+        Collection $packageTypes
+    ) {
         // Find the first package type the injector can handle.
-        $type = Collection::create(array_keys($this->packageTypes))
+        $type = $packageTypes
             ->reduce(function ($discovered, $type) use ($injector) {
                 if ($discovered) {
                     return $discovered;
