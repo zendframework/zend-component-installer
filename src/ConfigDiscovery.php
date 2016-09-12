@@ -6,9 +6,6 @@
 
 namespace Zend\ComponentInstaller;
 
-use Zend\ComponentInstaller\ConfigDiscovery\DiscoveryChain;
-use Zend\ComponentInstaller\Injector\ConfigInjectorChain;
-
 class ConfigDiscovery
 {
     /**
@@ -62,7 +59,7 @@ class ConfigDiscovery
             // Create a discovery class for the dicovery type
             ->map(function ($discoveryClass) use ($projectRoot) {
                 if (is_array($discoveryClass)) {
-                    return new DiscoveryChain($discoveryClass, $projectRoot);
+                    return new ConfigDiscovery\DiscoveryChain($discoveryClass, $projectRoot);
                 }
                 return new $discoveryClass($projectRoot);
             })
@@ -75,7 +72,7 @@ class ConfigDiscovery
                 // Look up the injector based on the file type
                 $injectorClass = $this->injectors[$file];
                 if (is_array($injectorClass)) {
-                    return new ConfigInjectorChain(
+                    return new Injector\ConfigInjectorChain(
                         $injectorClass,
                         $discovery,
                         $availableTypes,
