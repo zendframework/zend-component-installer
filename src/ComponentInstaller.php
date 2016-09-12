@@ -409,8 +409,12 @@ class ComponentInstaller implements
      * @param Collection $packageTypes
      * @return void
      */
-    private function injectModuleIntoConfig($package, $module, Injector\InjectorInterface $injector, Collection $packageTypes)
-    {
+    private function injectModuleIntoConfig(
+        $package,
+        $module,
+        Injector\InjectorInterface $injector,
+        Collection $packageTypes
+    ) {
         // Find the first package type the injector can handle.
         $type = $packageTypes
             ->reduce(function ($discovered, $type) use ($injector) {
