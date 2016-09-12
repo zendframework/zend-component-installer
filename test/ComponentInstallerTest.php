@@ -571,4 +571,67 @@ class ComponentInstallerTest extends TestCase
         $this->assertNotContains('Some\Component', $config);
         $this->assertNotContains('Other\Component', $config);
     }
+
+    public function testModuleIsAppended()
+    {
+        $this->createApplicationConfig(
+            '<' . "?php\nreturn [\n    'modules' => [\n        'Some\Component',\n    ]\n];"
+        );
+
+        $package = $this->prophesize(PackageInterface::class);
+        $package->getName()->willReturn('some/module');
+        $package->getExtra()->willReturn(['zf' => [
+            'module' => 'Some\\Module',
+        ]]);
+
+        $operation = $this->prophesize(InstallOperation::class);
+        $operation->getPackage()->willReturn($package->reveal());
+
+        $event = $this->prophesize(PackageEvent::class);
+        $event->isDevMode()->willReturn(true);
+        $event->getOperation()->willReturn($operation->reveal());
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+
+            if (! strstr($argument[0], "Please select which config file you wish to inject 'Some\Module' into")) {
+                return false;
+            }
+
+            if (! strstr($argument[1], 'Do not inject')) {
+                return false;
+            }
+
+            if (! strstr($argument[2], 'application.config.php')) {
+                return false;
+            }
+
+            return true;
+        }), 0)->willReturn(1);
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+            if (! strstr($argument[0], 'Remember')) {
+                return false;
+            }
+
+            return true;
+        }), 'n')->willReturn('n');
+
+        $this->io->write(Argument::that(function ($argument) {
+            return strstr($argument, 'Installing Some\Module from package some/module');
+        }))->shouldBeCalled();
+
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
+        $config = include(vfsStream::url('project/config/application.config.php'));
+        $modules = $config['modules'];
+        $this->assertEquals([
+            'Some\Component',
+            'Some\Module'
+        ], $modules);
+    }
 }
