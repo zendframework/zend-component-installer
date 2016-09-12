@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.4.0 - TBD
+
+### Added
+
+- [#12](https://github.com/zendframework/zend-component-installer/pull/12) adds
+  a `DiscoveryChain`, for allowing discovery to use multiple discovery sources
+  to answer the question of whether or not the application can inject
+  configuration for the module or component. The stated use is for injection
+  into development configuration.
+- [#12](https://github.com/zendframework/zend-component-installer/pull/12) adds
+  a `ConfigInjectorChain`, which allows injecting a module or component into
+  multiple configuration sources. The stated use is for injection into
+  development configuration.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 0.3.1 - 2016-09-12
 
 ### Added
