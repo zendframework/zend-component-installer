@@ -1,4 +1,6 @@
 # Component Installer for Zend Framework 3 Applications
+[![Build Status](https://travis-ci.org/zendframework/zend-component-installer.svg?branch=master)](https://travis-ci.org/zendframework/zend-component-installer)
+[![Coverage Status](https://coveralls.io/repos/github/zendframework/zend-component-installer/badge.svg?branch=master)](https://coveralls.io/github/zendframework/zend-component-installer?branch=master)
 
 This repository contains the Composer plugin class `Zend\ComponentInstaller\ComponentInstaller`,
 which provides Composer event hooks for the events:
