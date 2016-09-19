@@ -183,12 +183,12 @@ class ComponentInstaller implements
             })
             // Create injectors
             ->reduce(function ($injectors, $module) use ($options, $packageTypes) {
-                $injectors[$module] = $this->promptForConfigOption($module, $options, $packageTypes);
+                $injectors[$module] = $this->promptForConfigOption($module, $options, $packageTypes[$module]);
                 return $injectors;
             }, new Collection([]))
             // Inject modules into configuration
             ->each(function ($injector, $module) use ($name, $packageTypes) {
-                $this->injectModuleIntoConfig($name, $module, $injector, $packageTypes);
+                $this->injectModuleIntoConfig($name, $module, $injector, $packageTypes[$module]);
             });
     }
 
@@ -254,18 +254,22 @@ class ComponentInstaller implements
      * exposes in the extra configuration.
      *
      * @param string[] $extra
-     * @return int[] Array of Injector\InjectorInterface::TYPE_* constants.
+     * @return Collection Collection of Injector\InjectorInterface::TYPE_* constants.
      */
     private function discoverPackageTypes(array $extra)
     {
         $packageTypes = array_flip($this->packageTypes);
         $knownTypes   = array_keys($packageTypes);
-        return Collection::create(array_keys($extra))
-            ->filter(function ($type) use ($knownTypes) {
+        return Collection::create($extra)
+            ->filter(function ($packages, $type) use ($knownTypes) {
                 return in_array($type, $knownTypes, true);
             })
-            ->reduce(function ($discoveredTypes, $type) use ($packageTypes) {
-                $discoveredTypes[] = $packageTypes[$type];
+            ->reduce(function ($discoveredTypes, $packages, $type) use ($packageTypes) {
+                $packages = is_array($packages) ? $packages : [$packages];
+
+                foreach ($packages as $package) {
+                    $discoveredTypes[$package] = $packageTypes[$type];
+                }
                 return $discoveredTypes;
             }, new Collection([]));
     }
@@ -337,12 +341,12 @@ class ComponentInstaller implements
      *
      * @param string $name
      * @param Collection $options
-     * @param Collection $packageTypes
+     * @param int $packageType
      * @return Injector\InjectorInterface
      */
-    private function promptForConfigOption($name, Collection $options, Collection $packageTypes)
+    private function promptForConfigOption($name, Collection $options, $packageType)
     {
-        if ($cachedInjector = $this->getCachedInjector($packageTypes)) {
+        if ($cachedInjector = $this->getCachedInjector($packageType)) {
             return $cachedInjector;
         }
 
@@ -366,7 +370,7 @@ class ComponentInstaller implements
 
             if (is_numeric($answer) && isset($options[(int) $answer])) {
                 $injector = $options[(int) $answer]->getInjector();
-                $this->promptToRememberOption($injector);
+                $this->promptToRememberOption($injector, $packageType);
                 return $injector;
             }
 
@@ -379,9 +383,10 @@ class ComponentInstaller implements
      *
      * @todo Will need to store selection in filesystem and remove when all packages are complete
      * @param Injector\InjectorInterface $injector
+     * @param int $packageType
      * return void
      */
-    private function promptToRememberOption(Injector\InjectorInterface $injector)
+    private function promptToRememberOption(Injector\InjectorInterface $injector, $packageType)
     {
         $ask = ["\n  <question>Remember this option for other packages of the same type? (y/N)</question>"];
 
@@ -390,7 +395,7 @@ class ComponentInstaller implements
 
             switch ($answer) {
                 case 'y':
-                    $this->cacheInjector($injector);
+                    $this->cacheInjector($injector, $packageType);
                     return;
                 case 'n':
                     // intentionally fall-through
@@ -406,28 +411,13 @@ class ComponentInstaller implements
      * @param string $package Package name
      * @param string $module Module to install in configuration
      * @param Injector\InjectorInterface $injector Injector to use.
-     * @param Collection $packageTypes
+     * @param int $packageType
      * @return void
      */
-    private function injectModuleIntoConfig(
-        $package,
-        $module,
-        Injector\InjectorInterface $injector,
-        Collection $packageTypes
-    ) {
-        // Find the first package type the injector can handle.
-        $type = $packageTypes
-            ->reduce(function ($discovered, $type) use ($injector) {
-                if ($discovered) {
-                    return $discovered;
-                }
-
-                $discovered = $injector->registersType($type) ? $type : $discovered;
-                return $discovered;
-            }, false);
-
+    private function injectModuleIntoConfig($package, $module, Injector\InjectorInterface $injector, $packageType)
+    {
         $this->io->write(sprintf('<info>Installing %s from package %s</info>', $module, $package));
-        $injector->inject($module, $type, $this->io);
+        $injector->inject($module, $packageType, $this->io);
     }
 
     /**
@@ -522,36 +512,29 @@ class ComponentInstaller implements
     }
 
     /**
-     * Attempt to retrieve a cached injector, based on the current package types.
+     * Attempt to retrieve a cached injector for the current package type.
      *
-     * @param Collection $packageTypes
+     * @param int $packageType
      * @return null|Injector\InjectorInterface
      */
-    private function getCachedInjector(Collection $packageTypes)
+    private function getCachedInjector($packageType)
     {
-        return $packageTypes->reduce(function ($injector, $type) {
-            if (null !== $injector || ! isset($this->cachedInjectors[$type])) {
-                return $injector;
-            }
+        if (isset($this->cachedInjectors[$packageType])) {
+            return $this->cachedInjectors[$packageType];
+        }
 
-            return $this->cachedInjectors[$type];
-        }, null);
+        return null;
     }
 
     /**
      * Cache an injector for later use.
      *
      * @param Injector\InjectorInterface $injector
+     * @param int $packageType
      * @return void
      */
-    private function cacheInjector(Injector\InjectorInterface $injector)
+    private function cacheInjector(Injector\InjectorInterface $injector, $packageType)
     {
-        Collection::create($injector->getTypesAllowed())
-            ->reject(function ($type) {
-                return isset($this->cachedInjectors[$type]);
-            })
-            ->each(function ($type) use ($injector) {
-                $this->cachedInjectors[$type] = $injector;
-            });
+        $this->cachedInjectors[$packageType] = $injector;
     }
 }
