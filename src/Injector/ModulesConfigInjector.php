@@ -33,6 +33,10 @@ class ModulesConfigInjector extends AbstractInjector
             'pattern' => '/^(return\s+(?:array\s*\(|\[)[^)\]]*\'%s\')/m',
             'replacement' => "\$1,\n    '%s'",
         ],
+        self::TYPE_BEFORE_APPLICATION => [
+            'pattern' => '/^(return\s+(?:array\s*\(|\[)[^)\]]*)(\'%s\')/m',
+            'replacement' => "\$1'%s',\n    \$2",
+        ],
     ];
 
     /**

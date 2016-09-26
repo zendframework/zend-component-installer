@@ -21,6 +21,7 @@ abstract class AbstractInjector implements InjectorInterface
         self::TYPE_COMPONENT,
         self::TYPE_MODULE,
         self::TYPE_DEPENDENCY,
+        self::TYPE_BEFORE_APPLICATION,
     ];
 
     /**
@@ -101,6 +102,13 @@ abstract class AbstractInjector implements InjectorInterface
     protected $removalPatterns = [];
 
     /**
+     * Modules of the application.
+     *
+     * @var array
+     */
+    protected $applicationModules = [];
+
+    /**
      * Constructor
      *
      * Optionally accept the project root directory; if non-empty, it is used
@@ -154,6 +162,10 @@ abstract class AbstractInjector implements InjectorInterface
 
         if ($type == self::TYPE_COMPONENT) {
             if ($this->injectAfterDependencies($package, $config, $io)) {
+                return;
+            }
+        } elseif ($type == self::TYPE_MODULE) {
+            if ($this->injectBeforeApplicationModules($package, $config, $io)) {
                 return;
             }
         }
@@ -245,6 +257,76 @@ abstract class AbstractInjector implements InjectorInterface
         }
 
         return $last;
+    }
+
+    /**
+     * Inject module $package into $config before the first found application module
+     * and return true.
+     * If there is no any enabled application module, this method will return false.
+     *
+     * @param string $package
+     * @param string $config
+     * @param IOInterface $io
+     * @return bool
+     */
+    private function injectBeforeApplicationModules($package, $config, IOInterface $io)
+    {
+        if ($firstApplicationModule = $this->findFirstEnabledApplicationModule($this->applicationModules, $config)) {
+            $pattern = sprintf(
+                $this->injectionPatterns[self::TYPE_BEFORE_APPLICATION]['pattern'],
+                preg_quote($firstApplicationModule, '/')
+            );
+            $replacement = sprintf(
+                $this->injectionPatterns[self::TYPE_BEFORE_APPLICATION]['replacement'],
+                $package
+            );
+
+            $config = preg_replace($pattern, $replacement, $config);
+            file_put_contents($this->configFile, $config);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Find the first enabled application module from list $modules in the $config.
+     * If any module is not found method will return null.
+     *
+     * @param array $modules
+     * @param string $config
+     * @return string|null
+     */
+    private function findFirstEnabledApplicationModule(array $modules, $config)
+    {
+        $shortest = strlen($config);
+        $first = null;
+        foreach ($modules as $module) {
+            if (! $this->isRegistered($module)) {
+                continue;
+            }
+
+            preg_match(sprintf($this->isRegisteredPattern, preg_quote($module, '/')), $config, $matches);
+
+            $length = strlen($matches[0]);
+            if ($length < $shortest) {
+                $shortest = $length;
+                $first = $module;
+            }
+        }
+
+        return $first;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setApplicationModules(array $modules)
+    {
+        $this->applicationModules = $modules;
+
+        return $this;
     }
 
     /**

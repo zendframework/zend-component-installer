@@ -180,6 +180,7 @@ class ComponentInstaller implements
         }
 
         $this->includeModuleClasses($package);
+        $applicationModules = $this->findApplicationModules();
 
         $this->marshalInstallableModules($extra, $options)
             ->each(function ($module) use ($name) {
@@ -190,7 +191,8 @@ class ComponentInstaller implements
                 return $injectors;
             }, new Collection([]))
             // Inject modules into configuration
-            ->each(function ($injector, $module) use ($name, $packageTypes) {
+            ->each(function ($injector, $module) use ($name, $packageTypes, $applicationModules) {
+                $injector->setApplicationModules($applicationModules);
                 $this->injectModuleIntoConfig($name, $module, $injector, $packageTypes);
             });
     }
@@ -242,6 +244,33 @@ class ComponentInstaller implements
                 }
             }
         }
+    }
+
+    /**
+     * Find all modules of the application.
+     *
+     * @return array
+     */
+    private function findApplicationModules()
+    {
+        $modulePath = is_string($this->projectRoot) && ! empty($this->projectRoot)
+            ? sprintf('%s/module', $this->projectRoot)
+            : 'module';
+
+        $modules = [];
+
+        if (is_dir($modulePath)) {
+            $directoryIterator = new \DirectoryIterator($modulePath);
+            foreach ($directoryIterator as $file) {
+                if ($file->isDot() || ! $file->isDir()) {
+                    continue;
+                }
+
+                $modules[] = $file->getBasename();
+            }
+        }
+
+        return $modules;
     }
 
     /**

@@ -373,6 +373,125 @@ CONTENT
         $this->assertEquals($result, $modules);
     }
 
+    public function modules()
+    {
+        return [
+            // 'description' => [
+            //   [available application modules],
+            //   [enabled modules in order],
+            //   [result: expected enabled modules in order],
+            // ],
+            'two-application-modules' => [
+                ['App1', 'App2'],
+                ['App1', 'App2'],
+                ['SomeModule', 'App1', 'App2'],
+            ],
+            'with-some-component' => [
+                ['App1'],
+                ['SomeComponent', 'App1'],
+                ['SomeComponent', 'SomeModule', 'App1'],
+            ],
+            'two-application-modules-with-some-component' => [
+                ['App1', 'App2'],
+                ['SomeComponent', 'App1', 'App2'],
+                ['SomeComponent', 'SomeModule', 'App1', 'App2'],
+            ],
+            'two-application-modules-with-some-component-another-order' => [
+                ['App1', 'App2'],
+                ['SomeComponent', 'App2', 'App1'],
+                ['SomeComponent', 'SomeModule', 'App2', 'App1'],
+            ],
+            'component-between-application-modules' => [
+                ['App1', 'App2'],
+                ['App1', 'SomeComponent', 'App2'],
+                ['SomeModule', 'App1', 'SomeComponent', 'App2'],
+            ],
+            'no-application-modules' => [
+                [],
+                ['SomeComponent'],
+                ['SomeComponent', 'SomeModule'],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider modules
+     *
+     * @param array $availableModules
+     * @param array $enabledModules
+     * @param array $result
+     */
+    public function testModuleBeforeApplicationModules(array $availableModules, array $enabledModules, array $result)
+    {
+        $modulePath = vfsStream::newDirectory('module')->at($this->projectRoot);
+        foreach ($availableModules as $module) {
+            vfsStream::newDirectory($module)->at($modulePath);
+        }
+
+        $modules = "\n        '" . implode("',\n        '", $enabledModules) . "',";
+        $this->createApplicationConfig(
+            '<' . "?php\nreturn [\n    'modules' => [" . $modules . "\n    ],\n];"
+        );
+
+        /** @var ProphecyInterface|PackageInterface $package */
+        $package = $this->prophesize(PackageInterface::class);
+        $package->getName()->willReturn('some/module');
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'module' => 'SomeModule',
+            ],
+        ]);
+        $package->getAutoload()->willReturn([]);
+
+        $operation = $this->prophesize(InstallOperation::class);
+        $operation->getPackage()->willReturn($package->reveal());
+
+        $event = $this->prophesize(PackageEvent::class);
+        $event->isDevMode()->willReturn(true);
+        $event->getOperation()->willReturn($operation->reveal());
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+
+            if (! strstr($argument[0], "Please select which config file you wish to inject 'SomeModule' into")) {
+                return false;
+            }
+
+            if (! strstr($argument[1], 'Do not inject')) {
+                return false;
+            }
+
+            if (! strstr($argument[2], 'application.config.php')) {
+                return false;
+            }
+
+            return true;
+        }), 0)->willReturn(1);
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+            if (! strstr($argument[0], 'Remember')) {
+                return false;
+            }
+
+            return true;
+        }), 'n')->willReturn('n');
+
+        $this->io->write(Argument::that(function ($argument) {
+            return strstr($argument, 'Installing SomeModule from package some/module');
+        }))->shouldBeCalled();
+
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
+
+        $config = include(vfsStream::url('project/config/application.config.php'));
+        $modules = $config['modules'];
+        $this->assertEquals($result, $modules);
+    }
+
     public function testSubscribesToExpectedEvents()
     {
         $this->assertEquals([

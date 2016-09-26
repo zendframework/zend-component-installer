@@ -14,6 +14,7 @@ interface InjectorInterface
     const TYPE_COMPONENT = 1;
     const TYPE_MODULE = 2;
     const TYPE_DEPENDENCY = 3;
+    const TYPE_BEFORE_APPLICATION = 4;
 
     /**
      * Whether or not the injector can handle the given type.
@@ -56,4 +57,12 @@ interface InjectorInterface
      * @return void
      */
     public function remove($package, IOInterface $io);
+
+    /**
+     * Set modules of the application.
+     *
+     * @param array $modules
+     * @return self
+     */
+    public function setApplicationModules(array $modules);
 }

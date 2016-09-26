@@ -18,6 +18,7 @@ class DevelopmentConfigInjectorTest extends AbstractInjectorTestCase
         DevelopmentConfigInjector::TYPE_COMPONENT,
         DevelopmentConfigInjector::TYPE_MODULE,
         DevelopmentConfigInjector::TYPE_DEPENDENCY,
+        DevelopmentConfigInjector::TYPE_BEFORE_APPLICATION,
     ];
 
     public function allowedTypes()
@@ -27,6 +28,7 @@ class DevelopmentConfigInjectorTest extends AbstractInjectorTestCase
             'component'       => [DevelopmentConfigInjector::TYPE_COMPONENT, true],
             'module'          => [DevelopmentConfigInjector::TYPE_MODULE, true],
             'dependency'      => [DevelopmentConfigInjector::TYPE_DEPENDENCY, true],
+            'before-application-modules' => [DevelopmentConfigInjector::TYPE_BEFORE_APPLICATION, true],
         ];
     }
 
