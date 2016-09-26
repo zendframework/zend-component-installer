@@ -6,33 +6,62 @@
 
 namespace ZendTest\ComponentInstaller;
 
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\UninstallOperation;
+use Composer\Installer\InstallationManager;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Script\PackageEvent;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit_Framework_TestCase as TestCase;
 use Prophecy\Argument;
+use Prophecy\Prophecy\ProphecyInterface;
 use Zend\ComponentInstaller\ComponentInstaller;
 use Zend\ComponentInstaller\FileInfoStub;
 
 class ComponentInstallerTest extends TestCase
 {
+    /**
+     * @var vfsStreamDirectory
+     */
     private $projectRoot;
+
+    /**
+     * @var ProphecyInterface|ComponentInstaller
+     */
+    private $installer;
+
+    /**
+     * @var ProphecyInterface|Composer
+     */
+    private $composer;
+
+    /**
+     * @var ProphecyInterface|IOInterface
+     */
+    private $io;
+
+    /**
+     * @var ProphecyInterface|InstallationManager
+     */
+    private $installationManager;
 
     public function setUp()
     {
         $this->projectRoot = vfsStream::setup('project');
         $this->installer = new ComponentInstaller(vfsStream::url('project'));
 
+        $this->composer = $this->prophesize(Composer::class);
         $this->io = $this->prophesize(IOInterface::class);
+
         $this->installer->activate(
-            $this->prophesize(Composer::class)->reveal(),
+            $this->composer->reveal(),
             $this->io->reveal()
         );
+
+        $this->installationManager = $this->prophesize(InstallationManager::class);
+        $this->composer->getInstallationManager()->willReturn($this->installationManager->reveal());
     }
 
     public function createApplicationConfig($contents = null)
@@ -41,6 +70,307 @@ class ComponentInstallerTest extends TestCase
         vfsStream::newFile('config/application.config.php')
             ->at($this->projectRoot)
             ->setContent($contents);
+    }
+
+    protected function createModuleClass($path, $contents)
+    {
+        vfsStream::newFile($path)
+            ->at($this->projectRoot)
+            ->setContent($contents);
+    }
+
+    public function testMissingDependency()
+    {
+        $installPath = 'install/path';
+        $this->createApplicationConfig(
+            '<' . "?php\nreturn [\n    'modules' => [\n        'SomeApplication',\n    ]\n];"
+        );
+
+        $this->createModuleClass(
+            $installPath . '/src/SomeComponent/Module.php',
+            <<<CONTENT
+<?php
+namespace SomeComponent;
+
+class Module {
+    public function getModuleDependencies()
+    {
+        return ['SomeDependency'];
+    }
+}
+CONTENT
+        );
+
+        /** @var ProphecyInterface|PackageInterface $package */
+        $package = $this->prophesize(PackageInterface::class);
+        $package->getName()->willReturn('some/component');
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'component' => 'SomeComponent',
+            ],
+        ]);
+        $package->getAutoload()->willReturn([
+            'psr-0' => [
+                'SomeComponent\\' => 'src/',
+            ],
+        ]);
+
+        $this->installationManager->getInstallPath(Argument::exact($package->reveal()))
+            ->willReturn(vfsStream::url('project/' . $installPath));
+
+        $operation = $this->prophesize(InstallOperation::class);
+        $operation->getPackage()->willReturn($package->reveal());
+
+        $event = $this->prophesize(PackageEvent::class);
+        $event->isDevMode()->willReturn(true);
+        $event->getOperation()->willReturn($operation->reveal());
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+
+            if (! strstr($argument[0], "Please select which config file you wish to inject 'SomeComponent' into")) {
+                return false;
+            }
+
+            if (! strstr($argument[1], 'Do not inject')) {
+                return false;
+            }
+
+            if (! strstr($argument[2], 'application.config.php')) {
+                return false;
+            }
+
+            return true;
+        }), 0)->willReturn(1);
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+            if (! strstr($argument[0], 'Remember')) {
+                return false;
+            }
+
+            return true;
+        }), 'n')->willReturn('n');
+
+        $this->io->write(Argument::that(function ($argument) {
+            return strstr($argument, 'Installing SomeComponent from package some/component');
+        }))->shouldBeCalled();
+
+        $this->io->write(Argument::that(function ($argument) {
+            return strstr($argument, 'Dependency SomeDependency is not registered in the configuration');
+        }))->shouldBeCalled();
+
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
+    }
+
+    public function dependency()
+    {
+        return [
+            // 'description' => [
+            //   'package name to install',
+            //   [enabled modules],
+            //   [dependencies],
+            //   [result: enabled modules in order],
+            //   autoloading: psr-0 or psr-4
+            // ],
+            'one-dependency-on-top-psr-0' => [
+                'MyPackage1',
+                ['D1', 'App'],
+                ['D1'],
+                ['D1', 'MyPackage1', 'App'],
+                'psr-0',
+            ],
+            'one-dependency-on-bottom-psr-0' => [
+                'MyPackage2',
+                ['App', 'D1'],
+                ['D1'],
+                ['App', 'D1', 'MyPackage2'],
+                'psr-0',
+            ],
+            'no-dependencies-psr-0' => [
+                'MyPackage3',
+                ['App'],
+                [],
+                ['MyPackage3', 'App'],
+                'psr-0',
+            ],
+            'two-dependencies-psr-0' => [
+                'MyPackage4',
+                ['D1', 'D2', 'App'],
+                ['D1', 'D2'],
+                ['D1', 'D2', 'MyPackage4', 'App'],
+                'psr-0',
+            ],
+            'two-dependencies-in-reverse-order-psr-0' => [
+                'MyPackage5',
+                ['D2', 'D1', 'App'],
+                ['D1', 'D2'],
+                ['D2', 'D1', 'MyPackage5', 'App'],
+                'psr-0',
+            ],
+            'two-dependencies-with-more-packages-psr-0' => [
+                'MyPackage6',
+                ['D1', 'App1', 'D2', 'App2'],
+                ['D1', 'D2'],
+                ['D1', 'App1', 'D2', 'MyPackage6', 'App2'],
+                'psr-0',
+            ],
+            // PSR-4 autoloading
+            'one-dependency-on-top-psr-4' => [
+                'MyPackage11',
+                ['D1', 'App'],
+                ['D1'],
+                ['D1', 'MyPackage11', 'App'],
+                'psr-4',
+            ],
+            'one-dependency-on-bottom-psr-4' => [
+                'MyPackage12',
+                ['App', 'D1'],
+                ['D1'],
+                ['App', 'D1', 'MyPackage12'],
+                'psr-4',
+            ],
+            'no-dependencies-psr-4' => [
+                'MyPackage13',
+                ['App'],
+                [],
+                ['MyPackage13', 'App'],
+                'psr-4',
+            ],
+            'two-dependencies-psr-4' => [
+                'MyPackage14',
+                ['D1', 'D2', 'App'],
+                ['D1', 'D2'],
+                ['D1', 'D2', 'MyPackage14', 'App'],
+                'psr-4',
+            ],
+            'two-dependencies-in-reverse-order-psr-4' => [
+                'MyPackage15',
+                ['D2', 'D1', 'App'],
+                ['D1', 'D2'],
+                ['D2', 'D1', 'MyPackage15', 'App'],
+                'psr-4',
+            ],
+            'two-dependencies-with-more-packages-psr-4' => [
+                'MyPackage16',
+                ['D1', 'App1', 'D2', 'App2'],
+                ['D1', 'D2'],
+                ['D1', 'App1', 'D2', 'MyPackage16', 'App2'],
+                'psr-4',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dependency
+     *
+     * @param string $packageName
+     * @param array $enabledModules
+     * @param array $dependencies
+     * @param array $result
+     * @param string $psr
+     */
+    public function testInjectModuleWithDependencies(
+        $packageName,
+        array $enabledModules,
+        array $dependencies,
+        array $result,
+        $psr
+    ) {
+        $installPath = 'install/path';
+        $modules = "\n        '" . implode("',\n        '", $enabledModules) . "',";
+        $this->createApplicationConfig(
+            '<' . "?php\nreturn [\n    'modules' => [" . $modules . "\n    ],\n];"
+        );
+
+        $dependenciesStr = $dependencies ? "'" . implode("', '", $dependencies) . "'" : '';
+        $this->createModuleClass(
+            sprintf('%s/src/%sModule.php', $installPath, $psr == 'psr-0' ? $packageName . '/' : ''),
+            <<<CONTENT
+<?php
+namespace $packageName;
+
+class Module {
+    public function getModuleDependencies()
+    {
+        return [$dependenciesStr];
+    }
+}
+CONTENT
+        );
+
+        /** @var ProphecyInterface|PackageInterface $package */
+        $package = $this->prophesize(PackageInterface::class);
+        $package->getName()->willReturn('some/component');
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'component' => $packageName,
+            ],
+        ]);
+        $package->getAutoload()->willReturn([
+            $psr => [
+                $packageName . '\\' => 'src/',
+            ],
+        ]);
+
+        $this->installationManager->getInstallPath(Argument::exact($package->reveal()))
+            ->willReturn(vfsStream::url('project/' . $installPath));
+
+        $operation = $this->prophesize(InstallOperation::class);
+        $operation->getPackage()->willReturn($package->reveal());
+
+        $event = $this->prophesize(PackageEvent::class);
+        $event->isDevMode()->willReturn(true);
+        $event->getOperation()->willReturn($operation->reveal());
+
+        $this->io->ask(Argument::that(function ($argument) use ($packageName) {
+            if (! is_array($argument)) {
+                return false;
+            }
+
+            if (! strstr(
+                $argument[0],
+                sprintf("Please select which config file you wish to inject '%s' into", $packageName)
+            )
+            ) {
+                return false;
+            }
+
+            if (! strstr($argument[1], 'Do not inject')) {
+                return false;
+            }
+
+            if (! strstr($argument[2], 'application.config.php')) {
+                return false;
+            }
+
+            return true;
+        }), 0)->willReturn(1);
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+            if (! strstr($argument[0], 'Remember')) {
+                return false;
+            }
+
+            return true;
+        }), 'n')->willReturn('n');
+
+        $this->io->write(Argument::that(function ($argument) use ($packageName) {
+            return strstr($argument, sprintf('Installing %s from package some/component', $packageName));
+        }))->shouldBeCalled();
+
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
+
+        $config = include(vfsStream::url('project/config/application.config.php'));
+        $modules = $config['modules'];
+        $this->assertEquals($result, $modules);
     }
 
     public function testSubscribesToExpectedEvents()
@@ -123,6 +453,7 @@ class ComponentInstallerTest extends TestCase
         $package->getExtra()->willReturn(['zf' => [
             'component' => 'Some\\Component',
         ]]);
+        $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
@@ -147,6 +478,7 @@ class ComponentInstallerTest extends TestCase
         $package->getExtra()->willReturn(['zf' => [
             'component' => 'Some\\Component',
         ]]);
+        $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
@@ -207,6 +539,7 @@ class ComponentInstallerTest extends TestCase
                 'Other\\Component',
             ],
         ]]);
+        $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
@@ -290,6 +623,7 @@ class ComponentInstallerTest extends TestCase
         $package->getExtra()->willReturn(['zf' => [
             'component' => 'Some\\Component',
         ]]);
+        $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
@@ -343,6 +677,7 @@ class ComponentInstallerTest extends TestCase
         $package->getExtra()->willReturn(['zf' => [
             'component' => 'Other\\Component',
         ]]);
+        $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
@@ -401,6 +736,7 @@ class ComponentInstallerTest extends TestCase
         $package->getExtra()->willReturn(['zf' => [
             'component' => 'Some\\Component',
         ]]);
+        $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
@@ -454,6 +790,7 @@ class ComponentInstallerTest extends TestCase
         $package->getExtra()->willReturn(['zf' => [
             'component' => 'Other\\Component',
         ]]);
+        $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
@@ -500,6 +837,7 @@ class ComponentInstallerTest extends TestCase
         $package->getExtra()->willReturn(['zf' => [
             'component' => 'Some\\Component',
         ]]);
+        $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
@@ -541,6 +879,7 @@ class ComponentInstallerTest extends TestCase
                 'Other\\Component',
             ],
         ]]);
+        $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
@@ -583,6 +922,7 @@ class ComponentInstallerTest extends TestCase
         $package->getExtra()->willReturn(['zf' => [
             'module' => 'Some\\Module',
         ]]);
+        $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());

@@ -29,6 +29,10 @@ class ApplicationConfigInjector extends AbstractInjector
             'pattern' => "/('modules'\s*\=\>\s*(?:array\s*\(|\[).*?)\n(\s+)(\)|\])/s",
             'replacement' => "\$1\n\$2    '%s',\n\$2\$3",
         ],
+        self::TYPE_DEPENDENCY => [
+            'pattern' => '/^(\s+)(\'modules\'\s*\=\>\s*(?:array\s*\(|\[)[^)\]]*\'%s\')/m',
+            'replacement' => "\$1\$2,\n\$1    '%s'",
+        ],
     ];
 
     /**

@@ -13,6 +13,7 @@ interface InjectorInterface
     const TYPE_CONFIG_PROVIDER = 0;
     const TYPE_COMPONENT = 1;
     const TYPE_MODULE = 2;
+    const TYPE_DEPENDENCY = 3;
 
     /**
      * Whether or not the injector can handle the given type.

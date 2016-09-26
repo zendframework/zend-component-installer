@@ -17,6 +17,7 @@ class ApplicationConfigInjectorTest extends AbstractInjectorTestCase
     protected $injectorTypesAllowed = [
         ApplicationConfigInjector::TYPE_COMPONENT,
         ApplicationConfigInjector::TYPE_MODULE,
+        ApplicationConfigInjector::TYPE_DEPENDENCY,
     ];
 
     public function allowedTypes()
@@ -25,6 +26,7 @@ class ApplicationConfigInjectorTest extends AbstractInjectorTestCase
             'config-provider' => [ApplicationConfigInjector::TYPE_CONFIG_PROVIDER, false],
             'component'       => [ApplicationConfigInjector::TYPE_COMPONENT, true],
             'module'          => [ApplicationConfigInjector::TYPE_MODULE, true],
+            'dependency'      => [ApplicationConfigInjector::TYPE_DEPENDENCY, true],
         ];
     }
 

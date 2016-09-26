@@ -20,6 +20,7 @@ abstract class AbstractInjector implements InjectorInterface
     protected $allowedTypes = [
         self::TYPE_COMPONENT,
         self::TYPE_MODULE,
+        self::TYPE_DEPENDENCY,
     ];
 
     /**
@@ -151,6 +152,12 @@ abstract class AbstractInjector implements InjectorInterface
             return;
         }
 
+        if ($type == self::TYPE_COMPONENT) {
+            if ($this->injectAfterDependencies($package, $config, $io)) {
+                return;
+            }
+        }
+
         $pattern = $this->injectionPatterns[$type]['pattern'];
         $replacement = sprintf(
             $this->injectionPatterns[$type]['replacement'],
@@ -159,6 +166,85 @@ abstract class AbstractInjector implements InjectorInterface
 
         $config = preg_replace($pattern, $replacement, $config);
         file_put_contents($this->configFile, $config);
+    }
+
+    /**
+     * Inject component $package after all dependencies into $config and return true.
+     * If any of dependencies is not registered the method will write error to $io
+     * and will also return true, to prevent injecting this package later.
+     * Method return false only in case when dependencies for the package are not found.
+     *
+     * @param string $package
+     * @param string $config
+     * @param IOInterface $io
+     * @return bool
+     */
+    private function injectAfterDependencies($package, $config, IOInterface $io)
+    {
+        $moduleClass = sprintf('%s\\%s', $package, 'Module');
+        if (class_exists($moduleClass) && method_exists($moduleClass, 'getModuleDependencies')) {
+            $module = new $moduleClass();
+            $dependencies = $module->getModuleDependencies();
+
+            if ($dependencies) {
+                foreach ($dependencies as $dependency) {
+                    if (! $this->isRegisteredInConfig($dependency, $config)) {
+                        $io->write(sprintf(
+                            '<error>    Dependency %s is not registered in the configuration</error>',
+                            $dependency
+                        ));
+
+                        return true;
+                    }
+                }
+
+                $lastDependency = $this->findLastDependency($dependencies, $config);
+
+                $pattern = sprintf(
+                    $this->injectionPatterns[self::TYPE_DEPENDENCY]['pattern'],
+                    preg_quote($lastDependency, '/')
+                );
+                $replacement = sprintf(
+                    $this->injectionPatterns[self::TYPE_DEPENDENCY]['replacement'],
+                    $package
+                );
+
+                $config = preg_replace($pattern, $replacement, $config);
+                file_put_contents($this->configFile, $config);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Find which of dependency packages is the last one on the module list.
+     *
+     * @param array $dependencies
+     * @param string $config
+     * @return string
+     */
+    private function findLastDependency(array $dependencies, $config)
+    {
+        if (count($dependencies) == 1) {
+            return reset($dependencies);
+        }
+
+        $longLength = 0;
+        $last = null;
+        foreach ($dependencies as $dependency) {
+            preg_match(sprintf($this->isRegisteredPattern, preg_quote($dependency, '/')), $config, $matches);
+
+            $length = strlen($matches[0]);
+            if ($length > $longLength) {
+                $longLength = $length;
+                $last = $dependency;
+            }
+        }
+
+        return $last;
     }
 
     /**

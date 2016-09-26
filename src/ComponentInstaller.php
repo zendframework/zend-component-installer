@@ -10,6 +10,7 @@ use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Installer\InstallerEvent;
 use Composer\IO\IOInterface;
+use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event as CommandEvent;
 use Composer\Script\PackageEvent;
@@ -178,6 +179,8 @@ class ComponentInstaller implements
             return;
         }
 
+        $this->includeModuleClasses($package);
+
         $this->marshalInstallableModules($extra, $options)
             ->each(function ($module) use ($name) {
             })
@@ -190,6 +193,55 @@ class ComponentInstaller implements
             ->each(function ($injector, $module) use ($name, $packageTypes) {
                 $this->injectModuleIntoConfig($name, $module, $injector, $packageTypes);
             });
+    }
+
+    /**
+     * Find all Module classes in the package and include them.
+     * Module classes is used later
+     * @see \Zend\ComponentInstaller\Injector\AbstractInjector::injectAfterDependencies
+     * - to get package dependencies - module method `getModuleDependencies`
+     * and add component in a correct order on the module list.
+     *
+     * It works currently with PSR-0 and PSR-4 autoloaded packages.
+     *
+     * @param PackageInterface $package
+     * @return void
+     */
+    private function includeModuleClasses(PackageInterface $package)
+    {
+        $installer = $this->composer->getInstallationManager();
+        $packagePath = $installer->getInstallPath($package);
+
+        $autoload = $package->getAutoload();
+        foreach ($autoload as $type => $map) {
+            foreach ($map as $namespace => $path) {
+                switch ($type) {
+                    case 'psr-0':
+                        $modulePath = sprintf(
+                            '%s/%s%s%s',
+                            $packagePath,
+                            $path,
+                            str_replace('\\', '/', $namespace),
+                            'Module.php'
+                        );
+                        break;
+                    case 'psr-4':
+                        $modulePath = sprintf(
+                            '%s/%s%s',
+                            $packagePath,
+                            $path,
+                            'Module.php'
+                        );
+                        break;
+                    default:
+                        continue 2;
+                }
+
+                if (file_exists($modulePath)) {
+                    include $modulePath;
+                }
+            }
+        }
     }
 
     /**
