@@ -74,6 +74,9 @@ class ComponentInstallerTest extends TestCase
 
     protected function createModuleClass($path, $contents)
     {
+        vfsStream::newDirectory(dirname($path))
+            ->at($this->projectRoot);
+
         vfsStream::newFile($path)
             ->at($this->projectRoot)
             ->setContent($contents);
@@ -175,7 +178,8 @@ CONTENT
             //   [enabled modules],
             //   [dependencies],
             //   [result: enabled modules in order],
-            //   autoloading: psr-0 or psr-4
+            //   autoloading: psr-0, psr-4, classmap or files
+            //   autoloadPath: only for classmap
             // ],
             'one-dependency-on-top-psr-0' => [
                 'MyPackage1',
@@ -262,6 +266,147 @@ CONTENT
                 ['D1', 'App1', 'D2', 'MyPackage16', 'App2'],
                 'psr-4',
             ],
+            // classmap autoloading - dir
+            'one-dependency-on-top-classmap' => [
+                'MyPackage21',
+                ['D1', 'App'],
+                ['D1'],
+                ['D1', 'MyPackage21', 'App'],
+                'classmap',
+                'path-classmap/to/module/',
+            ],
+            'one-dependency-on-bottom-classmap' => [
+                'MyPackage22',
+                ['App', 'D1'],
+                ['D1'],
+                ['App', 'D1', 'MyPackage22'],
+                'classmap',
+                'path-classmap/to/module/',
+            ],
+            'no-dependencies-classmap' => [
+                'MyPackage23',
+                ['App'],
+                [],
+                ['MyPackage23', 'App'],
+                'classmap',
+                'path-classmap/to/module/',
+            ],
+            'two-dependencies-classmap' => [
+                'MyPackage24',
+                ['D1', 'D2', 'App'],
+                ['D1', 'D2'],
+                ['D1', 'D2', 'MyPackage24', 'App'],
+                'classmap',
+                'path-classmap/to/module/',
+            ],
+            'two-dependencies-in-reverse-order-classmap' => [
+                'MyPackage25',
+                ['D2', 'D1', 'App'],
+                ['D1', 'D2'],
+                ['D2', 'D1', 'MyPackage25', 'App'],
+                'classmap',
+                'path-classmap/to/module/',
+            ],
+            'two-dependencies-with-more-packages-classmap' => [
+                'MyPackage26',
+                ['D1', 'App1', 'D2', 'App2'],
+                ['D1', 'D2'],
+                ['D1', 'App1', 'D2', 'MyPackage26', 'App2'],
+                'classmap',
+                'path-classmap/to/module/',
+            ],
+            // classmap autoloading - file
+            'one-dependency-on-top-classmap-file' => [
+                'MyPackage31',
+                ['D1', 'App'],
+                ['D1'],
+                ['D1', 'MyPackage31', 'App'],
+                'classmap',
+                'path-classmap/to/module/Module.php',
+            ],
+            'one-dependency-on-bottom-classmap-file' => [
+                'MyPackage32',
+                ['App', 'D1'],
+                ['D1'],
+                ['App', 'D1', 'MyPackage32'],
+                'classmap',
+                'path-classmap/to/module/Module.php',
+            ],
+            'no-dependencies-classmap-file' => [
+                'MyPackage33',
+                ['App'],
+                [],
+                ['MyPackage33', 'App'],
+                'classmap',
+                'path-classmap/to/module/Module.php',
+            ],
+            'two-dependencies-classmap-file' => [
+                'MyPackage34',
+                ['D1', 'D2', 'App'],
+                ['D1', 'D2'],
+                ['D1', 'D2', 'MyPackage34', 'App'],
+                'classmap',
+                'path-classmap/to/module/Module.php',
+            ],
+            'two-dependencies-in-reverse-order-classmap-file' => [
+                'MyPackage35',
+                ['D2', 'D1', 'App'],
+                ['D1', 'D2'],
+                ['D2', 'D1', 'MyPackage35', 'App'],
+                'classmap',
+                'path-classmap/to/module/Module.php',
+            ],
+            'two-dependencies-with-more-packages-classmap-file' => [
+                'MyPackage36',
+                ['D1', 'App1', 'D2', 'App2'],
+                ['D1', 'D2'],
+                ['D1', 'App1', 'D2', 'MyPackage36', 'App2'],
+                'classmap',
+                'path-classmap/to/module/Module.php',
+            ],
+            // files autoloading
+            'one-dependency-on-top-files' => [
+                'MyPackage41',
+                ['D1', 'App'],
+                ['D1'],
+                ['D1', 'MyPackage41', 'App'],
+                'files',
+            ],
+            'one-dependency-on-bottom-files' => [
+                'MyPackage42',
+                ['App', 'D1'],
+                ['D1'],
+                ['App', 'D1', 'MyPackage42'],
+                'files',
+            ],
+            'no-dependencies-files' => [
+                'MyPackage43',
+                ['App'],
+                [],
+                ['MyPackage43', 'App'],
+                'files',
+            ],
+            'two-dependencies-files' => [
+                'MyPackage44',
+                ['D1', 'D2', 'App'],
+                ['D1', 'D2'],
+                ['D1', 'D2', 'MyPackage44', 'App'],
+                'files',
+            ],
+            'two-dependencies-in-reverse-order-files' => [
+                'MyPackage45',
+                ['D2', 'D1', 'App'],
+                ['D1', 'D2'],
+                ['D2', 'D1', 'MyPackage45', 'App'],
+                'files',
+            ],
+            'two-dependencies-with-more-packages-files' => [
+                'MyPackage46',
+                ['D1', 'App1', 'D2', 'App2'],
+                ['D1', 'D2'],
+                ['D1', 'App1', 'D2', 'MyPackage46', 'App2'],
+                'files',
+            ],
         ];
     }
 
@@ -272,14 +417,16 @@ CONTENT
      * @param array $enabledModules
      * @param array $dependencies
      * @param array $result
-     * @param string $psr
+     * @param string $autoloading classmap|files|psr-0|psr-4
+     * @param null|string $autoloadPath
      */
     public function testInjectModuleWithDependencies(
         $packageName,
         array $enabledModules,
         array $dependencies,
         array $result,
-        $psr
+        $autoloading,
+        $autoloadPath = null
     ) {
         $installPath = 'install/path';
         $modules = "\n        '" . implode("',\n        '", $enabledModules) . "',";
@@ -287,9 +434,36 @@ CONTENT
             '<' . "?php\nreturn [\n    'modules' => [" . $modules . "\n    ],\n];"
         );
 
+        switch ($autoloading) {
+            case 'classmap':
+                $pathToModule = 'path-classmap/to/module';
+                $autoload = [
+                    $autoloadPath,
+                ];
+                break;
+            case 'files':
+                $pathToModule = 'path/to/module';
+                $autoload = [
+                    'path/to/module/Module.php',
+                ];
+                break;
+            case 'psr-0':
+                $pathToModule = sprintf('src/%s', $packageName);
+                $autoload = [
+                    $packageName . '\\' => 'src/',
+                ];
+                break;
+            case 'psr-4':
+                $pathToModule = 'src';
+                $autoload = [
+                    $packageName . '\\' => 'src/',
+                ];
+                break;
+        }
+
         $dependenciesStr = $dependencies ? "'" . implode("', '", $dependencies) . "'" : '';
         $this->createModuleClass(
-            sprintf('%s/src/%sModule.php', $installPath, $psr == 'psr-0' ? $packageName . '/' : ''),
+            sprintf('%s/%s/Module.php', $installPath, $pathToModule),
             <<<CONTENT
 <?php
 namespace $packageName;
@@ -312,9 +486,7 @@ CONTENT
             ],
         ]);
         $package->getAutoload()->willReturn([
-            $psr => [
-                $packageName . '\\' => 'src/',
-            ],
+            $autoloading => $autoload,
         ]);
 
         $this->installationManager->getInstallPath(Argument::exact($package->reveal()))

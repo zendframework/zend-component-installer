@@ -205,7 +205,7 @@ class ComponentInstaller implements
      * - to get package dependencies - module method `getModuleDependencies`
      * and add component in a correct order on the module list.
      *
-     * It works currently with PSR-0 and PSR-4 autoloaded packages.
+     * It works with PSR-0, PSR-4, 'classmap' and 'files' composer autoloading.
      *
      * @param PackageInterface $package
      * @return void
@@ -219,6 +219,22 @@ class ComponentInstaller implements
         foreach ($autoload as $type => $map) {
             foreach ($map as $namespace => $path) {
                 switch ($type) {
+                    case 'classmap':
+                        $fullPath = sprintf('%s/%s', $packagePath, $path);
+                        if (is_dir(rtrim($fullPath, '/'))) {
+                            $modulePath = sprintf('%s%s', $fullPath, 'Module.php');
+                        } elseif (substr($path, -10) == 'Module.php') {
+                            $modulePath = $fullPath;
+                        } else {
+                            continue 2;
+                        }
+                        break;
+                    case 'files':
+                        if (substr($path, -10) != 'Module.php') {
+                            continue 2;
+                        }
+                        $modulePath = sprintf('%s/%s', $packagePath, $path);
+                        break;
                     case 'psr-0':
                         $modulePath = sprintf(
                             '%s/%s%s%s',
