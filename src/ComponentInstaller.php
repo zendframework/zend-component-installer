@@ -14,6 +14,7 @@ use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event as CommandEvent;
 use Composer\Script\PackageEvent;
+use DirectoryIterator;
 
 /**
  * If a package represents a component module, update the application configuration.
@@ -260,7 +261,7 @@ class ComponentInstaller implements
         $modules = [];
 
         if (is_dir($modulePath)) {
-            $directoryIterator = new \DirectoryIterator($modulePath);
+            $directoryIterator = new DirectoryIterator($modulePath);
             foreach ($directoryIterator as $file) {
                 if ($file->isDot() || ! $file->isDir()) {
                     continue;
