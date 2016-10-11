@@ -1273,6 +1273,7 @@ CONTENT
         );
 
         $package = $this->prophesize(PackageInterface::class);
+        $package->getAutoload()->willReturn([]);
         $package->getName()->willReturn('some/package');
         $package->getExtra()->willReturn(['zf' => [
             'module' => 'Some\\Module',
@@ -1362,6 +1363,7 @@ CONTENT
         );
 
         $package = $this->prophesize(PackageInterface::class);
+        $package->getAutoload()->willReturn([]);
         $package->getName()->willReturn('some/package');
         $package->getExtra()->willReturn(['zf' => [
             'component' => 'Some\\Component',
