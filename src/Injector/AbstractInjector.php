@@ -160,14 +160,16 @@ abstract class AbstractInjector implements InjectorInterface
             return;
         }
 
-        if ($type == self::TYPE_COMPONENT) {
-            if ($this->injectAfterDependencies($package, $config, $io)) {
-                return;
-            }
-        } elseif ($type == self::TYPE_MODULE) {
-            if ($this->injectBeforeApplicationModules($package, $config, $io)) {
-                return;
-            }
+        if ($type == self::TYPE_COMPONENT
+            && $this->injectAfterDependencies($package, $config, $io)
+        ) {
+            return;
+        }
+        
+        if ($type == self::TYPE_MODULE
+            && $this->injectBeforeApplicationModules($package, $config, $io)
+        ) {
+            return;
         }
 
         $pattern = $this->injectionPatterns[$type]['pattern'];
