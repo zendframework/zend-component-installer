@@ -129,4 +129,12 @@ class ConfigInjectorChain implements InjectorInterface
     {
         return $this->chain;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setApplicationModules(array $modules)
+    {
+        return $this;
+    }
 }

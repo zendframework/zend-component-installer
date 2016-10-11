@@ -50,4 +50,12 @@ class NoopInjector implements InjectorInterface
     public function remove($package, IOInterface $io)
     {
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setApplicationModules(array $modules)
+    {
+        return $this;
+    }
 }
