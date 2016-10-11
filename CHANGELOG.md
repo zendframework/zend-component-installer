@@ -15,6 +15,10 @@ All notable changes to this project will be documented in this file, in reverse 
   a `ConfigInjectorChain`, which allows injecting a module or component into
   multiple configuration sources. The stated use is for injection into
   development configuration.
+- [#16](https://github.com/zendframework/zend-component-installer/pull/16) adds
+  support for defining both a module and a component in the same package,
+  ensuring that they are both injected, and at the appropriate positions in the
+  module list.
 
 ### Deprecated
 
