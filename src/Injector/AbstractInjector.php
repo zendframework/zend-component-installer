@@ -165,7 +165,7 @@ abstract class AbstractInjector implements InjectorInterface
         ) {
             return;
         }
-        
+
         if ($type == self::TYPE_MODULE
             && $this->injectBeforeApplicationModules($package, $config, $io)
         ) {
