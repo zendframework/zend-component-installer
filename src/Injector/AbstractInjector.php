@@ -20,6 +20,8 @@ abstract class AbstractInjector implements InjectorInterface
     protected $allowedTypes = [
         self::TYPE_COMPONENT,
         self::TYPE_MODULE,
+        self::TYPE_DEPENDENCY,
+        self::TYPE_BEFORE_APPLICATION,
     ];
 
     /**
@@ -100,6 +102,13 @@ abstract class AbstractInjector implements InjectorInterface
     protected $removalPatterns = [];
 
     /**
+     * Modules of the application.
+     *
+     * @var array
+     */
+    protected $applicationModules = [];
+
+    /**
      * Constructor
      *
      * Optionally accept the project root directory; if non-empty, it is used
@@ -151,6 +160,18 @@ abstract class AbstractInjector implements InjectorInterface
             return;
         }
 
+        if ($type == self::TYPE_COMPONENT
+            && $this->injectAfterDependencies($package, $config, $io)
+        ) {
+            return;
+        }
+
+        if ($type == self::TYPE_MODULE
+            && $this->injectBeforeApplicationModules($package, $config, $io)
+        ) {
+            return;
+        }
+
         $pattern = $this->injectionPatterns[$type]['pattern'];
         $replacement = sprintf(
             $this->injectionPatterns[$type]['replacement'],
@@ -159,6 +180,155 @@ abstract class AbstractInjector implements InjectorInterface
 
         $config = preg_replace($pattern, $replacement, $config);
         file_put_contents($this->configFile, $config);
+    }
+
+    /**
+     * Inject component $package after all dependencies into $config and return true.
+     * If any of dependencies is not registered the method will write error to $io
+     * and will also return true, to prevent injecting this package later.
+     * Method return false only in case when dependencies for the package are not found.
+     *
+     * @param string $package
+     * @param string $config
+     * @param IOInterface $io
+     * @return bool
+     */
+    private function injectAfterDependencies($package, $config, IOInterface $io)
+    {
+        $moduleClass = sprintf('%s\\%s', $package, 'Module');
+        if (class_exists($moduleClass) && method_exists($moduleClass, 'getModuleDependencies')) {
+            $module = new $moduleClass();
+            $dependencies = $module->getModuleDependencies();
+
+            if ($dependencies) {
+                foreach ($dependencies as $dependency) {
+                    if (! $this->isRegisteredInConfig($dependency, $config)) {
+                        $io->write(sprintf(
+                            '<error>    Dependency %s is not registered in the configuration</error>',
+                            $dependency
+                        ));
+
+                        return true;
+                    }
+                }
+
+                $lastDependency = $this->findLastDependency($dependencies, $config);
+
+                $pattern = sprintf(
+                    $this->injectionPatterns[self::TYPE_DEPENDENCY]['pattern'],
+                    preg_quote($lastDependency, '/')
+                );
+                $replacement = sprintf(
+                    $this->injectionPatterns[self::TYPE_DEPENDENCY]['replacement'],
+                    $package
+                );
+
+                $config = preg_replace($pattern, $replacement, $config);
+                file_put_contents($this->configFile, $config);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Find which of dependency packages is the last one on the module list.
+     *
+     * @param array $dependencies
+     * @param string $config
+     * @return string
+     */
+    private function findLastDependency(array $dependencies, $config)
+    {
+        if (count($dependencies) == 1) {
+            return reset($dependencies);
+        }
+
+        $longLength = 0;
+        $last = null;
+        foreach ($dependencies as $dependency) {
+            preg_match(sprintf($this->isRegisteredPattern, preg_quote($dependency, '/')), $config, $matches);
+
+            $length = strlen($matches[0]);
+            if ($length > $longLength) {
+                $longLength = $length;
+                $last = $dependency;
+            }
+        }
+
+        return $last;
+    }
+
+    /**
+     * Inject module $package into $config before the first found application module
+     * and return true.
+     * If there is no any enabled application module, this method will return false.
+     *
+     * @param string $package
+     * @param string $config
+     * @param IOInterface $io
+     * @return bool
+     */
+    private function injectBeforeApplicationModules($package, $config, IOInterface $io)
+    {
+        if ($firstApplicationModule = $this->findFirstEnabledApplicationModule($this->applicationModules, $config)) {
+            $pattern = sprintf(
+                $this->injectionPatterns[self::TYPE_BEFORE_APPLICATION]['pattern'],
+                preg_quote($firstApplicationModule, '/')
+            );
+            $replacement = sprintf(
+                $this->injectionPatterns[self::TYPE_BEFORE_APPLICATION]['replacement'],
+                $package
+            );
+
+            $config = preg_replace($pattern, $replacement, $config);
+            file_put_contents($this->configFile, $config);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Find the first enabled application module from list $modules in the $config.
+     * If any module is not found method will return null.
+     *
+     * @param array $modules
+     * @param string $config
+     * @return string|null
+     */
+    private function findFirstEnabledApplicationModule(array $modules, $config)
+    {
+        $shortest = strlen($config);
+        $first = null;
+        foreach ($modules as $module) {
+            if (! $this->isRegistered($module)) {
+                continue;
+            }
+
+            preg_match(sprintf($this->isRegisteredPattern, preg_quote($module, '/')), $config, $matches);
+
+            $length = strlen($matches[0]);
+            if ($length < $shortest) {
+                $shortest = $length;
+                $first = $module;
+            }
+        }
+
+        return $first;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setApplicationModules(array $modules)
+    {
+        $this->applicationModules = $modules;
+
+        return $this;
     }
 
     /**

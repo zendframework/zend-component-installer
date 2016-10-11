@@ -8,11 +8,11 @@ namespace Zend\ComponentInstaller;
 
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
-use Composer\Installer\InstallerEvent;
 use Composer\IO\IOInterface;
+use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginInterface;
-use Composer\Script\Event as CommandEvent;
 use Composer\Script\PackageEvent;
+use DirectoryIterator;
 
 /**
  * If a package represents a component module, update the application configuration.
@@ -178,6 +178,9 @@ class ComponentInstaller implements
             return;
         }
 
+        $this->includeModuleClasses($package);
+        $applicationModules = $this->findApplicationModules();
+
         $this->marshalInstallableModules($extra, $options)
             ->each(function ($module) use ($name) {
             })
@@ -187,9 +190,102 @@ class ComponentInstaller implements
                 return $injectors;
             }, new Collection([]))
             // Inject modules into configuration
-            ->each(function ($injector, $module) use ($name, $packageTypes) {
+            ->each(function ($injector, $module) use ($name, $packageTypes, $applicationModules) {
+                $injector->setApplicationModules($applicationModules);
                 $this->injectModuleIntoConfig($name, $module, $injector, $packageTypes[$module]);
             });
+    }
+
+    /**
+     * Find all Module classes in the package and include them.
+     * Module classes is used later
+     * @see \Zend\ComponentInstaller\Injector\AbstractInjector::injectAfterDependencies
+     * - to get package dependencies - module method `getModuleDependencies`
+     * and add component in a correct order on the module list.
+     *
+     * It works with PSR-0, PSR-4, 'classmap' and 'files' composer autoloading.
+     *
+     * @param PackageInterface $package
+     * @return void
+     */
+    private function includeModuleClasses(PackageInterface $package)
+    {
+        $installer = $this->composer->getInstallationManager();
+        $packagePath = $installer->getInstallPath($package);
+
+        $autoload = $package->getAutoload();
+        foreach ($autoload as $type => $map) {
+            foreach ($map as $namespace => $path) {
+                switch ($type) {
+                    case 'classmap':
+                        $fullPath = sprintf('%s/%s', $packagePath, $path);
+                        if (is_dir(rtrim($fullPath, '/'))) {
+                            $modulePath = sprintf('%s%s', $fullPath, 'Module.php');
+                        } elseif (substr($path, -10) == 'Module.php') {
+                            $modulePath = $fullPath;
+                        } else {
+                            continue 2;
+                        }
+                        break;
+                    case 'files':
+                        if (substr($path, -10) != 'Module.php') {
+                            continue 2;
+                        }
+                        $modulePath = sprintf('%s/%s', $packagePath, $path);
+                        break;
+                    case 'psr-0':
+                        $modulePath = sprintf(
+                            '%s/%s%s%s',
+                            $packagePath,
+                            $path,
+                            str_replace('\\', '/', $namespace),
+                            'Module.php'
+                        );
+                        break;
+                    case 'psr-4':
+                        $modulePath = sprintf(
+                            '%s/%s%s',
+                            $packagePath,
+                            $path,
+                            'Module.php'
+                        );
+                        break;
+                    default:
+                        continue 2;
+                }
+
+                if (file_exists($modulePath)) {
+                    include $modulePath;
+                }
+            }
+        }
+    }
+
+    /**
+     * Find all modules of the application.
+     *
+     * @return array
+     */
+    private function findApplicationModules()
+    {
+        $modulePath = is_string($this->projectRoot) && ! empty($this->projectRoot)
+            ? sprintf('%s/module', $this->projectRoot)
+            : 'module';
+
+        $modules = [];
+
+        if (is_dir($modulePath)) {
+            $directoryIterator = new DirectoryIterator($modulePath);
+            foreach ($directoryIterator as $file) {
+                if ($file->isDot() || ! $file->isDir()) {
+                    continue;
+                }
+
+                $modules[] = $file->getBasename();
+            }
+        }
+
+        return $modules;
     }
 
     /**

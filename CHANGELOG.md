@@ -19,6 +19,12 @@ All notable changes to this project will be documented in this file, in reverse 
   support for defining both a module and a component in the same package,
   ensuring that they are both injected, and at the appropriate positions in the
   module list.
+- [#20](https://github.com/zendframework/zend-component-installer/pull/20) adds
+  support for modules that define `getModuleDependencies()`. When such a module
+  is encountered, the installer will now also inject entries for these modules
+  into the application module list, such that they *always* appear before the
+  current module. This change ensures that dependencies are loaded in the
+  correct order.
 
 ### Deprecated
 
