@@ -285,7 +285,9 @@ class ComponentInstaller implements
             $regExp = '/public\s+function\s+getModuleDependencies\s*\(\s*\)\s*{[^}]*return\s*(?:array\(|\[)([^})\]]*)(\)|\])/';
             // @codingStandardsIgnoreEnd
             if (preg_match($regExp, $content, $m)) {
-                $dependencies = array_filter(explode(',', rtrim(preg_replace('/[\s"\']/', '', $m[1]), ',')));
+                $dependencies = array_filter(
+                    explode(',', stripslashes(rtrim(preg_replace('/[\s"\']/', '', $m[1]), ',')))
+                );
 
                 if ($dependencies) {
                     return [$moduleName => $dependencies];

@@ -1451,7 +1451,7 @@ CONTENT
         return [
             [__DIR__ . '/TestAsset/ModuleBadlyFormatted.php', ['BadlyFormatted\Application' => ['Dependency1']]],
             [__DIR__ . '/TestAsset/ModuleWithDependencies.php', ['MyNamespace' => ['Dependency']]],
-            [__DIR__ . '/TestAsset/ModuleWithInterface.php', ['LongArray\Application' => ['D1', 'D2']]],
+            [__DIR__ . '/TestAsset/ModuleWithInterface.php', ['LongArray\Application' => ['Foo\D1', 'Bar\D2']]],
             [__DIR__ . '/TestAsset/ModuleWithoutDependencies.php', []],
             [__DIR__ . '/TestAsset/ModuleWithEmptyArrayDependencies.php', []],
         ];
