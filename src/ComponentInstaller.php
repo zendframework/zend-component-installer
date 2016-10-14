@@ -13,6 +13,7 @@ use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\PackageEvent;
 use DirectoryIterator;
+use Zend\ComponentInstaller\Injector\InjectorInterface;
 
 /**
  * If a package represents a component module, update the application configuration.
@@ -178,7 +179,7 @@ class ComponentInstaller implements
             return;
         }
 
-        $this->includeModuleClasses($package);
+        $this->includeModuleClasses($package, $packageTypes);
         $applicationModules = $this->findApplicationModules();
 
         $this->marshalInstallableModules($extra, $options)
@@ -202,13 +203,15 @@ class ComponentInstaller implements
      * @see \Zend\ComponentInstaller\Injector\AbstractInjector::injectAfterDependencies
      * - to get package dependencies - module method `getModuleDependencies`
      * and add component in a correct order on the module list.
+     * Module class is only included for components, not for modules.
      *
      * It works with PSR-0, PSR-4, 'classmap' and 'files' composer autoloading.
      *
      * @param PackageInterface $package
+     * @param Collection $packageTypes
      * @return void
      */
-    private function includeModuleClasses(PackageInterface $package)
+    private function includeModuleClasses(PackageInterface $package, Collection $packageTypes)
     {
         $installer = $this->composer->getInstallationManager();
         $packagePath = $installer->getInstallPath($package);
@@ -255,7 +258,17 @@ class ComponentInstaller implements
                 }
 
                 if (file_exists($modulePath)) {
-                    include $modulePath;
+                    $packageTypes->each(function ($type, $module) use ($modulePath) {
+                        if ($type == InjectorInterface::TYPE_COMPONENT) {
+                            $fileContent = file_get_contents($modulePath);
+
+                            $regexp = sprintf('/namespace\s+%s\s*;/', preg_quote($module));
+
+                            if (preg_match($regexp, $fileContent)) {
+                                include $modulePath;
+                            }
+                        }
+                    });
                 }
             }
         }
