@@ -65,4 +65,12 @@ interface InjectorInterface
      * @return self
      */
     public function setApplicationModules(array $modules);
+
+    /**
+     * Set dependencies for the module.
+     *
+     * @param array $modules
+     * @return self
+     */
+    public function setModuleDependencies(array $modules);
 }

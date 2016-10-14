@@ -1445,4 +1445,32 @@ CONTENT
             'Some\Module',
         ], $modules);
     }
+
+    public function moduleClass()
+    {
+        return [
+            [__DIR__ . '/TestAsset/ModuleBadlyFormatted.php', ['BadlyFormatted\Application' => ['Dependency1']]],
+            [__DIR__ . '/TestAsset/ModuleWithDependencies.php', ['MyNamespace' => ['Dependency']]],
+            [__DIR__ . '/TestAsset/ModuleWithInterface.php', ['LongArray\Application' => ['D1', 'D2']]],
+            [__DIR__ . '/TestAsset/ModuleWithoutDependencies.php', []],
+            [__DIR__ . '/TestAsset/ModuleWithEmptyArrayDependencies.php', []],
+        ];
+    }
+
+    /**
+     * @dataProvider moduleClass
+     *
+     * @param string $file
+     * @param array $result
+     */
+    public function testGetModuleDependenciesFromModuleClass($file, $result)
+    {
+        $r = new \ReflectionObject($this->installer);
+        $rm = $r->getMethod('getModuleDependencies');
+        $rm->setAccessible(true);
+
+        $dependencies = $rm->invoke($this->installer, $file);
+
+        $this->assertEquals($result, $dependencies);
+    }
 }
