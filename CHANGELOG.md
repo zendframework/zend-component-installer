@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 0.4.1 - TBD
+## 0.5.0 - TBD
 
 ### Added
 
@@ -18,7 +18,10 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#22](https://github.com/zendframework/zend-component-installer/pull/22) and
+  [#25](https://github.com/zendframework/zend-component-installer/pull/25) fix
+  a bug whereby escaped namespace separators caused detection of a module in
+  existing configuration to produce a false negative.
 
 ## 0.4.0 - 2016-10-11
 
