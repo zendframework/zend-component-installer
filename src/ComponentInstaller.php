@@ -178,7 +178,7 @@ class ComponentInstaller implements
             return;
         }
 
-        $this->includeModuleClasses($package);
+        $dependencies = $this->loadModuleClassesDependencies($package);
         $applicationModules = $this->findApplicationModules();
 
         $this->marshalInstallableModules($extra, $options)
@@ -190,26 +190,32 @@ class ComponentInstaller implements
                 return $injectors;
             }, new Collection([]))
             // Inject modules into configuration
-            ->each(function ($injector, $module) use ($name, $packageTypes, $applicationModules) {
+            ->each(function ($injector, $module) use ($name, $packageTypes, $applicationModules, $dependencies) {
+                if (isset($dependencies[$module])) {
+                    $injector->setModuleDependencies($dependencies[$module]);
+                }
+
                 $injector->setApplicationModules($applicationModules);
                 $this->injectModuleIntoConfig($name, $module, $injector, $packageTypes[$module]);
             });
     }
 
     /**
-     * Find all Module classes in the package and include them.
-     * Module classes is used later
+     * Find all Module classes in the package and their dependencies
+     * - method `getModuleDependencies` of Module class.
+     *
+     * These dependencies are used later
      * @see \Zend\ComponentInstaller\Injector\AbstractInjector::injectAfterDependencies
-     * - to get package dependencies - module method `getModuleDependencies`
-     * and add component in a correct order on the module list.
+     * to add component in a correct order on the module list - after dependencies.
      *
      * It works with PSR-0, PSR-4, 'classmap' and 'files' composer autoloading.
      *
      * @param PackageInterface $package
-     * @return void
+     * @return array
      */
-    private function includeModuleClasses(PackageInterface $package)
+    private function loadModuleClassesDependencies(PackageInterface $package)
     {
+        $dependencies = [];
         $installer = $this->composer->getInstallationManager();
         $packagePath = $installer->getInstallPath($package);
 
@@ -255,10 +261,41 @@ class ComponentInstaller implements
                 }
 
                 if (file_exists($modulePath)) {
-                    include $modulePath;
+                    if ($result = $this->getModuleDependencies($modulePath)) {
+                        $dependencies += $result;
+                    }
                 }
             }
         }
+
+        return $dependencies;
+    }
+
+    /**
+     * @param string $file
+     * @return array
+     */
+    private function getModuleDependencies($file)
+    {
+        $content = file_get_contents($file);
+        if (preg_match('/namespace\s+([^\s]+)\s*;/', $content, $m)) {
+            $moduleName = $m[1];
+
+            // @codingStandardsIgnoreStart
+            $regExp = '/public\s+function\s+getModuleDependencies\s*\(\s*\)\s*{[^}]*return\s*(?:array\(|\[)([^})\]]*)(\)|\])/';
+            // @codingStandardsIgnoreEnd
+            if (preg_match($regExp, $content, $m)) {
+                $dependencies = array_filter(
+                    explode(',', stripslashes(rtrim(preg_replace('/[\s"\']/', '', $m[1]), ',')))
+                );
+
+                if ($dependencies) {
+                    return [$moduleName => $dependencies];
+                }
+            }
+        }
+
+        return [];
     }
 
     /**

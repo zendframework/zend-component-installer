@@ -137,4 +137,12 @@ class ConfigInjectorChain implements InjectorInterface
     {
         return $this;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setModuleDependencies(array $modules)
+    {
+        return $this;
+    }
 }

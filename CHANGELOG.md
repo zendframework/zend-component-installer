@@ -2,11 +2,15 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 0.5.0 - TBD
+## 0.5.0 - 2016-10-17
 
 ### Added
 
-- Nothing.
+- [#24](https://github.com/zendframework/zend-component-installer/pull/24) adds
+  a new method to the `InjectorInterface`: `setModuleDependencies(array $modules)`.
+  This method is used in the `ComponentInstaller` when module dependencies are
+  discovered, and by the injectors to provide dependency order during
+  configuration injection.
 
 ### Deprecated
 
@@ -22,6 +26,12 @@ All notable changes to this project will be documented in this file, in reverse 
   [#25](https://github.com/zendframework/zend-component-installer/pull/25) fix
   a bug whereby escaped namespace separators caused detection of a module in
   existing configuration to produce a false negative.
+- [#24](https://github.com/zendframework/zend-component-installer/pull/24) fixes
+  an issue resulting from the additions from [#20](https://github.com/zendframework/zend-component-installer/pull/20)
+  for detecting module dependencies. Since autoloading may not be setup yet, the
+  previous approach could cause failures during installation. The patch provided
+  in this version introduces a static analysis approach to prevent autoloading
+  issues.
 
 ## 0.4.0 - 2016-10-11
 
