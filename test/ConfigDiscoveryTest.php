@@ -51,7 +51,7 @@ class ConfigDiscoveryTest extends TestCase
 
     public function createDevelopmentConfig($dist = true)
     {
-        $configFileName = 'config/development.config.php' . ($dist?'.dist':'');
+        $configFileName = 'config/development.config.php' . ($dist ? '.dist' : '');
         vfsStream::newFile($configFileName)
             ->at($this->projectRoot)
             ->setContent('<' . "?php\nreturn [\n    'modules' => [\n    ]\n];");

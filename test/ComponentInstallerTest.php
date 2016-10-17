@@ -1262,7 +1262,7 @@ CONTENT
         $modules = $config['modules'];
         $this->assertEquals([
             'Some\Component',
-            'Some\Module'
+            'Some\Module',
         ], $modules);
     }
 
