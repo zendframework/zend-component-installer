@@ -372,6 +372,7 @@ abstract class AbstractInjector implements InjectorInterface
      */
     protected function isRegisteredInConfig($package, $config)
     {
-        return (1 === preg_match(sprintf($this->isRegisteredPattern, preg_quote($package, '/')), $config));
+        return preg_match(sprintf($this->isRegisteredPattern, preg_quote($package, '/')), $config)
+            || preg_match(sprintf($this->isRegisteredPattern, preg_quote(addslashes($package), '/')), $config);
     }
 }
