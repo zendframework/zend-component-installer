@@ -109,6 +109,13 @@ abstract class AbstractInjector implements InjectorInterface
     protected $applicationModules = [];
 
     /**
+     * Dependencies of the module.
+     *
+     * @var array
+     */
+    protected $moduleDependencies = [];
+
+    /**
      * Constructor
      *
      * Optionally accept the project root directory; if non-empty, it is used
@@ -161,6 +168,7 @@ abstract class AbstractInjector implements InjectorInterface
         }
 
         if ($type == self::TYPE_COMPONENT
+            && $this->moduleDependencies
             && $this->injectAfterDependencies($package, $config, $io)
         ) {
             return;
@@ -195,42 +203,32 @@ abstract class AbstractInjector implements InjectorInterface
      */
     private function injectAfterDependencies($package, $config, IOInterface $io)
     {
-        $moduleClass = sprintf('%s\\%s', $package, 'Module');
-        if (class_exists($moduleClass) && method_exists($moduleClass, 'getModuleDependencies')) {
-            $module = new $moduleClass();
-            $dependencies = $module->getModuleDependencies();
-
-            if ($dependencies) {
-                foreach ($dependencies as $dependency) {
-                    if (! $this->isRegisteredInConfig($dependency, $config)) {
-                        $io->write(sprintf(
-                            '<error>    Dependency %s is not registered in the configuration</error>',
-                            $dependency
-                        ));
-
-                        return true;
-                    }
-                }
-
-                $lastDependency = $this->findLastDependency($dependencies, $config);
-
-                $pattern = sprintf(
-                    $this->injectionPatterns[self::TYPE_DEPENDENCY]['pattern'],
-                    preg_quote($lastDependency, '/')
-                );
-                $replacement = sprintf(
-                    $this->injectionPatterns[self::TYPE_DEPENDENCY]['replacement'],
-                    $package
-                );
-
-                $config = preg_replace($pattern, $replacement, $config);
-                file_put_contents($this->configFile, $config);
+        foreach ($this->moduleDependencies as $dependency) {
+            if (! $this->isRegisteredInConfig($dependency, $config)) {
+                $io->write(sprintf(
+                    '<error>    Dependency %s is not registered in the configuration</error>',
+                    $dependency
+                ));
 
                 return true;
             }
         }
 
-        return false;
+        $lastDependency = $this->findLastDependency($this->moduleDependencies, $config);
+
+        $pattern = sprintf(
+            $this->injectionPatterns[self::TYPE_DEPENDENCY]['pattern'],
+            preg_quote($lastDependency, '/')
+        );
+        $replacement = sprintf(
+            $this->injectionPatterns[self::TYPE_DEPENDENCY]['replacement'],
+            $package
+        );
+
+        $config = preg_replace($pattern, $replacement, $config);
+        file_put_contents($this->configFile, $config);
+
+        return true;
     }
 
     /**
@@ -327,6 +325,16 @@ abstract class AbstractInjector implements InjectorInterface
     public function setApplicationModules(array $modules)
     {
         $this->applicationModules = $modules;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setModuleDependencies(array $modules)
+    {
+        $this->moduleDependencies = $modules;
 
         return $this;
     }

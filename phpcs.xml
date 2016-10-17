@@ -25,4 +25,5 @@
     <file>src</file>
     <file>test</file>
     <exclude-pattern>test/Injector/TestAsset/*.php</exclude-pattern>
+    <exclude-pattern>test/TestAsset/Module*.php</exclude-pattern>
 </ruleset>
