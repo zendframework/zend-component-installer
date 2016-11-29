@@ -8,10 +8,10 @@ namespace Zend\ComponentInstaller;
 
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
+use Composer\Installer\PackageEvent;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginInterface;
-use Composer\Script\PackageEvent;
 use DirectoryIterator;
 
 /**
