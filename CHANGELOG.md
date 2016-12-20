@@ -2,11 +2,18 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 0.5.1 - TBD
+## 0.5.1 - 2016-12-20
 
 ### Added
 
 - Nothing.
+
+### Changes
+
+- [#29](https://github.com/zendframework/zend-component-installer/pull/29)
+  updates the composer/composer dependency to `^1.2.2`, and, internally, uses
+  `Composer\Installer\PackageEvent` instead of the deprecated
+  `Composer\Script\PackageEvent`.
 
 ### Deprecated
 
