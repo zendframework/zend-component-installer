@@ -35,17 +35,17 @@ class ExpressiveConfigInjectorTest extends AbstractInjectorTestCase
     public function injectComponentProvider()
     {
         // @codingStandardsIgnoreStart
-        $baseContentsFqcnLongArray              = file_get_contents(__DIR__ . '/TestAsset/expressive-application-fqcn.config.php');
-        $baseContentsGloballyQualifiedLongArray = file_get_contents(__DIR__ . '/TestAsset/expressive-application-globally-qualified.config.php');
-        $baseContentsImportLongArray            = file_get_contents(__DIR__ . '/TestAsset/expressive-application-import.config.php');
+        $baseContentsFqcnLongArray              = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-application-fqcn.config.php');
+        $baseContentsGloballyQualifiedLongArray = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-application-globally-qualified.config.php');
+        $baseContentsImportLongArray            = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-application-import.config.php');
 
         $baseContentsFqcnShortArray              = $this->convertToShortArraySyntax($baseContentsFqcnLongArray);
         $baseContentsGloballyQualifiedShortArray = $this->convertToShortArraySyntax($baseContentsGloballyQualifiedLongArray);
         $baseContentsImportShortArray            = $this->convertToShortArraySyntax($baseContentsImportLongArray);
 
-        $expectedContentsFqcnLongArray              = file_get_contents(__DIR__ . '/TestAsset/expressive-populated-fqcn.config.php');
-        $expectedContentsGloballyQualifiedLongArray = file_get_contents(__DIR__ . '/TestAsset/expressive-populated-globally-qualified.config.php');
-        $expectedContentsImportLongArray            = file_get_contents(__DIR__ . '/TestAsset/expressive-populated-import.config.php');
+        $expectedContentsFqcnLongArray              = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-populated-fqcn.config.php');
+        $expectedContentsGloballyQualifiedLongArray = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-populated-globally-qualified.config.php');
+        $expectedContentsImportLongArray            = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-populated-import.config.php');
 
         $expectedContentsFqcnShortArray              = $this->convertToShortArraySyntax($expectedContentsFqcnLongArray);
         $expectedContentsGloballyQualifiedShortArray = $this->convertToShortArraySyntax($expectedContentsGloballyQualifiedLongArray);
@@ -65,9 +65,9 @@ class ExpressiveConfigInjectorTest extends AbstractInjectorTestCase
     public function packageAlreadyRegisteredProvider()
     {
         // @codingStandardsIgnoreStart
-        $fqcnLongArray              = file_get_contents(__DIR__ . '/TestAsset/expressive-populated-fqcn.config.php');
-        $globallyQualifiedLongArray = file_get_contents(__DIR__ . '/TestAsset/expressive-populated-globally-qualified.config.php');
-        $importLongArray            = file_get_contents(__DIR__ . '/TestAsset/expressive-populated-import.config.php');
+        $fqcnLongArray              = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-populated-fqcn.config.php');
+        $globallyQualifiedLongArray = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-populated-globally-qualified.config.php');
+        $importLongArray            = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-populated-import.config.php');
 
         $fqcnShortArray              = $this->convertToShortArraySyntax($fqcnLongArray);
         $globallyQualifiedShortArray = $this->convertToShortArraySyntax($globallyQualifiedLongArray);
@@ -87,21 +87,21 @@ class ExpressiveConfigInjectorTest extends AbstractInjectorTestCase
     public function emptyConfiguration()
     {
         // @codingStandardsIgnoreStart
-        $fqcnLongArray              = file_get_contents(__DIR__ . '/TestAsset/expressive-empty-fqcn.config.php');
-        $globallyQualifiedLongArray = file_get_contents(__DIR__ . '/TestAsset/expressive-empty-globally-qualified.config.php');
-        $importLongArray            = file_get_contents(__DIR__ . '/TestAsset/expressive-empty-import.config.php');
+        $fqcnLongArray              = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-empty-fqcn.config.php');
+        $globallyQualifiedLongArray = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-empty-globally-qualified.config.php');
+        $importLongArray            = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-empty-import.config.php');
 
         $fqcnShortArray              = $this->convertToShortArraySyntax($fqcnLongArray);
         $globallyQualifiedShortArray = $this->convertToShortArraySyntax($globallyQualifiedLongArray);
         $importShortArray            = $this->convertToShortArraySyntax($importLongArray);
 
         return [
-            'fqcn-long-array'    => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $fqcnLongArray],
-            'global-long-array'  => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $globallyQualifiedLongArray],
-            'import-long-array'  => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $importLongArray],
-            'fqcn-short-array'   => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $fqcnShortArray],
-            'global-short-array' => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $globallyQualifiedShortArray],
-            'import-short-array' => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $importShortArray],
+            'legacy-fqcn-long-array'    => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $fqcnLongArray],
+            'legacy-global-long-array'  => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $globallyQualifiedLongArray],
+            'legacy-import-long-array'  => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $importLongArray],
+            'legacy-fqcn-short-array'   => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $fqcnShortArray],
+            'legacy-global-short-array' => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $globallyQualifiedShortArray],
+            'legacy-import-short-array' => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $importShortArray],
         ];
         // @codingStandardsIgnoreEnd
     }
@@ -109,17 +109,17 @@ class ExpressiveConfigInjectorTest extends AbstractInjectorTestCase
     public function packagePopulatedInConfiguration()
     {
         // @codingStandardsIgnoreStart
-        $baseContentsFqcnLongArray              = file_get_contents(__DIR__ . '/TestAsset/expressive-populated-fqcn.config.php');
-        $baseContentsGloballyQualifiedLongArray = file_get_contents(__DIR__ . '/TestAsset/expressive-populated-globally-qualified.config.php');
-        $baseContentsImportLongArray            = file_get_contents(__DIR__ . '/TestAsset/expressive-populated-import.config.php');
+        $baseContentsFqcnLongArray              = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-populated-fqcn.config.php');
+        $baseContentsGloballyQualifiedLongArray = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-populated-globally-qualified.config.php');
+        $baseContentsImportLongArray            = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-populated-import.config.php');
 
         $baseContentsFqcnShortArray              = $this->convertToShortArraySyntax($baseContentsFqcnLongArray);
         $baseContentsGloballyQualifiedShortArray = $this->convertToShortArraySyntax($baseContentsGloballyQualifiedLongArray);
         $baseContentsImportShortArray            = $this->convertToShortArraySyntax($baseContentsImportLongArray);
 
-        $expectedContentsFqcnLongArray              = file_get_contents(__DIR__ . '/TestAsset/expressive-application-fqcn.config.php');
-        $expectedContentsGloballyQualifiedLongArray = file_get_contents(__DIR__ . '/TestAsset/expressive-application-globally-qualified.config.php');
-        $expectedContentsImportLongArray            = file_get_contents(__DIR__ . '/TestAsset/expressive-application-import.config.php');
+        $expectedContentsFqcnLongArray              = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-application-fqcn.config.php');
+        $expectedContentsGloballyQualifiedLongArray = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-application-globally-qualified.config.php');
+        $expectedContentsImportLongArray            = file_get_contents(__DIR__ . '/TestAsset/legacy-expressive-application-import.config.php');
 
         $expectedContentsFqcnShortArray              = $this->convertToShortArraySyntax($expectedContentsFqcnLongArray);
         $expectedContentsGloballyQualifiedShortArray = $this->convertToShortArraySyntax($expectedContentsGloballyQualifiedLongArray);

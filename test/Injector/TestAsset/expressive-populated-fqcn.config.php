@@ -1,8 +1,8 @@
 <?php
 
-$configManager = new Zend\Expressive\ConfigManager\ConfigManager(array(
+$aggregator = new Zend\ConfigAggregator\ConfigAggregator(array(
     \Foo\Bar::class,
     Application\ConfigProvider::class,
 ), 'data/cache/config.php');
 
-return $configManager->getMergedConfig();
+return $aggregator->getMergedConfig();
