@@ -96,12 +96,12 @@ class ExpressiveConfigInjectorTest extends AbstractInjectorTestCase
         $importShortArray            = $this->convertToShortArraySyntax($importLongArray);
 
         return [
-            'legacy-fqcn-long-array'    => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $fqcnLongArray],
-            'legacy-global-long-array'  => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $globallyQualifiedLongArray],
-            'legacy-import-long-array'  => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $importLongArray],
-            'legacy-fqcn-short-array'   => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $fqcnShortArray],
-            'legacy-global-short-array' => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $globallyQualifiedShortArray],
-            'legacy-import-short-array' => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $importShortArray],
+            'fqcn-long-array'    => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $fqcnLongArray],
+            'global-long-array'  => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $globallyQualifiedLongArray],
+            'import-long-array'  => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $importLongArray],
+            'fqcn-short-array'   => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $fqcnShortArray],
+            'global-short-array' => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $globallyQualifiedShortArray],
+            'import-short-array' => [ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER, $importShortArray],
         ];
         // @codingStandardsIgnoreEnd
     }
