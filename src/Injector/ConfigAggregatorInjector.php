@@ -46,7 +46,7 @@ class ConfigAggregatorInjector extends AbstractInjector
     protected $injectionPatterns = [
         self::TYPE_CONFIG_PROVIDER => [
             'pattern'     => '',
-            'replacement' => "\$1\n    %s::class,",
+            'replacement' => "\$1\n\$2%s::class,\n\$2",
         ],
     ];
 
@@ -84,7 +84,7 @@ class ConfigAggregatorInjector extends AbstractInjector
             . ')?ConfigAggregator\(\s*(?:array\(|\[).*\s+%s::class/s';
 
         $this->injectionPatterns[self::TYPE_CONFIG_PROVIDER]['pattern'] = sprintf(
-            '/(new (?:%s?%s)?ConfigAggregator\(\s*(?:array\(|\[)\s*)$/m',
+            "/(new (?:%s?%s)?ConfigAggregator\(\s*(?:array\(|\[)\s*)(?:\r|\n|\r\n)(\s*)/",
             preg_quote('\\'),
             preg_quote('Zend\ConfigAggregator\\')
         );
