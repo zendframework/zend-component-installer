@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.6.0 - 2017-01-09
+
+### Added
+
+- [#31](https://github.com/zendframework/zend-component-installer/pull/31) adds
+  support for [zend-config-aggregator](https://github.com/zendframework/zend-config-aggregator)-based
+  application configuration.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 0.5.1 - 2016-12-20
 
 ### Added
