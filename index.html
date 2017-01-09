@@ -284,13 +284,15 @@ class ConfigProvider
 
       <p>
         Your application will need to define a <code>config/config.php</code>
-        file, and that file will need to have a line that instantiates a
-        <code>Zend\Expressive\ConfigManager\ConfigManager</code> instance.
+        file, and that file will need to have a line that instantiates either a
+        <code>Zend\Expressive\ConfigManager\ConfigManager</code> instance
+        (deprecated) or <code>Zend\ConfigAggregator\ConfigAggregator</code>
+        instance.
       </p>
 
       <p>
         Configuration providers are added at the <strong>top</strong> of the
-        <code>ConfigManager</code> provider array.
+        <code>ConfigManager</code>/<code>ConfigAggregator</code> provider array.
       </p>
     </div>
 
@@ -317,19 +319,18 @@ class ConfigProvider
 
         <div class="panel-body">
           <p>
-            We're in the process of reducing the required components for zend-mvc
-            and the Zend Framework repository. In the current v2 series, zend-mvc
-            provides copious amounts of integrations with other components; as such,
-            we need to move the various factories, plugin managers, and event
-            listeners into the individual components themselves. Doing so, however,
-            has a side effect: they will no longer be wired automatically.
+            When preparing zend-mvc's version 3 release, we wanted to reduce the
+            number of components required by the package. To do so, we moved
+            integration code, such as factories, plugin managers, and event
+            listeners into the components they consumed. This had a side effect:
+            the components were no longer wired automatically.
           </p>
 
           <p>
-            To provide service and event wiring, we will be adding <code>Module</code>
+            To provide service and event wiring, we added <code>Module</code>
             classes (and configuration providers) to all Zend Framework components.
-            This exposes a new problem, however: how do we ensure that those
-            components are then added to the application module list as you add them
+            This exposed a new problem, however: how could we ensure that those
+            components are added to the application module list as you add them
             to your application?
           </p>
 
@@ -571,5 +572,5 @@ class ConfigProvider
 
 <!--
 MkDocs version : 0.16.0
-Build Date UTC : 2016-12-20 21:39:42
+Build Date UTC : 2017-01-09 14:49:38
 -->
