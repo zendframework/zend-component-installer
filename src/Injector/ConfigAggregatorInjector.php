@@ -6,9 +6,9 @@
 
 namespace Zend\ComponentInstaller\Injector;
 
-use Zend\ComponentInstaller\ConfigDiscovery\ExpressiveConfig as ExpressiveConfigDiscovery;
+use Zend\ComponentInstaller\ConfigDiscovery\ConfigAggregator as ConfigAggregatorDiscovery;
 
-class ExpressiveConfigInjector extends AbstractInjector
+class ConfigAggregatorInjector extends AbstractInjector
 {
     use ConditionalDiscoveryTrait;
 
@@ -34,7 +34,7 @@ class ExpressiveConfigInjector extends AbstractInjector
      *
      * @var string
      */
-    protected $discoveryClass = ExpressiveConfigDiscovery::class;
+    protected $discoveryClass = ConfigAggregatorDiscovery::class;
 
     /**
      * Patterns and replacements to use when registering a code item.
@@ -46,7 +46,7 @@ class ExpressiveConfigInjector extends AbstractInjector
     protected $injectionPatterns = [
         self::TYPE_CONFIG_PROVIDER => [
             'pattern'     => '',
-            'replacement' => "\$1\n    %s::class,",
+            'replacement' => "\$1\n\$2%s::class,\n\$2",
         ],
     ];
 
@@ -80,13 +80,13 @@ class ExpressiveConfigInjector extends AbstractInjector
         $this->isRegisteredPattern = '/new (?:'
             . preg_quote('\\')
             . '?'
-            . preg_quote('Zend\Expressive\ConfigManager\\')
-            . ')?ConfigManager\(\s*(?:array\(|\[).*\s+%s::class/s';
+            . preg_quote('Zend\ConfigAggregator\\')
+            . ')?ConfigAggregator\(\s*(?:array\(|\[).*\s+%s::class/s';
 
         $this->injectionPatterns[self::TYPE_CONFIG_PROVIDER]['pattern'] = sprintf(
-            '/(new (?:%s?%s)?ConfigManager\(\s*(?:array\(|\[)\s*)$/m',
+            "/(new (?:%s?%s)?ConfigAggregator\(\s*(?:array\(|\[)\s*)(?:\r|\n|\r\n)(\s*)/",
             preg_quote('\\'),
-            preg_quote('Zend\Expressive\ConfigManager\\')
+            preg_quote('Zend\ConfigAggregator\\')
         );
 
         parent::__construct($projectRoot);

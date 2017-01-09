@@ -1,9 +1,9 @@
 <?php
-use Zend\Expressive\ConfigManager\ConfigManager;
+use Zend\ConfigAggregator\ConfigAggregator;
 
-$configManager = new ConfigManager(array(
+$aggregator = new ConfigAggregator(array(
     \Foo\Bar::class,
     Application\ConfigProvider::class,
 ), 'data/cache/config.php');
 
-return $configManager->getMergedConfig();
+return $aggregator->getMergedConfig();

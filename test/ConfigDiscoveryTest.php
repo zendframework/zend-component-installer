@@ -36,8 +36,9 @@ class ConfigDiscoveryTest extends TestCase
 
         $this->injectorTypes = [
             Injector\ApplicationConfigInjector::class,
+            // Injector\ConfigAggregatorInjector::class,
             Injector\ConfigInjectorChain::class,
-            Injector\ExpressiveConfigInjector::class,
+            // Injector\ExpressiveConfigInjector::class,
             Injector\ModulesConfigInjector::class,
         ];
     }
@@ -60,6 +61,13 @@ class ConfigDiscoveryTest extends TestCase
     public function createDevelopmentWorkConfig()
     {
         $this->createDevelopmentConfig(false);
+    }
+
+    public function createAggregatorConfig()
+    {
+        vfsStream::newFile('config/config.php')
+            ->at($this->projectRoot)
+            ->setContent('<' . "?php\n\$aggregator = new ConfigAggregator([\n]);");
     }
 
     public function createExpressiveConfig()
@@ -145,6 +153,7 @@ class ConfigDiscoveryTest extends TestCase
     {
         $this->createApplicationConfig();
         $this->createDevelopmentConfig();
+        $this->createAggregatorConfig();
         $this->createExpressiveConfig();
         $this->createModulesConfig();
 
@@ -173,6 +182,18 @@ class ConfigDiscoveryTest extends TestCase
                 'chain'      => false,
             ],
             [
+                'seedMethod' => 'createAggregatorConfig',
+                'type'       => InjectorInterface::TYPE_CONFIG_PROVIDER,
+                'expected'   => Injector\ConfigAggregatorInjector::class,
+                'chain'      => true,
+            ],
+            [
+                'seedMethod' => 'createAggregatorConfig',
+                'type'       => InjectorInterface::TYPE_CONFIG_PROVIDER,
+                'expected'   => Injector\ConfigAggregatorInjector::class,
+                'chain'      => true,
+            ],
+            [
                 'seedMethod' => 'createDevelopmentConfig',
                 'type'       => InjectorInterface::TYPE_COMPONENT,
                 'expected'   => Injector\DevelopmentConfigInjector::class,
@@ -200,13 +221,13 @@ class ConfigDiscoveryTest extends TestCase
                 'seedMethod' => 'createExpressiveConfig',
                 'type'       => InjectorInterface::TYPE_CONFIG_PROVIDER,
                 'expected'   => Injector\ExpressiveConfigInjector::class,
-                'chain'      => false,
+                'chain'      => true,
             ],
             [
                 'seedMethod' => 'createExpressiveConfig',
                 'type'       => InjectorInterface::TYPE_CONFIG_PROVIDER,
                 'expected'   => Injector\ExpressiveConfigInjector::class,
-                'chain'      => false,
+                'chain'      => true,
             ],
             [
                 'seedMethod' => 'createModulesConfig',

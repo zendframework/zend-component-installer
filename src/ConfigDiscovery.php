@@ -20,7 +20,10 @@ class ConfigDiscovery
             'dist' => ConfigDiscovery\DevelopmentConfig::class,
             'work' => ConfigDiscovery\DevelopmentWorkConfig::class,
         ],
-        'config/config.php' => ConfigDiscovery\ExpressiveConfig::class,
+        'config/config.php' => [
+            'aggregator' => ConfigDiscovery\ConfigAggregator::class,
+            'manager'    => ConfigDiscovery\ExpressiveConfig::class,
+        ],
     ];
 
     /**
@@ -35,7 +38,10 @@ class ConfigDiscovery
             'dist' => Injector\DevelopmentConfigInjector::class,
             'work' => Injector\DevelopmentWorkConfigInjector::class,
         ],
-        'config/config.php' => Injector\ExpressiveConfigInjector::class,
+        'config/config.php' => [
+            'aggregator' => Injector\ConfigAggregatorInjector::class,
+            'manager'    => Injector\ExpressiveConfigInjector::class,
+        ]
     ];
 
     /**
@@ -56,7 +62,7 @@ class ConfigDiscovery
         ]);
 
         Collection::create($this->discovery)
-            // Create a discovery class for the dicovery type
+            // Create a discovery class for the discovery type
             ->map(function ($discoveryClass) use ($projectRoot) {
                 if (is_array($discoveryClass)) {
                     return new ConfigDiscovery\DiscoveryChain($discoveryClass, $projectRoot);
