@@ -11,10 +11,13 @@ use Zend\ComponentInstaller\Injector\ApplicationConfigInjector;
 
 class ApplicationConfigInjectorTest extends AbstractInjectorTestCase
 {
+    /** @var string */
     protected $configFile = 'config/application.config.php';
 
+    /** @var string */
     protected $injectorClass = ApplicationConfigInjector::class;
 
+    /** @var int[] */
     protected $injectorTypesAllowed = [
         ApplicationConfigInjector::TYPE_COMPONENT,
         ApplicationConfigInjector::TYPE_MODULE,

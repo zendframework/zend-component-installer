@@ -14,8 +14,10 @@ use Zend\ComponentInstaller\ConfigDiscovery\ConfigAggregator;
 
 class ConfigAggregatorTest extends TestCase
 {
+    /** @var vfsStreamDirectory */
     private $configDir;
 
+    /** @var ConfigAggregator */
     private $locator;
 
     public function setUp()
@@ -55,6 +57,8 @@ class ConfigAggregatorTest extends TestCase
 
     /**
      * @dataProvider validExpressiveConfigContents
+     *
+     * @param string $contents
      */
     public function testLocateReturnsTrueWhenFileExistsAndHasExpectedContent($contents)
     {

@@ -14,6 +14,9 @@ use Zend\ComponentInstaller\Injector\NoopInjector;
 
 class NoopInjectorTest extends TestCase
 {
+    /** @var NoopInjector */
+    private $injector;
+
     public function setUp()
     {
         $this->injector = new NoopInjector();
@@ -21,6 +24,8 @@ class NoopInjectorTest extends TestCase
 
     /**
      * @dataProvider packageTypes
+     *
+     * @param string $type
      */
     public function testWillRegisterAnyType($type)
     {
@@ -43,6 +48,8 @@ class NoopInjectorTest extends TestCase
 
     /**
      * @dataProvider packageTypes
+     *
+     * @param string $type
      */
     public function testInjectIsANoop($type)
     {

@@ -15,14 +15,19 @@ use Prophecy\Argument;
 
 abstract class AbstractInjectorTestCase extends TestCase
 {
+    /** @var vfsStreamDirectory */
     protected $configDir;
 
+    /** @var string */
     protected $configFile;
 
+    /** @var AbstractInjector */
     protected $injector;
 
+    /** @var string */
     protected $injectorClass;
 
+    /** @var int[] */
     protected $injectorTypesAllowed = [];
 
     public function setUp()
@@ -39,6 +44,9 @@ abstract class AbstractInjectorTestCase extends TestCase
 
     /**
      * @dataProvider allowedTypes
+     *
+     * @param string $type
+     * @param bool $expected
      */
     public function testRegistersTypesReturnsExpectedBooleanBasedOnType($type, $expected)
     {
@@ -54,6 +62,10 @@ abstract class AbstractInjectorTestCase extends TestCase
 
     /**
      * @dataProvider injectComponentProvider
+     *
+     * @param string $type
+     * @param string $initialContents
+     * @param string $expectedContents
      */
     public function testInjectAddsPackageToModulesListInAppropriateLocation($type, $initialContents, $expectedContents)
     {
@@ -74,6 +86,9 @@ abstract class AbstractInjectorTestCase extends TestCase
 
     /**
      * @dataProvider packageAlreadyRegisteredProvider
+     *
+     * @param string $contents
+     * @param string $type
      */
     public function testInjectDoesNotModifyContentsIfPackageIsAlreadyRegistered($contents, $type)
     {
@@ -94,6 +109,8 @@ abstract class AbstractInjectorTestCase extends TestCase
 
     /**
      * @dataProvider emptyConfiguration
+     *
+     * @param string $contents
      */
     public function testRemoveDoesNothingIfPackageIsNotInConfigFile($type, $contents)
     {
@@ -111,6 +128,9 @@ abstract class AbstractInjectorTestCase extends TestCase
 
     /**
      * @dataProvider packagePopulatedInConfiguration
+     *
+     * @param string $initialContents
+     * @param string $expectedContents
      */
     public function testRemoveRemovesPackageFromConfigurationWhenFound($type, $initialContents, $expectedContents)
     {

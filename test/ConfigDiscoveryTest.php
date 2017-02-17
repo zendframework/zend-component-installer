@@ -20,9 +20,17 @@ use Zend\ComponentInstaller\Injector\NoopInjector;
 
 class ConfigDiscoveryTest extends TestCase
 {
+    /** @var vfsStreamDirectory */
     private $projectRoot;
 
+    /** @var ConfigDiscovery\ */
     private $discovery;
+
+    /** @var Collection */
+    private $allTypes;
+
+    /** @var string[] */
+    private $injectorTypes;
 
     public function setUp()
     {
@@ -247,6 +255,11 @@ class ConfigDiscoveryTest extends TestCase
 
     /**
      * @dataProvider configFileSubset
+     *
+     * @param string $seedMethod
+     * @param string $type
+     * @param string $expected
+     * @param bool $chain
      */
     public function testGetAvailableConfigOptionsCanReturnsSubsetOfOptionsBaseOnPackageType(
         $seedMethod,

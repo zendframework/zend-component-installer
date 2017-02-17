@@ -160,7 +160,8 @@ class Collection implements
     /**
      * Merge an array of values with the current collection.
      *
-     * @return self
+     * @param array $values
+     * @return Collection
      */
     public function merge(array $values)
     {
@@ -171,7 +172,8 @@ class Collection implements
     /**
      * Prepend a value to the collection.
      *
-     * @return self
+     * @param mixed $value
+     * @return Collection
      */
     public function prepend($value)
     {
@@ -195,6 +197,7 @@ class Collection implements
      *
      * @param string|int $offset
      * @return mixed
+     * @throws OutOfRangeException
      */
     public function offsetGet($offset)
     {

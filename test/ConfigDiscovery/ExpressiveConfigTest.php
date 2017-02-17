@@ -14,8 +14,10 @@ use Zend\ComponentInstaller\ConfigDiscovery\ExpressiveConfig;
 
 class ExpressiveConfigTest extends TestCase
 {
+    /** @var vfsStreamDirectory */
     private $configDir;
 
+    /** @var ExpressiveConfig */
     private $locator;
 
     public function setUp()
@@ -55,6 +57,8 @@ class ExpressiveConfigTest extends TestCase
 
     /**
      * @dataProvider validExpressiveConfigContents
+     *
+     * @param string $contents
      */
     public function testLocateReturnsTrueWhenFileExistsAndHasExpectedContent($contents)
     {

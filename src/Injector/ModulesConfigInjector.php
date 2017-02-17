@@ -19,7 +19,7 @@ class ModulesConfigInjector extends AbstractInjector
     /**
      * Patterns and replacements to use when registering a code item.
      *
-     * @var string[]
+     * @var array[]
      */
     protected $injectionPatterns = [
         self::TYPE_COMPONENT => [

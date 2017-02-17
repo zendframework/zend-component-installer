@@ -14,7 +14,7 @@ use Zend\ComponentInstaller\ConfigDiscovery\DiscoveryChainInterface;
 class ConfigInjectorChain implements InjectorInterface
 {
     /**
-     * ConfigIngectors Collection
+     * ConfigInjectors Collection
      *
      * @var Collection
      */

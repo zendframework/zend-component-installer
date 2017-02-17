@@ -14,8 +14,10 @@ use Zend\ComponentInstaller\ConfigDiscovery\ModulesConfig;
 
 class ModulesConfigTest extends TestCase
 {
+    /** @var vfsStreamDirectory */
     private $configDir;
 
+    /** @var ModulesConfig */
     private $locator;
 
     public function setUp()
@@ -49,6 +51,8 @@ class ModulesConfigTest extends TestCase
 
     /**
      * @dataProvider validModulesConfigContents
+     *
+     * @param string $contents
      */
     public function testLocateReturnsTrueWhenFileExistsAndHasExpectedContent($contents)
     {

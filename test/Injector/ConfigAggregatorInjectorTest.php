@@ -11,10 +11,13 @@ use Zend\ComponentInstaller\Injector\ConfigAggregatorInjector;
 
 class ConfigAggregatorInjectorTest extends AbstractInjectorTestCase
 {
+    /** @var string */
     protected $configFile = 'config/config.php';
 
+    /** @var string */
     protected $injectorClass = ConfigAggregatorInjector::class;
 
+    /** @var int[] */
     protected $injectorTypesAllowed = [
         ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER,
     ];

@@ -76,7 +76,7 @@ class ComponentInstaller implements
     /**
      * Map of known package types to composer config keys.
      *
-     * @param array
+     * @var string[]
      */
     private $packageTypes = [
         Injector\InjectorInterface::TYPE_CONFIG_PROVIDER => 'config-provider',
@@ -125,7 +125,7 @@ class ComponentInstaller implements
     /**
      * Return list of event handlers in this class.
      *
-     * @return array
+     * @return string[]
      */
     public static function getSubscribedEvents()
     {
@@ -456,7 +456,7 @@ class ComponentInstaller implements
      * Prepare a list of modules to install/register with configuration.
      *
      * @param string[] $extra
-     * @param ConfigOption[] $options
+     * @param Collection $options
      * @return string[] List of packages to install
      */
     private function marshalInstallableModules(array $extra, Collection $options)

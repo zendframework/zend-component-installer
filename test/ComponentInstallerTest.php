@@ -17,7 +17,7 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit_Framework_TestCase as TestCase;
 use Prophecy\Argument;
-use Prophecy\Prophecy\ProphecyInterface;
+use Prophecy\Prophecy\ObjectProphecy;
 use Zend\ComponentInstaller\ComponentInstaller;
 
 class ComponentInstallerTest extends TestCase
@@ -28,22 +28,22 @@ class ComponentInstallerTest extends TestCase
     private $projectRoot;
 
     /**
-     * @var ProphecyInterface|ComponentInstaller
+     * @var ComponentInstaller|ObjectProphecy
      */
     private $installer;
 
     /**
-     * @var ProphecyInterface|Composer
+     * @var Composer|ObjectProphecy
      */
     private $composer;
 
     /**
-     * @var ProphecyInterface|IOInterface
+     * @var IOInterface|ObjectProphecy
      */
     private $io;
 
     /**
-     * @var ProphecyInterface|InstallationManager
+     * @var InstallationManager|ObjectProphecy
      */
     private $installationManager;
 
@@ -104,7 +104,7 @@ class Module {
 CONTENT
         );
 
-        /** @var ProphecyInterface|PackageInterface $package */
+        /** @var PackageInterface|ObjectProphecy $package */
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
         $package->getExtra()->willReturn([
@@ -477,7 +477,7 @@ class Module {
 CONTENT
         );
 
-        /** @var ProphecyInterface|PackageInterface $package */
+        /** @var PackageInterface|ObjectProphecy $package */
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
         $package->getExtra()->willReturn([
@@ -605,7 +605,7 @@ CONTENT
             '<' . "?php\nreturn [\n    'modules' => [" . $modules . "\n    ],\n];"
         );
 
-        /** @var ProphecyInterface|PackageInterface $package */
+        /** @var PackageInterface|ObjectProphecy $package */
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/module');
         $package->getExtra()->willReturn([

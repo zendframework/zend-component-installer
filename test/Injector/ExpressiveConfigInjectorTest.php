@@ -11,10 +11,13 @@ use Zend\ComponentInstaller\Injector\ExpressiveConfigInjector;
 
 class ExpressiveConfigInjectorTest extends AbstractInjectorTestCase
 {
+    /** @var string */
     protected $configFile = 'config/config.php';
 
+    /** @var string */
     protected $injectorClass = ExpressiveConfigInjector::class;
 
+    /** @var int[] */
     protected $injectorTypesAllowed = [
         ExpressiveConfigInjector::TYPE_CONFIG_PROVIDER,
     ];

@@ -11,10 +11,13 @@ use Zend\ComponentInstaller\Injector\DevelopmentConfigInjector;
 
 class DevelopmentConfigInjectorTest extends AbstractInjectorTestCase
 {
+    /** @var string */
     protected $configFile = 'config/development.config.php.dist';
 
+    /** @var string */
     protected $injectorClass = DevelopmentConfigInjector::class;
 
+    /** @var int[] */
     protected $injectorTypesAllowed = [
         DevelopmentConfigInjector::TYPE_COMPONENT,
         DevelopmentConfigInjector::TYPE_MODULE,
