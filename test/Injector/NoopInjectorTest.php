@@ -7,8 +7,8 @@
 
 namespace ZendTest\ComponentInstaller\Injector;
 
+use PHPUnit\Framework\TestCase;
 use Composer\IO\IOInterface;
-use PHPUnit_Framework_TestCase as TestCase;
 use Prophecy\Argument;
 use Zend\ComponentInstaller\Injector\NoopInjector;
 

@@ -9,8 +9,7 @@ namespace ZendTest\ComponentInstaller;
 
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use PHPUnit_Framework_ExpectationFailedException as ExpectationFailedException;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Zend\ComponentInstaller\Collection;
 use Zend\ComponentInstaller\ConfigDiscovery;
 use Zend\ComponentInstaller\ConfigOption;
@@ -96,14 +95,14 @@ class ConfigDiscoveryTest extends TestCase
     public function assertOptionsContainsNoopInjector(Collection $options)
     {
         if ($options->isEmpty()) {
-            throw new ExpectationFailedException('Options array is empty; no NoopInjector found!');
+            $this->fail('Options array is empty; no NoopInjector found!');
         }
 
         $options = $options->toArray();
         $injector = array_shift($options)->getInjector();
 
         if (! $injector instanceof NoopInjector) {
-            throw new ExpectationFailedException('Options array does not contain a NoopInjector!');
+            $this->fail('Options array does not contain a NoopInjector!');
         }
     }
 
@@ -111,7 +110,7 @@ class ConfigDiscoveryTest extends TestCase
     {
         foreach ($options as $option) {
             if (! $option instanceof ConfigOption) {
-                throw new ExpectationFailedException(sprintf(
+                $this->fail(sprintf(
                     'Invalid option returned: %s',
                     (is_object($option) ? get_class($option) : gettype($option))
                 ));
@@ -122,7 +121,7 @@ class ConfigDiscoveryTest extends TestCase
             }
         }
 
-        throw new ExpectationFailedException(sprintf(
+        $this->fail(sprintf(
             'Injector of type %s was not found in the options',
             $injectorType
         ));
@@ -134,7 +133,7 @@ class ConfigDiscoveryTest extends TestCase
 
         foreach ($chain->getCollection() as $injector) {
             if (! $injector instanceof InjectorInterface) {
-                throw new ExpectationFailedException(sprintf(
+                $this->fail(sprintf(
                     'Invalid Injector returned: %s',
                     (is_object($injector) ? get_class($injector) : gettype($injector))
                 ));
@@ -145,7 +144,7 @@ class ConfigDiscoveryTest extends TestCase
             }
         }
 
-        throw new ExpectationFailedException(sprintf(
+        $this->fail(sprintf(
             'Injector of type %s was not found in the options',
             $injectorType
         ));

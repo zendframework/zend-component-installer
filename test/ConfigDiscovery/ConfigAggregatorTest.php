@@ -9,7 +9,7 @@ namespace ZendTest\ComponentInstaller\ConfigDiscovery;
 
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Zend\ComponentInstaller\ConfigDiscovery\ConfigAggregator;
 
 class ConfigAggregatorTest extends TestCase

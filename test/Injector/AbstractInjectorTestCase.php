@@ -10,7 +10,7 @@ namespace ZendTest\ComponentInstaller\Injector;
 use Composer\IO\IOInterface;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
 abstract class AbstractInjectorTestCase extends TestCase
