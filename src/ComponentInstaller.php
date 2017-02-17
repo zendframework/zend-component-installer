@@ -497,7 +497,7 @@ class ComponentInstaller implements
             "\n  <question>Please select which config file you wish to inject '%s' into:</question>\n",
             $name
         ));
-        array_push($ask, '  Make your selection (default is <comment>0</comment>):');
+        $ask[] = '  Make your selection (default is <comment>0</comment>):';
 
         while (true) {
             $answer = $this->io->ask($ask, 0);
