@@ -58,10 +58,7 @@ class NoopInjectorTest extends TestCase
         $this->assertNull($this->injector->inject('Foo\Bar', $type, $io->reveal()));
     }
 
-    /**
-     * @dataProvider packageTypes
-     */
-    public function testRemoveIsANoop($type)
+    public function testRemoveIsANoop()
     {
         $io = $this->prophesize(IOInterface::class);
         $io->write(Argument::any())->shouldNotBeCalled();

@@ -28,10 +28,10 @@ class ModulesConfigInjectorTest extends AbstractInjectorTestCase
     public function allowedTypes()
     {
         return [
-            'config-provider' => [ModulesConfigInjector::TYPE_CONFIG_PROVIDER, false],
-            'component'       => [ModulesConfigInjector::TYPE_COMPONENT, true],
-            'module'          => [ModulesConfigInjector::TYPE_MODULE, true],
-            'dependency'      => [ModulesConfigInjector::TYPE_DEPENDENCY, true],
+            'config-provider'            => [ModulesConfigInjector::TYPE_CONFIG_PROVIDER, false],
+            'component'                  => [ModulesConfigInjector::TYPE_COMPONENT, true],
+            'module'                     => [ModulesConfigInjector::TYPE_MODULE, true],
+            'dependency'                 => [ModulesConfigInjector::TYPE_DEPENDENCY, true],
             'before-application-modules' => [ModulesConfigInjector::TYPE_BEFORE_APPLICATION, true],
         ];
     }
@@ -67,13 +67,12 @@ class ModulesConfigInjectorTest extends AbstractInjectorTestCase
         // @codingStandardsIgnoreStart
         $baseContentsLongArray  = '<' . "?php\nreturn array(\n    'Application',\n);";
         $baseContentsShortArray = '<' . "?php\nreturn [\n    'Application',\n];";
-        return [
-            'component-long-array'  => [ModulesConfigInjector::TYPE_COMPONENT, $baseContentsLongArray],
-            'component-short-array' => [ModulesConfigInjector::TYPE_COMPONENT, $baseContentsShortArray],
-            'module-long-array'     => [ModulesConfigInjector::TYPE_MODULE,    $baseContentsLongArray],
-            'module-short-array'    => [ModulesConfigInjector::TYPE_MODULE,    $baseContentsShortArray],
-        ];
         // @codingStandardsIgnoreEnd
+
+        return [
+            'long-array'  => [$baseContentsLongArray],
+            'short-array' => [$baseContentsShortArray],
+        ];
     }
 
     public function packagePopulatedInConfiguration()
@@ -82,10 +81,8 @@ class ModulesConfigInjectorTest extends AbstractInjectorTestCase
         $baseContentsLongArray  = '<' . "?php\nreturn array(\n    'Application',\n);";
         $baseContentsShortArray = '<' . "?php\nreturn [\n    'Application',\n];";
         return [
-            'component-long-array'  => [ModulesConfigInjector::TYPE_COMPONENT, '<' . "?php\nreturn array(\n    'Foo\Bar',\n    'Application',\n);", $baseContentsLongArray],
-            'component-short-array' => [ModulesConfigInjector::TYPE_COMPONENT, '<' . "?php\nreturn [\n    'Foo\Bar',\n    'Application',\n];",      $baseContentsShortArray],
-            'module-long-array'     => [ModulesConfigInjector::TYPE_MODULE,    '<' . "?php\nreturn array(\n    'Application',\n    'Foo\Bar',\n);", $baseContentsLongArray],
-            'module-short-array'    => [ModulesConfigInjector::TYPE_MODULE,    '<' . "?php\nreturn [\n    'Application',\n    'Foo\Bar',\n];",      $baseContentsShortArray],
+            'long-array'  => ['<' . "?php\nreturn array(\n    'Foo\Bar',\n    'Application',\n);", $baseContentsLongArray],
+            'short-array' => ['<' . "?php\nreturn [\n    'Foo\Bar',\n    'Application',\n];",      $baseContentsShortArray],
         ];
         // @codingStandardsIgnoreEnd
     }

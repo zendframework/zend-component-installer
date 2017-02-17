@@ -100,20 +100,20 @@ class ConfigAggregatorInjectorTest extends AbstractInjectorTestCase
         $fqcnLongArray              = file_get_contents(__DIR__ . '/TestAsset/expressive-empty-fqcn.config.php');
         $globallyQualifiedLongArray = file_get_contents(__DIR__ . '/TestAsset/expressive-empty-globally-qualified.config.php');
         $importLongArray            = file_get_contents(__DIR__ . '/TestAsset/expressive-empty-import.config.php');
+        // @codingStandardsIgnoreEnd
 
         $fqcnShortArray              = $this->convertToShortArraySyntax($fqcnLongArray);
         $globallyQualifiedShortArray = $this->convertToShortArraySyntax($globallyQualifiedLongArray);
         $importShortArray            = $this->convertToShortArraySyntax($importLongArray);
 
         return [
-            'fqcn-long-array'           => [ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER, $fqcnLongArray],
-            'global-long-array'         => [ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER, $globallyQualifiedLongArray],
-            'import-long-array'         => [ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER, $importLongArray],
-            'fqcn-short-array'          => [ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER, $fqcnShortArray],
-            'global-short-array'        => [ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER, $globallyQualifiedShortArray],
-            'import-short-array'        => [ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER, $importShortArray],
+            'fqcn-long-array'    => [$fqcnLongArray],
+            'global-long-array'  => [$globallyQualifiedLongArray],
+            'import-long-array'  => [$importLongArray],
+            'fqcn-short-array'   => [$fqcnShortArray],
+            'global-short-array' => [$globallyQualifiedShortArray],
+            'import-short-array' => [$importShortArray],
         ];
-        // @codingStandardsIgnoreEnd
     }
 
     public function packagePopulatedInConfiguration()
@@ -140,14 +140,14 @@ class ConfigAggregatorInjectorTest extends AbstractInjectorTestCase
         $expectedContentsImportShortArrayAltIndent   = $this->convertToShortArraySyntax($expectedContentsImportLongArrayAltIndent);
 
         return [
-            'fqcn-long-array'               => [ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER, $baseContentsFqcnLongArray,               $expectedContentsFqcnLongArray],
-            'global-long-array'             => [ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER, $baseContentsGloballyQualifiedLongArray,  $expectedContentsGloballyQualifiedLongArray],
-            'import-long-array'             => [ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER, $baseContentsImportLongArray,             $expectedContentsImportLongArray],
-            'import-long-array-alt-indent'  => [ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER, $baseContentsImportLongArrayAltIndent,    $expectedContentsImportLongArrayAltIndent],
-            'fqcn-short-array'              => [ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER, $baseContentsFqcnShortArray,              $expectedContentsFqcnShortArray],
-            'global-short-array'            => [ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER, $baseContentsGloballyQualifiedShortArray, $expectedContentsGloballyQualifiedShortArray],
-            'import-short-array'            => [ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER, $baseContentsImportShortArray,            $expectedContentsImportShortArray],
-            'import-short-array-alt-indent' => [ConfigAggregatorInjector::TYPE_CONFIG_PROVIDER, $baseContentsImportShortArrayAltIndent,   $expectedContentsImportShortArrayAltIndent],
+            'fqcn-long-array'               => [$baseContentsFqcnLongArray,               $expectedContentsFqcnLongArray],
+            'global-long-array'             => [$baseContentsGloballyQualifiedLongArray,  $expectedContentsGloballyQualifiedLongArray],
+            'import-long-array'             => [$baseContentsImportLongArray,             $expectedContentsImportLongArray],
+            'import-long-array-alt-indent'  => [$baseContentsImportLongArrayAltIndent,    $expectedContentsImportLongArrayAltIndent],
+            'fqcn-short-array'              => [$baseContentsFqcnShortArray,              $expectedContentsFqcnShortArray],
+            'global-short-array'            => [$baseContentsGloballyQualifiedShortArray, $expectedContentsGloballyQualifiedShortArray],
+            'import-short-array'            => [$baseContentsImportShortArray,            $expectedContentsImportShortArray],
+            'import-short-array-alt-indent' => [$baseContentsImportShortArrayAltIndent,   $expectedContentsImportShortArrayAltIndent],
         ];
         // @codingStandardsIgnoreEnd
     }

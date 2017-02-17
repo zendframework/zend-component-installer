@@ -112,7 +112,7 @@ abstract class AbstractInjectorTestCase extends TestCase
      *
      * @param string $contents
      */
-    public function testRemoveDoesNothingIfPackageIsNotInConfigFile($type, $contents)
+    public function testRemoveDoesNothingIfPackageIsNotInConfigFile($contents)
     {
         vfsStream::newFile($this->configFile)
             ->at($this->configDir)
@@ -132,7 +132,7 @@ abstract class AbstractInjectorTestCase extends TestCase
      * @param string $initialContents
      * @param string $expectedContents
      */
-    public function testRemoveRemovesPackageFromConfigurationWhenFound($type, $initialContents, $expectedContents)
+    public function testRemoveRemovesPackageFromConfigurationWhenFound($initialContents, $expectedContents)
     {
         vfsStream::newFile($this->configFile)
             ->at($this->configDir)
