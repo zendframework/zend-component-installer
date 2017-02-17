@@ -241,7 +241,7 @@ abstract class AbstractInjector implements InjectorInterface
      */
     private function findLastDependency(array $dependencies, $config)
     {
-        if (count($dependencies) == 1) {
+        if (count($dependencies) === 1) {
             return reset($dependencies);
         }
 

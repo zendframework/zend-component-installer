@@ -228,14 +228,14 @@ class ComponentInstaller implements
                         $fullPath = sprintf('%s/%s', $packagePath, $path);
                         if (is_dir(rtrim($fullPath, '/'))) {
                             $modulePath = sprintf('%s%s', $fullPath, 'Module.php');
-                        } elseif (substr($path, -10) == 'Module.php') {
+                        } elseif (substr($path, -10) === 'Module.php') {
                             $modulePath = $fullPath;
                         } else {
                             continue 2;
                         }
                         break;
                     case 'files':
-                        if (substr($path, -10) != 'Module.php') {
+                        if (substr($path, -10) !== 'Module.php') {
                             continue 2;
                         }
                         $modulePath = sprintf('%s/%s', $packagePath, $path);

@@ -97,7 +97,7 @@ class ConfigInjectorChain implements InjectorInterface
                 return $injector->isRegistered($package);
             })
             ->count();
-        return $this->chain->count() == $isRegisteredCount;
+        return $this->chain->count() === $isRegisteredCount;
     }
 
     /**
