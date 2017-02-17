@@ -7,7 +7,7 @@
 
 namespace Zend\ComponentInstaller\Injector;
 
-use Composer\IO\IOInterface;
+use Zend\ComponentInstaller\Exception;
 
 interface InjectorInterface
 {
@@ -45,19 +45,19 @@ interface InjectorInterface
      *
      * @param string $package Package to inject into configuration.
      * @param int $type One of the TYPE_* constants.
-     * @param IOInterface $io
-     * @return void
+     * @return bool
+     * @throws Exception\RuntimeException
      */
-    public function inject($package, $type, IOInterface $io);
+    public function inject($package, $type);
 
     /**
      * Remove a package from the configuration.
      *
      * @param string $package Package to remove.
-     * @param IOInterface $io
-     * @return void
+     * @return bool
+     * @throws Exception\RuntimeException
      */
-    public function remove($package, IOInterface $io);
+    public function remove($package);
 
     /**
      * Set modules of the application.

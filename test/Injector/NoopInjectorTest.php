@@ -8,8 +8,6 @@
 namespace ZendTest\ComponentInstaller\Injector;
 
 use PHPUnit\Framework\TestCase;
-use Composer\IO\IOInterface;
-use Prophecy\Argument;
 use Zend\ComponentInstaller\Injector\NoopInjector;
 
 class NoopInjectorTest extends TestCase
@@ -53,15 +51,15 @@ class NoopInjectorTest extends TestCase
      */
     public function testInjectIsANoop($type)
     {
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::any())->shouldNotBeCalled();
-        $this->assertNull($this->injector->inject('Foo\Bar', $type, $io->reveal()));
+        $injected = $this->injector->inject('Foo\Bar', $type);
+
+        $this->assertFalse($injected);
     }
 
     public function testRemoveIsANoop()
     {
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::any())->shouldNotBeCalled();
-        $this->assertNull($this->injector->remove('Foo\Bar', $io->reveal()));
+        $removed = $this->injector->remove('Foo\Bar');
+
+        $this->assertFalse($removed);
     }
 }

@@ -7,11 +7,10 @@
 
 namespace ZendTest\ComponentInstaller\Injector;
 
-use Composer\IO\IOInterface;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
+use Zend\ComponentInstaller\Injector\AbstractInjector;
 
 abstract class AbstractInjectorTestCase extends TestCase
 {
@@ -69,17 +68,15 @@ abstract class AbstractInjectorTestCase extends TestCase
      */
     public function testInjectAddsPackageToModulesListInAppropriateLocation($type, $initialContents, $expectedContents)
     {
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::type('string'))->shouldNotBeCalled();
-
         vfsStream::newFile($this->configFile)
             ->at($this->configDir)
             ->setContent($initialContents);
 
-        $this->injector->inject('Foo\Bar', $type, $io->reveal());
+        $injected = $this->injector->inject('Foo\Bar', $type);
 
         $result = file_get_contents(vfsStream::url('project/' . $this->configFile));
         $this->assertEquals($expectedContents, $result);
+        $this->assertTrue($injected);
     }
 
     abstract public function packageAlreadyRegisteredProvider();
@@ -96,13 +93,11 @@ abstract class AbstractInjectorTestCase extends TestCase
             ->at($this->configDir)
             ->setContent($contents);
 
-        $io = $this->prophesize(IOInterface::class);
-        $io->write('<info>    Package is already registered; skipping</info>')->shouldBeCalled();
-
-        $this->injector->inject('Foo\Bar', $type, $io->reveal());
+        $injected = $this->injector->inject('Foo\Bar', $type);
 
         $result = file_get_contents(vfsStream::url('project/' . $this->configFile));
         $this->assertSame($contents, $result);
+        $this->assertFalse($injected);
     }
 
     abstract public function emptyConfiguration();
@@ -118,10 +113,8 @@ abstract class AbstractInjectorTestCase extends TestCase
             ->at($this->configDir)
             ->setContent($contents);
 
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::type('string'))->shouldNotBeCalled();
-
-        $this->assertNull($this->injector->remove('Foo\Bar', $io->reveal()));
+        $removed = $this->injector->remove('Foo\Bar');
+        $this->assertFalse($removed);
     }
 
     abstract public function packagePopulatedInConfiguration();
@@ -138,16 +131,10 @@ abstract class AbstractInjectorTestCase extends TestCase
             ->at($this->configDir)
             ->setContent($initialContents);
 
-        $configFile = $this->configFile;
-        $io = $this->prophesize(IOInterface::class);
-        $io->write(Argument::that(function ($message) use ($configFile) {
-            $pattern = sprintf('#^<info>    Removed package from .*?%s</info>$#', preg_quote($configFile));
-            return preg_match($pattern, $message);
-        }))->shouldBeCalled();
-
-        $this->injector->remove('Foo\Bar', $io->reveal());
+        $removed = $this->injector->remove('Foo\Bar');
 
         $result = file_get_contents(vfsStream::url('project/' . $this->configFile));
         $this->assertSame($expectedContents, $result);
+        $this->assertTrue($removed);
     }
 }

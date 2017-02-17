@@ -551,7 +551,17 @@ class ComponentInstaller implements
     private function injectModuleIntoConfig($package, $module, Injector\InjectorInterface $injector, $packageType)
     {
         $this->io->write(sprintf('<info>Installing %s from package %s</info>', $module, $package));
-        $injector->inject($module, $packageType, $this->io);
+
+        try {
+            if (! $injector->inject($module, $packageType)) {
+                $this->io->write('<info>    Package is already registered; skipping</info>');
+            }
+        } catch (Exception\RuntimeException $ex) {
+            $this->io->write(sprintf(
+                '<error>    %s</error>',
+                $ex->getMessage()
+            ));
+        }
     }
 
     /**
@@ -600,7 +610,13 @@ class ComponentInstaller implements
     {
         $injectors->each(function ($injector) use ($module, $package) {
             $this->io->write(sprintf('<info>Removing %s from package %s</info>', $module, $package));
-            $injector->remove($module, $this->io);
+
+            if ($injector->remove($module)) {
+                $this->io->write(sprintf(
+                    '<info>    Removed package from %s</info>',
+                    $injector->getConfigFile()
+                ));
+            }
         });
     }
 

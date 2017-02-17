@@ -7,8 +7,6 @@
 
 namespace Zend\ComponentInstaller\Injector;
 
-use Composer\IO\IOInterface;
-
 class NoopInjector implements InjectorInterface
 {
     /**
@@ -41,15 +39,17 @@ class NoopInjector implements InjectorInterface
     /**
      * {@inheritDoc}
      */
-    public function inject($package, $type, IOInterface $io)
+    public function inject($package, $type)
     {
+        return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function remove($package, IOInterface $io)
+    public function remove($package)
     {
+        return false;
     }
 
     /**

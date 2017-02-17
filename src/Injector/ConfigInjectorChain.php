@@ -7,7 +7,6 @@
 
 namespace Zend\ComponentInstaller\Injector;
 
-use Composer\IO\IOInterface;
 use Zend\ComponentInstaller\Collection;
 use Zend\ComponentInstaller\ConfigDiscovery\DiscoveryChainInterface;
 
@@ -27,7 +26,7 @@ class ConfigInjectorChain implements InjectorInterface
      *
      * @param int[]
      */
-    protected $allowedTypes = null;
+    protected $allowedTypes;
 
     /**
      * Constructor
@@ -76,7 +75,7 @@ class ConfigInjectorChain implements InjectorInterface
      */
     public function getTypesAllowed()
     {
-        if (isset($this->allowedTypes)) {
+        if ($this->allowedTypes) {
             return $this->allowedTypes;
         }
         $allowedTypes = [];
@@ -103,23 +102,31 @@ class ConfigInjectorChain implements InjectorInterface
     /**
      * {@inheritDoc}
      */
-    public function inject($package, $type, IOInterface $io)
+    public function inject($package, $type)
     {
+        $injected = false;
+
         $this->chain
-            ->each(function ($injector) use ($package, $type, $io) {
-                $injector->inject($package, $type, $io);
+            ->each(function ($injector) use ($package, $type, &$injected) {
+                $injected = $injector->inject($package, $type) || $injected;
             });
+
+        return $injected;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function remove($package, IOInterface $io)
+    public function remove($package)
     {
+        $removed = false;
+
         $this->chain
-            ->each(function ($injector) use ($package, $io) {
-                $injector->remove($package, $io);
+            ->each(function ($injector) use ($package, &$removed) {
+                $removed = $injector->remove($package) || $removed;
             });
+
+        return $removed;
     }
 
     /**
