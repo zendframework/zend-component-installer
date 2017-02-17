@@ -112,7 +112,7 @@ class ConfigDiscoveryTest extends TestCase
             if (! $option instanceof ConfigOption) {
                 $this->fail(sprintf(
                     'Invalid option returned: %s',
-                    (is_object($option) ? get_class($option) : gettype($option))
+                    is_object($option) ? get_class($option) : gettype($option)
                 ));
             }
 
@@ -135,7 +135,7 @@ class ConfigDiscoveryTest extends TestCase
             if (! $injector instanceof InjectorInterface) {
                 $this->fail(sprintf(
                     'Invalid Injector returned: %s',
-                    (is_object($injector) ? get_class($injector) : gettype($injector))
+                    is_object($injector) ? get_class($injector) : gettype($injector)
                 ));
             }
 

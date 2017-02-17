@@ -99,7 +99,7 @@ class ConfigDiscovery
                 $discovered[] = new ConfigOption($file, $injector);
             });
 
-        return (1 === $discovered->count())
+        return 1 === $discovered->count()
             ? new Collection([])
             : $discovered;
     }

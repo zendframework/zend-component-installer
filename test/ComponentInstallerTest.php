@@ -540,7 +540,7 @@ CONTENT
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
 
-        $config = include(vfsStream::url('project/config/application.config.php'));
+        $config = include vfsStream::url('project/config/application.config.php');
         $modules = $config['modules'];
         $this->assertEquals($result, $modules);
     }
@@ -659,7 +659,7 @@ CONTENT
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
 
-        $config = include(vfsStream::url('project/config/application.config.php'));
+        $config = include vfsStream::url('project/config/application.config.php');
         $modules = $config['modules'];
         $this->assertEquals($result, $modules);
     }
@@ -1258,7 +1258,7 @@ CONTENT
         }))->shouldBeCalled();
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
-        $config = include(vfsStream::url('project/config/application.config.php'));
+        $config = include vfsStream::url('project/config/application.config.php');
         $modules = $config['modules'];
         $this->assertEquals([
             'Some\Component',
@@ -1347,7 +1347,7 @@ CONTENT
         }))->shouldBeCalled();
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
-        $config = include(vfsStream::url('project/config/application.config.php'));
+        $config = include vfsStream::url('project/config/application.config.php');
         $modules = $config['modules'];
         $this->assertEquals([
             'Some\Component',
@@ -1437,7 +1437,7 @@ CONTENT
         }))->shouldBeCalled();
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
-        $config = include(vfsStream::url('project/config/application.config.php'));
+        $config = include vfsStream::url('project/config/application.config.php');
         $modules = $config['modules'];
         $this->assertEquals([
             'Some\Component',

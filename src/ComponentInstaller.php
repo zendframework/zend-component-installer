@@ -612,7 +612,7 @@ class ComponentInstaller implements
      */
     private function moduleIsValid($module)
     {
-        return (is_string($module) && ! empty($module));
+        return is_string($module) && ! empty($module);
     }
 
     /**
