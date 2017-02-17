@@ -59,6 +59,7 @@ one or more of the following keys under the `extra.zf` configuration in their
 
 - A **config-provider** is for use with applications that utilize
   [expressive-config-manager](https://github.com/mtymek/expressive-config-manager)
+  or [zend-config-aggregator](https://github.com/zendframework/zend-config-aggregator)
   (which may or may not be Expressive applications). The class listed must be an
   invokable that returns an array of configuration, and will be injected at the
   top of:
