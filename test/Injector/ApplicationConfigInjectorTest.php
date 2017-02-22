@@ -1,7 +1,8 @@
 <?php
 /**
- * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
- * @copyright Copyright (c) 2016 Zend Technologies Ltd (http://www.zend.com)
+ * @see       https://github.com/zendframework/zend-component-installer for the canonical source repository
+ * @copyright Copyright (c) 2016-2017 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license   https://github.com/zendframework/zend-component-installer/blob/master/LICENSE.md New BSD License
  */
 
 namespace ZendTest\ComponentInstaller\Injector;
@@ -10,10 +11,13 @@ use Zend\ComponentInstaller\Injector\ApplicationConfigInjector;
 
 class ApplicationConfigInjectorTest extends AbstractInjectorTestCase
 {
+    /** @var string */
     protected $configFile = 'config/application.config.php';
 
+    /** @var string */
     protected $injectorClass = ApplicationConfigInjector::class;
 
+    /** @var int[] */
     protected $injectorTypesAllowed = [
         ApplicationConfigInjector::TYPE_COMPONENT,
         ApplicationConfigInjector::TYPE_MODULE,
@@ -24,10 +28,10 @@ class ApplicationConfigInjectorTest extends AbstractInjectorTestCase
     public function allowedTypes()
     {
         return [
-            'config-provider' => [ApplicationConfigInjector::TYPE_CONFIG_PROVIDER, false],
-            'component'       => [ApplicationConfigInjector::TYPE_COMPONENT, true],
-            'module'          => [ApplicationConfigInjector::TYPE_MODULE, true],
-            'dependency'      => [ApplicationConfigInjector::TYPE_DEPENDENCY, true],
+            'config-provider'            => [ApplicationConfigInjector::TYPE_CONFIG_PROVIDER, false],
+            'component'                  => [ApplicationConfigInjector::TYPE_COMPONENT, true],
+            'module'                     => [ApplicationConfigInjector::TYPE_MODULE, true],
+            'dependency'                 => [ApplicationConfigInjector::TYPE_DEPENDENCY, true],
             'before-application-modules' => [ApplicationConfigInjector::TYPE_BEFORE_APPLICATION, true],
         ];
     }
@@ -64,13 +68,12 @@ class ApplicationConfigInjectorTest extends AbstractInjectorTestCase
         // @codingStandardsIgnoreStart
         $baseContentsLongArray  = '<' . "?php\nreturn array(\n    'modules' => array(\n        'Application',\n    )\n);";
         $baseContentsShortArray = '<' . "?php\nreturn [\n    'modules' => [\n        'Application',\n    ]\n];";
-        return [
-            'component-long-array'  => [ApplicationConfigInjector::TYPE_COMPONENT, $baseContentsLongArray],
-            'component-short-array' => [ApplicationConfigInjector::TYPE_COMPONENT, $baseContentsShortArray],
-            'module-long-array'     => [ApplicationConfigInjector::TYPE_MODULE,    $baseContentsLongArray],
-            'module-short-array'    => [ApplicationConfigInjector::TYPE_MODULE,    $baseContentsShortArray],
-        ];
         // @codingStandardsIgnoreEnd
+
+        return [
+            'long-array'  => [$baseContentsLongArray],
+            'short-array' => [$baseContentsShortArray],
+        ];
     }
 
     public function packagePopulatedInConfiguration()
@@ -79,10 +82,8 @@ class ApplicationConfigInjectorTest extends AbstractInjectorTestCase
         $baseContentsLongArray  = '<' . "?php\nreturn array(\n    'modules' => array(\n        'Application',\n    )\n);";
         $baseContentsShortArray = '<' . "?php\nreturn [\n    'modules' => [\n        'Application',\n    ]\n];";
         return [
-            'component-long-array'  => [ApplicationConfigInjector::TYPE_COMPONENT, '<' . "?php\nreturn array(\n    'modules' => array(\n        'Foo\Bar',\n        'Application',\n    )\n);", $baseContentsLongArray],
-            'component-short-array' => [ApplicationConfigInjector::TYPE_COMPONENT, '<' . "?php\nreturn [\n    'modules' => [\n        'Foo\Bar',\n        'Application',\n    ]\n];",           $baseContentsShortArray],
-            'module-long-array'     => [ApplicationConfigInjector::TYPE_MODULE,    '<' . "?php\nreturn array(\n    'modules' => array(\n        'Application',\n        'Foo\Bar',\n    )\n);", $baseContentsLongArray],
-            'module-short-array'    => [ApplicationConfigInjector::TYPE_MODULE,    '<' . "?php\nreturn [\n    'modules' => [\n        'Application',\n        'Foo\Bar',\n    ]\n];",           $baseContentsShortArray],
+            'long-array'  => ['<' . "?php\nreturn array(\n    'modules' => array(\n        'Foo\Bar',\n        'Application',\n    )\n);", $baseContentsLongArray],
+            'short-array' => ['<' . "?php\nreturn [\n    'modules' => [\n        'Foo\Bar',\n        'Application',\n    ]\n];",           $baseContentsShortArray],
         ];
         // @codingStandardsIgnoreEnd
     }

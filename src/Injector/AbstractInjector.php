@@ -1,12 +1,13 @@
 <?php
 /**
- * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
- * @copyright Copyright (c) 2016 Zend Technologies Ltd (http://www.zend.com)
+ * @see       https://github.com/zendframework/zend-component-installer for the canonical source repository
+ * @copyright Copyright (c) 2016-2017 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license   https://github.com/zendframework/zend-component-installer/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\ComponentInstaller\Injector;
 
-use Composer\IO\IOInterface;
+use Zend\ComponentInstaller\Exception;
 
 abstract class AbstractInjector implements InjectorInterface
 {
@@ -158,26 +159,24 @@ abstract class AbstractInjector implements InjectorInterface
     /**
      * {@inheritDoc}
      */
-    public function inject($package, $type, IOInterface $io)
+    public function inject($package, $type)
     {
         $config = file_get_contents($this->configFile);
 
         if ($this->isRegisteredInConfig($package, $config)) {
-            $io->write(sprintf('<info>    Package is already registered; skipping</info>'));
-            return;
+            return false;
         }
 
-        if ($type == self::TYPE_COMPONENT
+        if ($type === self::TYPE_COMPONENT
             && $this->moduleDependencies
-            && $this->injectAfterDependencies($package, $config, $io)
         ) {
-            return;
+            return $this->injectAfterDependencies($package, $config);
         }
 
-        if ($type == self::TYPE_MODULE
-            && $this->injectBeforeApplicationModules($package, $config, $io)
+        if ($type === self::TYPE_MODULE
+            && ($firstApplicationModule = $this->findFirstEnabledApplicationModule($this->applicationModules, $config))
         ) {
-            return;
+            return $this->injectBeforeApplicationModules($package, $config, $firstApplicationModule);
         }
 
         $pattern = $this->injectionPatterns[$type]['pattern'];
@@ -188,29 +187,29 @@ abstract class AbstractInjector implements InjectorInterface
 
         $config = preg_replace($pattern, $replacement, $config);
         file_put_contents($this->configFile, $config);
+
+        return true;
     }
 
     /**
-     * Inject component $package after all dependencies into $config and return true.
-     * If any of dependencies is not registered the method will write error to $io
-     * and will also return true, to prevent injecting this package later.
-     * Method return false only in case when dependencies for the package are not found.
+     * Injects component $package after all dependencies
+     * into $config and returns true.
+     * If any of dependencies is not registered the method
+     * throws RuntimeException.
      *
      * @param string $package
      * @param string $config
-     * @param IOInterface $io
-     * @return bool
+     * @return true
+     * @throws Exception\RuntimeException
      */
-    private function injectAfterDependencies($package, $config, IOInterface $io)
+    private function injectAfterDependencies($package, $config)
     {
         foreach ($this->moduleDependencies as $dependency) {
             if (! $this->isRegisteredInConfig($dependency, $config)) {
-                $io->write(sprintf(
-                    '<error>    Dependency %s is not registered in the configuration</error>',
+                throw new Exception\RuntimeException(sprintf(
+                    'Dependency %s is not registered in the configuration',
                     $dependency
                 ));
-
-                return true;
             }
         }
 
@@ -240,7 +239,7 @@ abstract class AbstractInjector implements InjectorInterface
      */
     private function findLastDependency(array $dependencies, $config)
     {
-        if (count($dependencies) == 1) {
+        if (count($dependencies) === 1) {
             return reset($dependencies);
         }
 
@@ -266,28 +265,24 @@ abstract class AbstractInjector implements InjectorInterface
      *
      * @param string $package
      * @param string $config
-     * @param IOInterface $io
+     * @param string $firstApplicationModule
      * @return bool
      */
-    private function injectBeforeApplicationModules($package, $config, IOInterface $io)
+    private function injectBeforeApplicationModules($package, $config, $firstApplicationModule)
     {
-        if ($firstApplicationModule = $this->findFirstEnabledApplicationModule($this->applicationModules, $config)) {
-            $pattern = sprintf(
-                $this->injectionPatterns[self::TYPE_BEFORE_APPLICATION]['pattern'],
-                preg_quote($firstApplicationModule, '/')
-            );
-            $replacement = sprintf(
-                $this->injectionPatterns[self::TYPE_BEFORE_APPLICATION]['replacement'],
-                $package
-            );
+        $pattern = sprintf(
+            $this->injectionPatterns[self::TYPE_BEFORE_APPLICATION]['pattern'],
+            preg_quote($firstApplicationModule, '/')
+        );
+        $replacement = sprintf(
+            $this->injectionPatterns[self::TYPE_BEFORE_APPLICATION]['replacement'],
+            $package
+        );
 
-            $config = preg_replace($pattern, $replacement, $config);
-            file_put_contents($this->configFile, $config);
+        $config = preg_replace($pattern, $replacement, $config);
+        file_put_contents($this->configFile, $config);
 
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
@@ -340,18 +335,19 @@ abstract class AbstractInjector implements InjectorInterface
     }
 
     /**
-     * Remove a package from the configuration.
+     * Removes a package from the configuration.
+     * Returns true if successfully removed,
+     * false when package is not registered.
      *
      * @param string $package Package name.
-     * @param IOInterface $io
-     * @return void
+     * @return bool
      */
-    public function remove($package, IOInterface $io)
+    public function remove($package)
     {
         $config = file_get_contents($this->configFile);
 
-        if (! $this->isRegistered($package, $config)) {
-            return;
+        if (! $this->isRegisteredInConfig($package, $config)) {
+            return false;
         }
 
         $config = preg_replace(
@@ -368,7 +364,17 @@ abstract class AbstractInjector implements InjectorInterface
 
         file_put_contents($this->configFile, $config);
 
-        $io->write(sprintf('<info>    Removed package from %s</info>', $this->configFile));
+        return true;
+    }
+
+    /**
+     * Returns config file name of the injector.
+     *
+     * @return string
+     */
+    public function getConfigFile()
+    {
+        return $this->configFile;
     }
 
     /**

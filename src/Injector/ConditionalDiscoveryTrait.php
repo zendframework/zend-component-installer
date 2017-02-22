@@ -1,12 +1,11 @@
 <?php
 /**
- * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
- * @copyright Copyright (c) 2016 Zend Technologies Ltd (http://www.zend.com)
+ * @see       https://github.com/zendframework/zend-component-installer for the canonical source repository
+ * @copyright Copyright (c) 2016-2017 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license   https://github.com/zendframework/zend-component-installer/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\ComponentInstaller\Injector;
-
-use Composer\IO\IOInterface;
 
 trait ConditionalDiscoveryTrait
 {
@@ -16,13 +15,13 @@ trait ConditionalDiscoveryTrait
      * Prepends the package with a `\\` in order to ensure it is fully
      * qualified, preventing issues in config files that are namespaced.
      */
-    public function inject($package, $type, IOInterface $io)
+    public function inject($package, $type)
     {
         if (! $this->validConfigAggregatorConfig()) {
-            return;
+            return false;
         }
 
-        parent::inject('\\' . $package, $type, $io);
+        return parent::inject('\\' . $package, $type);
     }
 
     /**
@@ -31,13 +30,13 @@ trait ConditionalDiscoveryTrait
      * Prepends the package with a `\\` in order to ensure it is fully
      * qualified, preventing issues in config files that are namespaced.
      */
-    public function remove($package, IOInterface $io)
+    public function remove($package)
     {
         if (! $this->validConfigAggregatorConfig()) {
-            return;
+            return false;
         }
 
-        parent::remove('\\' . $package, $io);
+        return parent::remove('\\' . $package);
     }
 
     /**
