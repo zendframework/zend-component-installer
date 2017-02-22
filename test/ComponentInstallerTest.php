@@ -1,7 +1,8 @@
 <?php
 /**
- * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
- * @copyright Copyright (c) 2015 Zend Technologies Ltd (http://www.zend.com)
+ * @see       https://github.com/zendframework/zend-component-installer for the canonical source repository
+ * @copyright Copyright (c) 2015-2017 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license   https://github.com/zendframework/zend-component-installer/blob/master/LICENSE.md New BSD License
  */
 
 namespace ZendTest\ComponentInstaller;
@@ -14,9 +15,9 @@ use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
-use Prophecy\Prophecy\ProphecyInterface;
+use Prophecy\Prophecy\ObjectProphecy;
 use Zend\ComponentInstaller\ComponentInstaller;
 
 class ComponentInstallerTest extends TestCase
@@ -27,22 +28,22 @@ class ComponentInstallerTest extends TestCase
     private $projectRoot;
 
     /**
-     * @var ProphecyInterface|ComponentInstaller
+     * @var ComponentInstaller|ObjectProphecy
      */
     private $installer;
 
     /**
-     * @var ProphecyInterface|Composer
+     * @var Composer|ObjectProphecy
      */
     private $composer;
 
     /**
-     * @var ProphecyInterface|IOInterface
+     * @var IOInterface|ObjectProphecy
      */
     private $io;
 
     /**
-     * @var ProphecyInterface|InstallationManager
+     * @var InstallationManager|ObjectProphecy
      */
     private $installationManager;
 
@@ -103,7 +104,7 @@ class Module {
 CONTENT
         );
 
-        /** @var ProphecyInterface|PackageInterface $package */
+        /** @var PackageInterface|ObjectProphecy $package */
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
         $package->getExtra()->willReturn([
@@ -132,15 +133,18 @@ CONTENT
                 return false;
             }
 
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'SomeComponent' into")) {
+            if (false === strpos(
+                $argument[0],
+                "Please select which config file you wish to inject 'SomeComponent' into"
+            )) {
                 return false;
             }
 
-            if (! strstr($argument[1], 'Do not inject')) {
+            if (false === strpos($argument[1], 'Do not inject')) {
                 return false;
             }
 
-            if (! strstr($argument[2], 'application.config.php')) {
+            if (false === strpos($argument[2], 'application.config.php')) {
                 return false;
             }
 
@@ -151,7 +155,7 @@ CONTENT
             if (! is_array($argument)) {
                 return false;
             }
-            if (! strstr($argument[0], 'Remember')) {
+            if (false === strpos($argument[0], 'Remember')) {
                 return false;
             }
 
@@ -476,7 +480,7 @@ class Module {
 CONTENT
         );
 
-        /** @var ProphecyInterface|PackageInterface $package */
+        /** @var PackageInterface|ObjectProphecy $package */
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
         $package->getExtra()->willReturn([
@@ -503,19 +507,18 @@ CONTENT
                 return false;
             }
 
-            if (! strstr(
+            if (false === strpos(
                 $argument[0],
                 sprintf("Please select which config file you wish to inject '%s' into", $packageName)
-            )
-            ) {
+            )) {
                 return false;
             }
 
-            if (! strstr($argument[1], 'Do not inject')) {
+            if (false === strpos($argument[1], 'Do not inject')) {
                 return false;
             }
 
-            if (! strstr($argument[2], 'application.config.php')) {
+            if (false === strpos($argument[2], 'application.config.php')) {
                 return false;
             }
 
@@ -526,7 +529,7 @@ CONTENT
             if (! is_array($argument)) {
                 return false;
             }
-            if (! strstr($argument[0], 'Remember')) {
+            if (false === strpos($argument[0], 'Remember')) {
                 return false;
             }
 
@@ -539,7 +542,7 @@ CONTENT
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
 
-        $config = include(vfsStream::url('project/config/application.config.php'));
+        $config = include vfsStream::url('project/config/application.config.php');
         $modules = $config['modules'];
         $this->assertEquals($result, $modules);
     }
@@ -604,7 +607,7 @@ CONTENT
             '<' . "?php\nreturn [\n    'modules' => [" . $modules . "\n    ],\n];"
         );
 
-        /** @var ProphecyInterface|PackageInterface $package */
+        /** @var PackageInterface|ObjectProphecy $package */
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/module');
         $package->getExtra()->willReturn([
@@ -626,15 +629,18 @@ CONTENT
                 return false;
             }
 
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'SomeModule' into")) {
+            if (false === strpos(
+                $argument[0],
+                "Please select which config file you wish to inject 'SomeModule' into"
+            )) {
                 return false;
             }
 
-            if (! strstr($argument[1], 'Do not inject')) {
+            if (false === strpos($argument[1], 'Do not inject')) {
                 return false;
             }
 
-            if (! strstr($argument[2], 'application.config.php')) {
+            if (false === strpos($argument[2], 'application.config.php')) {
                 return false;
             }
 
@@ -645,7 +651,7 @@ CONTENT
             if (! is_array($argument)) {
                 return false;
             }
-            if (! strstr($argument[0], 'Remember')) {
+            if (false === strpos($argument[0], 'Remember')) {
                 return false;
             }
 
@@ -658,7 +664,7 @@ CONTENT
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
 
-        $config = include(vfsStream::url('project/config/application.config.php'));
+        $config = include vfsStream::url('project/config/application.config.php');
         $modules = $config['modules'];
         $this->assertEquals($result, $modules);
     }
@@ -782,15 +788,18 @@ CONTENT
                 return false;
             }
 
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'Some\Component' into")) {
+            if (false === strpos(
+                $argument[0],
+                "Please select which config file you wish to inject 'Some\Component' into"
+            )) {
                 return false;
             }
 
-            if (! strstr($argument[1], 'Do not inject')) {
+            if (false === strpos($argument[1], 'Do not inject')) {
                 return false;
             }
 
-            if (! strstr($argument[2], 'application.config.php')) {
+            if (false === strpos($argument[2], 'application.config.php')) {
                 return false;
             }
 
@@ -801,7 +810,7 @@ CONTENT
             if (! is_array($argument)) {
                 return false;
             }
-            if (! strstr($argument[0], 'Remember')) {
+            if (false === strpos($argument[0], 'Remember')) {
                 return false;
             }
 
@@ -843,35 +852,18 @@ CONTENT
                 return false;
             }
 
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'Some\Component' into")) {
+            if (false === strpos(
+                $argument[0],
+                "Please select which config file you wish to inject 'Some\Component' into"
+            )) {
                 return false;
             }
 
-            if (! strstr($argument[1], 'Do not inject')) {
+            if (false === strpos($argument[1], 'Do not inject')) {
                 return false;
             }
 
-            if (! strstr($argument[2], 'application.config.php')) {
-                return false;
-            }
-
-            return true;
-        }), 0)->willReturn(1);
-
-        $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
-                return false;
-            }
-
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'Other\Component' into")) {
-                return false;
-            }
-
-            if (! strstr($argument[1], 'Do not inject')) {
-                return false;
-            }
-
-            if (! strstr($argument[2], 'application.config.php')) {
+            if (false === strpos($argument[2], 'application.config.php')) {
                 return false;
             }
 
@@ -882,7 +874,30 @@ CONTENT
             if (! is_array($argument)) {
                 return false;
             }
-            if (! strstr($argument[0], 'Remember')) {
+
+            if (false === strpos(
+                $argument[0],
+                "Please select which config file you wish to inject 'Other\Component' into"
+            )) {
+                return false;
+            }
+
+            if (false === strpos($argument[1], 'Do not inject')) {
+                return false;
+            }
+
+            if (false === strpos($argument[2], 'application.config.php')) {
+                return false;
+            }
+
+            return true;
+        }), 0)->willReturn(1);
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+            if (false === strpos($argument[0], 'Remember')) {
                 return false;
             }
 
@@ -927,15 +942,18 @@ CONTENT
                 return false;
             }
 
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'Some\Component' into")) {
+            if (false === strpos(
+                $argument[0],
+                "Please select which config file you wish to inject 'Some\Component' into"
+            )) {
                 return false;
             }
 
-            if (! strstr($argument[1], 'Do not inject')) {
+            if (false === strpos($argument[1], 'Do not inject')) {
                 return false;
             }
 
-            if (! strstr($argument[2], 'application.config.php')) {
+            if (false === strpos($argument[2], 'application.config.php')) {
                 return false;
             }
 
@@ -946,7 +964,7 @@ CONTENT
             if (! is_array($argument)) {
                 return false;
             }
-            if (! strstr($argument[0], 'Remember')) {
+            if (false === strpos($argument[0], 'Remember')) {
                 return false;
             }
 
@@ -981,15 +999,18 @@ CONTENT
                 return false;
             }
 
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'Other\Component' into")) {
+            if (false === strpos(
+                $argument[0],
+                "Please select which config file you wish to inject 'Other\Component' into"
+            )) {
                 return false;
             }
 
-            if (! strstr($argument[1], 'Do not inject')) {
+            if (false === strpos($argument[1], 'Do not inject')) {
                 return false;
             }
 
-            if (! strstr($argument[2], 'application.config.php')) {
+            if (false === strpos($argument[2], 'application.config.php')) {
                 return false;
             }
 
@@ -1000,7 +1021,7 @@ CONTENT
             if (! is_array($argument)) {
                 return false;
             }
-            if (! strstr($argument[0], 'Remember')) {
+            if (false === strpos($argument[0], 'Remember')) {
                 return false;
             }
 
@@ -1040,15 +1061,18 @@ CONTENT
                 return false;
             }
 
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'Some\Component' into")) {
+            if (false === strpos(
+                $argument[0],
+                "Please select which config file you wish to inject 'Some\Component' into"
+            )) {
                 return false;
             }
 
-            if (! strstr($argument[1], 'Do not inject')) {
+            if (false === strpos($argument[1], 'Do not inject')) {
                 return false;
             }
 
-            if (! strstr($argument[2], 'application.config.php')) {
+            if (false === strpos($argument[2], 'application.config.php')) {
                 return false;
             }
 
@@ -1059,7 +1083,7 @@ CONTENT
             if (! is_array($argument)) {
                 return false;
             }
-            if (! strstr($argument[0], 'Remember')) {
+            if (false === strpos($argument[0], 'Remember')) {
                 return false;
             }
 
@@ -1226,15 +1250,18 @@ CONTENT
                 return false;
             }
 
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'Some\Module' into")) {
+            if (false === strpos(
+                $argument[0],
+                "Please select which config file you wish to inject 'Some\Module' into"
+            )) {
                 return false;
             }
 
-            if (! strstr($argument[1], 'Do not inject')) {
+            if (false === strpos($argument[1], 'Do not inject')) {
                 return false;
             }
 
-            if (! strstr($argument[2], 'application.config.php')) {
+            if (false === strpos($argument[2], 'application.config.php')) {
                 return false;
             }
 
@@ -1245,7 +1272,7 @@ CONTENT
             if (! is_array($argument)) {
                 return false;
             }
-            if (! strstr($argument[0], 'Remember')) {
+            if (false === strpos($argument[0], 'Remember')) {
                 return false;
             }
 
@@ -1257,7 +1284,7 @@ CONTENT
         }))->shouldBeCalled();
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
-        $config = include(vfsStream::url('project/config/application.config.php'));
+        $config = include vfsStream::url('project/config/application.config.php');
         $modules = $config['modules'];
         $this->assertEquals([
             'Some\Component',
@@ -1291,35 +1318,18 @@ CONTENT
                 return false;
             }
 
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'Some\Module' into")) {
+            if (false === strpos(
+                $argument[0],
+                "Please select which config file you wish to inject 'Some\Module' into"
+            )) {
                 return false;
             }
 
-            if (! strstr($argument[1], 'Do not inject')) {
+            if (false === strpos($argument[1], 'Do not inject')) {
                 return false;
             }
 
-            if (! strstr($argument[2], 'application.config.php')) {
-                return false;
-            }
-
-            return true;
-        }), 0)->willReturn(1);
-
-        $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
-                return false;
-            }
-
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'Some\Component' into")) {
-                return false;
-            }
-
-            if (! strstr($argument[1], 'Do not inject')) {
-                return false;
-            }
-
-            if (! strstr($argument[2], 'application.config.php')) {
+            if (false === strpos($argument[2], 'application.config.php')) {
                 return false;
             }
 
@@ -1330,7 +1340,30 @@ CONTENT
             if (! is_array($argument)) {
                 return false;
             }
-            if (! strstr($argument[0], 'Remember')) {
+
+            if (false === strpos(
+                $argument[0],
+                "Please select which config file you wish to inject 'Some\Component' into"
+            )) {
+                return false;
+            }
+
+            if (false === strpos($argument[1], 'Do not inject')) {
+                return false;
+            }
+
+            if (false === strpos($argument[2], 'application.config.php')) {
+                return false;
+            }
+
+            return true;
+        }), 0)->willReturn(1);
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+            if (false === strpos($argument[0], 'Remember')) {
                 return false;
             }
 
@@ -1346,7 +1379,7 @@ CONTENT
         }))->shouldBeCalled();
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
-        $config = include(vfsStream::url('project/config/application.config.php'));
+        $config = include vfsStream::url('project/config/application.config.php');
         $modules = $config['modules'];
         $this->assertEquals([
             'Some\Component',
@@ -1381,35 +1414,18 @@ CONTENT
                 return false;
             }
 
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'Some\Module' into")) {
+            if (false === strpos(
+                $argument[0],
+                "Please select which config file you wish to inject 'Some\Module' into"
+            )) {
                 return false;
             }
 
-            if (! strstr($argument[1], 'Do not inject')) {
+            if (false === strpos($argument[1], 'Do not inject')) {
                 return false;
             }
 
-            if (! strstr($argument[2], 'application.config.php')) {
-                return false;
-            }
-
-            return true;
-        }), 0)->willReturn(1);
-
-        $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
-                return false;
-            }
-
-            if (! strstr($argument[0], "Please select which config file you wish to inject 'Some\Component' into")) {
-                return false;
-            }
-
-            if (! strstr($argument[1], 'Do not inject')) {
-                return false;
-            }
-
-            if (! strstr($argument[2], 'application.config.php')) {
+            if (false === strpos($argument[2], 'application.config.php')) {
                 return false;
             }
 
@@ -1420,7 +1436,30 @@ CONTENT
             if (! is_array($argument)) {
                 return false;
             }
-            if (! strstr($argument[0], 'Remember')) {
+
+            if (false === strpos(
+                $argument[0],
+                "Please select which config file you wish to inject 'Some\Component' into"
+            )) {
+                return false;
+            }
+
+            if (false === strpos($argument[1], 'Do not inject')) {
+                return false;
+            }
+
+            if (false === strpos($argument[2], 'application.config.php')) {
+                return false;
+            }
+
+            return true;
+        }), 0)->willReturn(1);
+
+        $this->io->ask(Argument::that(function ($argument) {
+            if (! is_array($argument)) {
+                return false;
+            }
+            if (false === strpos($argument[0], 'Remember')) {
                 return false;
             }
 
@@ -1436,7 +1475,7 @@ CONTENT
         }))->shouldBeCalled();
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
-        $config = include(vfsStream::url('project/config/application.config.php'));
+        $config = include vfsStream::url('project/config/application.config.php');
         $modules = $config['modules'];
         $this->assertEquals([
             'Some\Component',

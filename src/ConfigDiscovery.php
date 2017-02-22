@@ -1,7 +1,8 @@
 <?php
 /**
- * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
- * @copyright Copyright (c) 2016 Zend Technologies Ltd (http://www.zend.com)
+ * @see       https://github.com/zendframework/zend-component-installer for the canonical source repository
+ * @copyright Copyright (c) 2016-2017 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license   https://github.com/zendframework/zend-component-installer/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\ComponentInstaller;
@@ -98,7 +99,7 @@ class ConfigDiscovery
                 $discovered[] = new ConfigOption($file, $injector);
             });
 
-        return (1 === $discovered->count())
+        return 1 === $discovered->count()
             ? new Collection([])
             : $discovered;
     }

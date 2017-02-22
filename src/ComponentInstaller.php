@@ -1,7 +1,8 @@
 <?php
 /**
- * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
- * @copyright Copyright (c) 2015 Zend Technologies Ltd (http://www.zend.com)
+ * @see       https://github.com/zendframework/zend-component-installer for the canonical source repository
+ * @copyright Copyright (c) 2015-2017 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license   https://github.com/zendframework/zend-component-installer/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\ComponentInstaller;
@@ -75,7 +76,7 @@ class ComponentInstaller implements
     /**
      * Map of known package types to composer config keys.
      *
-     * @param array
+     * @var string[]
      */
     private $packageTypes = [
         Injector\InjectorInterface::TYPE_CONFIG_PROVIDER => 'config-provider',
@@ -124,7 +125,7 @@ class ComponentInstaller implements
     /**
      * Return list of event handlers in this class.
      *
-     * @return array
+     * @return string[]
      */
     public static function getSubscribedEvents()
     {
@@ -227,14 +228,14 @@ class ComponentInstaller implements
                         $fullPath = sprintf('%s/%s', $packagePath, $path);
                         if (is_dir(rtrim($fullPath, '/'))) {
                             $modulePath = sprintf('%s%s', $fullPath, 'Module.php');
-                        } elseif (substr($path, -10) == 'Module.php') {
+                        } elseif (substr($path, -10) === 'Module.php') {
                             $modulePath = $fullPath;
                         } else {
                             continue 2;
                         }
                         break;
                     case 'files':
-                        if (substr($path, -10) != 'Module.php') {
+                        if (substr($path, -10) !== 'Module.php') {
                             continue 2;
                         }
                         $modulePath = sprintf('%s/%s', $packagePath, $path);
@@ -455,7 +456,7 @@ class ComponentInstaller implements
      * Prepare a list of modules to install/register with configuration.
      *
      * @param string[] $extra
-     * @param ConfigOption[] $options
+     * @param Collection $options
      * @return string[] List of packages to install
      */
     private function marshalInstallableModules(array $extra, Collection $options)
@@ -496,7 +497,7 @@ class ComponentInstaller implements
             "\n  <question>Please select which config file you wish to inject '%s' into:</question>\n",
             $name
         ));
-        array_push($ask, '  Make your selection (default is <comment>0</comment>):');
+        $ask[] = '  Make your selection (default is <comment>0</comment>):';
 
         while (true) {
             $answer = $this->io->ask($ask, 0);
@@ -550,7 +551,17 @@ class ComponentInstaller implements
     private function injectModuleIntoConfig($package, $module, Injector\InjectorInterface $injector, $packageType)
     {
         $this->io->write(sprintf('<info>Installing %s from package %s</info>', $module, $package));
-        $injector->inject($module, $packageType, $this->io);
+
+        try {
+            if (! $injector->inject($module, $packageType)) {
+                $this->io->write('<info>    Package is already registered; skipping</info>');
+            }
+        } catch (Exception\RuntimeException $ex) {
+            $this->io->write(sprintf(
+                '<error>    %s</error>',
+                $ex->getMessage()
+            ));
+        }
     }
 
     /**
@@ -599,7 +610,13 @@ class ComponentInstaller implements
     {
         $injectors->each(function ($injector) use ($module, $package) {
             $this->io->write(sprintf('<info>Removing %s from package %s</info>', $module, $package));
-            $injector->remove($module, $this->io);
+
+            if ($injector->remove($module)) {
+                $this->io->write(sprintf(
+                    '<info>    Removed package from %s</info>',
+                    $injector->getConfigFile()
+                ));
+            }
         });
     }
 
@@ -611,7 +628,7 @@ class ComponentInstaller implements
      */
     private function moduleIsValid($module)
     {
-        return (is_string($module) && ! empty($module));
+        return is_string($module) && ! empty($module);
     }
 
     /**

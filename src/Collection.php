@@ -1,8 +1,8 @@
 <?php
 /**
- * @link      http://github.com/zendframework/zend-component-installer for the canonical source repository
- * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-component-installer for the canonical source repository
+ * @copyright Copyright (c) 2016-2017 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license   https://github.com/zendframework/zend-component-installer/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\ComponentInstaller;
@@ -160,7 +160,8 @@ class Collection implements
     /**
      * Merge an array of values with the current collection.
      *
-     * @return self
+     * @param array $values
+     * @return Collection
      */
     public function merge(array $values)
     {
@@ -171,7 +172,8 @@ class Collection implements
     /**
      * Prepend a value to the collection.
      *
-     * @return self
+     * @param mixed $value
+     * @return Collection
      */
     public function prepend($value)
     {
@@ -195,6 +197,7 @@ class Collection implements
      *
      * @param string|int $offset
      * @return mixed
+     * @throws OutOfRangeException
      */
     public function offsetGet($offset)
     {

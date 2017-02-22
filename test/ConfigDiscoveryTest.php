@@ -1,15 +1,16 @@
 <?php
 /**
- * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
- * @copyright Copyright (c) 2016 Zend Technologies Ltd (http://www.zend.com)
+ * @see       https://github.com/zendframework/zend-component-installer for the canonical source repository
+ * @copyright Copyright (c) 2016-2017 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license   https://github.com/zendframework/zend-component-installer/blob/master/LICENSE.md New BSD License
  */
 
 namespace ZendTest\ComponentInstaller;
 
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use PHPUnit_Framework_ExpectationFailedException as ExpectationFailedException;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\ExpectationFailedException;
+use PHPUnit\Framework\TestCase;
 use Zend\ComponentInstaller\Collection;
 use Zend\ComponentInstaller\ConfigDiscovery;
 use Zend\ComponentInstaller\ConfigOption;
@@ -19,9 +20,17 @@ use Zend\ComponentInstaller\Injector\NoopInjector;
 
 class ConfigDiscoveryTest extends TestCase
 {
+    /** @var vfsStreamDirectory */
     private $projectRoot;
 
+    /** @var ConfigDiscovery\ */
     private $discovery;
+
+    /** @var Collection */
+    private $allTypes;
+
+    /** @var string[] */
+    private $injectorTypes;
 
     public function setUp()
     {
@@ -104,7 +113,7 @@ class ConfigDiscoveryTest extends TestCase
             if (! $option instanceof ConfigOption) {
                 throw new ExpectationFailedException(sprintf(
                     'Invalid option returned: %s',
-                    (is_object($option) ? get_class($option) : gettype($option))
+                    is_object($option) ? get_class($option) : gettype($option)
                 ));
             }
 
@@ -127,7 +136,7 @@ class ConfigDiscoveryTest extends TestCase
             if (! $injector instanceof InjectorInterface) {
                 throw new ExpectationFailedException(sprintf(
                     'Invalid Injector returned: %s',
-                    (is_object($injector) ? get_class($injector) : gettype($injector))
+                    is_object($injector) ? get_class($injector) : gettype($injector)
                 ));
             }
 
@@ -246,6 +255,11 @@ class ConfigDiscoveryTest extends TestCase
 
     /**
      * @dataProvider configFileSubset
+     *
+     * @param string $seedMethod
+     * @param string $type
+     * @param string $expected
+     * @param bool $chain
      */
     public function testGetAvailableConfigOptionsCanReturnsSubsetOfOptionsBaseOnPackageType(
         $seedMethod,
