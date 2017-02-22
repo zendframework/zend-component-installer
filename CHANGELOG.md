@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.7.0 - TBD
+
+### Added
+
+- [#34](https://github.com/zendframework/zend-component-installer/pull/34) adds
+  support for applications using [zendframework/zend-config-aggregator](https://github.com/zendframework/zend-config-aggregator).
+
+### Changes
+
+- [#34](https://github.com/zendframework/zend-component-installer/pull/34)
+  updates the internal architecture such that the Composer `IOInterface` no
+  longer needs to be passed during config discovery or injection; instead,
+  try/catch blocks are used within code exercising these classes, which already
+  composes `IOInterface` instances. As such, a number of public methods that
+  were receiving `IOInterface` instances now remove that argument. If you were
+  extending any of these classes, you will need to update accordingly.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 0.6.0 - 2017-01-09
 
 ### Added
