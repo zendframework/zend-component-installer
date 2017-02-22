@@ -28,7 +28,10 @@
     "autoload-dev": {
         "psr-4": {
             "ZendTest\\ComponentInstaller\\": "test/"
-        }
+        },
+        "files": [
+            "test/_autoload.php"
+        ]
     },
     "scripts": {
         "check": [
