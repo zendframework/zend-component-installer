@@ -192,10 +192,10 @@ abstract class AbstractInjector implements InjectorInterface
     }
 
     /**
-     * Injects component $package after all dependencies
-     * into $config and returns true.
-     * If any of dependencies is not registered the method
-     * throws RuntimeException.
+     * Injects component $package into $config after all other dependencies.
+     *
+     * If any dependencies are not registered, the method throws
+     * Exception\RuntimeException.
      *
      * @param string $package
      * @param string $config
