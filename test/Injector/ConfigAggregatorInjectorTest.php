@@ -7,6 +7,7 @@
 
 namespace ZendTest\ComponentInstaller\Injector;
 
+use org\bovigo\vfs\vfsStream;
 use Zend\ComponentInstaller\Injector\ConfigAggregatorInjector;
 
 class ConfigAggregatorInjectorTest extends AbstractInjectorTestCase
@@ -150,5 +151,15 @@ class ConfigAggregatorInjectorTest extends AbstractInjectorTestCase
             'import-short-array-alt-indent' => [$baseContentsImportShortArrayAltIndent,   $expectedContentsImportShortArrayAltIndent],
         ];
         // @codingStandardsIgnoreEnd
+    }
+
+    public function testProperlyDetectsExistingConfigProviderInConfigWithMixedRelativeAndGloballyQualifiedNames()
+    {
+        $contents = file_get_contents(__DIR__ . '/TestAsset/expressive-application-from-skeleton.config.php');
+        vfsStream::newFile('config/config.php')
+            ->at($this->configDir)
+            ->setContent($contents);
+
+        $this->assertTrue($this->injector->isRegistered('Zend\Validator\ConfigProvider'));
     }
 }
