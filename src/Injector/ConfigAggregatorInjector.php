@@ -78,11 +78,14 @@ class ConfigAggregatorInjector extends AbstractInjector
      */
     public function __construct($projectRoot = '')
     {
+        $ns = preg_quote('\\');
         $this->isRegisteredPattern = '/new (?:'
-            . preg_quote('\\')
+            . $ns
             . '?'
             . preg_quote('Zend\ConfigAggregator\\')
-            . ')?ConfigAggregator\(\s*(?:array\(|\[).*\s+%s::class/s';
+            . ')?ConfigAggregator\(\s*(?:array\(|\[).*\s+'
+            . $ns
+            . '?%s::class/s';
 
         $this->injectionPatterns[self::TYPE_CONFIG_PROVIDER]['pattern'] = sprintf(
             "/(new (?:%s?%s)?ConfigAggregator\(\s*(?:array\(|\[)\s*)(?:\r|\n|\r\n)(\s*)/",

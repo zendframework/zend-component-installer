@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.7.1 - 2017-04-11
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#38](https://github.com/zendframework/zend-component-installer/pull/38) fixes
+  an issue with detection of config providers in `ConfigAggregator`-based
+  configuration files. Previously, entries that were globally qualified
+  (prefixed with `\\`) were not properly detected, leading to the installer
+  re-asking to inject.
+
 ## 0.7.0 - 2017-02-22
 
 ### Added
