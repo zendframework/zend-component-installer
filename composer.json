@@ -5,7 +5,8 @@
     "license": "BSD-3-Clause",
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0-dev"
+            "dev-master": "1.0-dev",
+            "dev-develop": "1.1-dev"
         },
         "class": "Zend\\ComponentInstaller\\ComponentInstaller"
     },
