@@ -11,10 +11,10 @@
         "plugin"
     ],
     "support": {
-        "docs": "https://docs.zendframework.com/zend-zend-component-installer/",
-        "issues": "https://github.com/zendframework/zend-zend-component-installer/issues",
-        "source": "https://github.com/zendframework/zend-zend-component-installer",
-        "rss": "https://github.com/zendframework/zend-zend-component-installer/releases.atom",
+        "docs": "https://docs.zendframework.com/zend-component-installer/",
+        "issues": "https://github.com/zendframework/zend-component-installer/issues",
+        "source": "https://github.com/zendframework/zend-component-installer",
+        "rss": "https://github.com/zendframework/zend-component-installer/releases.atom",
         "slack": "https://zendframework-slack.herokuapp.com",
         "forum": "https://discourse.zendframework.com/c/questions/components"
     },
