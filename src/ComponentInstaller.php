@@ -222,48 +222,52 @@ class ComponentInstaller implements
 
         $autoload = $package->getAutoload();
         foreach ($autoload as $type => $map) {
-            foreach ($map as $namespace => $path) {
-                switch ($type) {
-                    case 'classmap':
-                        $fullPath = sprintf('%s/%s', $packagePath, $path);
-                        if (is_dir(rtrim($fullPath, '/'))) {
-                            $modulePath = sprintf('%s%s', $fullPath, 'Module.php');
-                        } elseif (substr($path, -10) === 'Module.php') {
-                            $modulePath = $fullPath;
-                        } else {
-                            continue 2;
-                        }
-                        break;
-                    case 'files':
-                        if (substr($path, -10) !== 'Module.php') {
-                            continue 2;
-                        }
-                        $modulePath = sprintf('%s/%s', $packagePath, $path);
-                        break;
-                    case 'psr-0':
-                        $modulePath = sprintf(
-                            '%s/%s%s%s',
-                            $packagePath,
-                            $path,
-                            str_replace('\\', '/', $namespace),
-                            'Module.php'
-                        );
-                        break;
-                    case 'psr-4':
-                        $modulePath = sprintf(
-                            '%s/%s%s',
-                            $packagePath,
-                            $path,
-                            'Module.php'
-                        );
-                        break;
-                    default:
-                        continue 2;
-                }
+            foreach ($map as $namespace => $paths) {
+                $paths = (array)$paths;
 
-                if (file_exists($modulePath)) {
-                    if ($result = $this->getModuleDependencies($modulePath)) {
-                        $dependencies += $result;
+                foreach ($paths as $path) {
+                    switch ($type) {
+                        case 'classmap':
+                            $fullPath = sprintf('%s/%s', $packagePath, $path);
+                            if (is_dir(rtrim($fullPath, '/'))) {
+                                $modulePath = sprintf('%s%s', $fullPath, 'Module.php');
+                            } elseif (substr($path, -10) === 'Module.php') {
+                                $modulePath = $fullPath;
+                            } else {
+                                continue 2;
+                            }
+                            break;
+                        case 'files':
+                            if (substr($path, -10) !== 'Module.php') {
+                                continue 2;
+                            }
+                            $modulePath = sprintf('%s/%s', $packagePath, $path);
+                            break;
+                        case 'psr-0':
+                            $modulePath = sprintf(
+                                '%s/%s%s%s',
+                                $packagePath,
+                                $path,
+                                str_replace('\\', '/', $namespace),
+                                'Module.php'
+                            );
+                            break;
+                        case 'psr-4':
+                            $modulePath = sprintf(
+                                '%s/%s%s',
+                                $packagePath,
+                                $path,
+                                'Module.php'
+                            );
+                            break;
+                        default:
+                            continue 2;
+                    }
+
+                    if (file_exists($modulePath)) {
+                        if ($result = $this->getModuleDependencies($modulePath)) {
+                            $dependencies += $result;
+                        }
                     }
                 }
             }
