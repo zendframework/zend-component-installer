@@ -15,9 +15,11 @@ use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
+use org\bovigo\vfs\vfsStreamWrapper;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use ReflectionObject;
 use Zend\ComponentInstaller\ComponentInstaller;
 
 class ComponentInstallerTest extends TestCase
@@ -1503,12 +1505,128 @@ CONTENT
      */
     public function testGetModuleDependenciesFromModuleClass($file, $result)
     {
-        $r = new \ReflectionObject($this->installer);
+        $r = new ReflectionObject($this->installer);
         $rm = $r->getMethod('getModuleDependencies');
         $rm->setAccessible(true);
 
         $dependencies = $rm->invoke($this->installer, $file);
 
         $this->assertEquals($result, $dependencies);
+    }
+
+    public function testGetModuleClassesDependenciesHandlesAutoloadersWithMultiplePathsMappedToSameNamespace()
+    {
+        $installPath = 'install/path';
+        $this->setUpModuleDependencies($installPath);
+
+        $autoloaders = [
+            'psr-0' => [
+                'DoesNotExist\\' => [
+                    'src/Psr0/',
+                    'src/Psr0Too/',
+                ],
+            ],
+            'psr-4' => [
+                'DoesNotExistEither\\' => [
+                    'src/Psr4/',
+                    'src/Psr4Too/',
+                ],
+            ],
+            'classmap' => [
+                'src/Classmapped/',
+                'src/ClassmappedToo/',
+            ],
+            'files' => [
+                'src/File/Module.php',
+                'src/FileToo/Module.php',
+            ],
+        ];
+
+        $package = $this->prophesize(PackageInterface::class);
+        $package->getAutoload()->willReturn($autoloaders);
+
+        $this->installationManager
+            ->getInstallPath(Argument::that([$package, 'reveal']))
+            ->willReturn(vfsStream::url('project/' . $installPath));
+
+        $r = new ReflectionObject($this->installer);
+        $rm = $r->getMethod('loadModuleClassesDependencies');
+        $rm->setAccessible(true);
+
+        $dependencies = $rm->invoke($this->installer, $package->reveal());
+        $this->assertEquals([
+            'DoesNotExist'       => ['DoesNotExistDependency'],
+            'DoesNotExistEither' => ['DoesNotExistEitherDependency'],
+            'ClassmappedToo'     => ['ClassmappedTooDependency'],
+            'File'               => ['FileDependency'],
+        ], $dependencies);
+    }
+
+    public function setUpModuleDependencies($path)
+    {
+        $this->createModuleClass(
+            $path . '/src/Psr0Too/DoesNotExist/Module.php',
+            <<<CONTENT
+<?php
+namespace DoesNotExist;
+
+class Module
+{
+    public function getModuleDependencies()
+    {
+        return ['DoesNotExistDependency'];
+    }
+}
+CONTENT
+        );
+
+        $this->createModuleClass(
+            $path . '/src/Psr4/Module.php',
+            <<<CONTENT
+<?php
+namespace DoesNotExistEither;
+
+class Module
+{
+    public function getModuleDependencies()
+    {
+        return ['DoesNotExistEitherDependency'];
+    }
+}
+CONTENT
+        );
+
+        mkdir(sprintf('%s/%s/src/ClassmappedToo', vfsStream::url('project'), $path));
+        $this->createModuleClass(
+            $path . '/src/ClassmappedToo/Module.php',
+            <<<CONTENT
+<?php
+namespace ClassmappedToo;
+
+class Module
+{
+    public function getModuleDependencies()
+    {
+        return ['ClassmappedTooDependency'];
+    }
+}
+CONTENT
+        );
+
+        $this->createModuleClass(
+            $path . '/src/File/Module.php',
+            <<<CONTENT
+<?php
+namespace File;
+
+class Module
+{
+    public function getModuleDependencies()
+    {
+        return ['FileDependency'];
+    }
+}
+CONTENT
+        );
     }
 }
