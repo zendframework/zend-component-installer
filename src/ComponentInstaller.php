@@ -679,13 +679,12 @@ class ComponentInstaller implements
         switch ($type) {
             case 'classmap':
                 $fullPath = sprintf('%s/%s', $packagePath, $path);
-                if (is_dir(rtrim($fullPath, '/'))) {
-                    $modulePath = sprintf('%s%s', $fullPath, 'Module.php');
-                } elseif (substr($path, -10) === 'Module.php') {
+                if (substr($path, -10) === 'Module.php') {
                     $modulePath = $fullPath;
-                } else {
-                    return;
+                    break;
                 }
+
+                $modulePath = sprintf('%s/Module.php', rtrim($fullPath, '/'));
                 break;
             case 'files':
                 if (substr($path, -10) !== 'Module.php') {
