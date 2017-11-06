@@ -7,6 +7,7 @@
 
 namespace Zend\ComponentInstaller;
 
+use ArrayObject;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Installer\PackageEvent;
@@ -203,7 +204,7 @@ class ComponentInstaller implements
 
     /**
      * Find all Module classes in the package and their dependencies
-     * - method `getModuleDependencies` of Module class.
+     * via method `getModuleDependencies` of Module class.
      *
      * These dependencies are used later
      * @see \Zend\ComponentInstaller\Injector\AbstractInjector::injectAfterDependencies
@@ -216,87 +217,13 @@ class ComponentInstaller implements
      */
     private function loadModuleClassesDependencies(PackageInterface $package)
     {
-        $dependencies = [];
+        $dependencies = new ArrayObject([]);
         $installer = $this->composer->getInstallationManager();
         $packagePath = $installer->getInstallPath($package);
 
-        $autoload = $package->getAutoload();
-        foreach ($autoload as $type => $map) {
-            foreach ($map as $namespace => $path) {
-                switch ($type) {
-                    case 'classmap':
-                        $fullPath = sprintf('%s/%s', $packagePath, $path);
-                        if (is_dir(rtrim($fullPath, '/'))) {
-                            $modulePath = sprintf('%s%s', $fullPath, 'Module.php');
-                        } elseif (substr($path, -10) === 'Module.php') {
-                            $modulePath = $fullPath;
-                        } else {
-                            continue 2;
-                        }
-                        break;
-                    case 'files':
-                        if (substr($path, -10) !== 'Module.php') {
-                            continue 2;
-                        }
-                        $modulePath = sprintf('%s/%s', $packagePath, $path);
-                        break;
-                    case 'psr-0':
-                        $modulePath = sprintf(
-                            '%s/%s%s%s',
-                            $packagePath,
-                            $path,
-                            str_replace('\\', '/', $namespace),
-                            'Module.php'
-                        );
-                        break;
-                    case 'psr-4':
-                        $modulePath = sprintf(
-                            '%s/%s%s',
-                            $packagePath,
-                            $path,
-                            'Module.php'
-                        );
-                        break;
-                    default:
-                        continue 2;
-                }
+        $this->mapAutoloaders($package->getAutoload(), $dependencies, $packagePath);
 
-                if (file_exists($modulePath)) {
-                    if ($result = $this->getModuleDependencies($modulePath)) {
-                        $dependencies += $result;
-                    }
-                }
-            }
-        }
-
-        return $dependencies;
-    }
-
-    /**
-     * @param string $file
-     * @return array
-     */
-    private function getModuleDependencies($file)
-    {
-        $content = file_get_contents($file);
-        if (preg_match('/namespace\s+([^\s]+)\s*;/', $content, $m)) {
-            $moduleName = $m[1];
-
-            // @codingStandardsIgnoreStart
-            $regExp = '/public\s+function\s+getModuleDependencies\s*\(\s*\)\s*{[^}]*return\s*(?:array\(|\[)([^})\]]*)(\)|\])/';
-            // @codingStandardsIgnoreEnd
-            if (preg_match($regExp, $content, $m)) {
-                $dependencies = array_filter(
-                    explode(',', stripslashes(rtrim(preg_replace('/[\s"\']/', '', $m[1]), ',')))
-                );
-
-                if ($dependencies) {
-                    return [$moduleName => $dependencies];
-                }
-            }
-        }
-
-        return [];
+        return $dependencies->getArrayCopy();
     }
 
     /**
@@ -686,5 +613,144 @@ class ComponentInstaller implements
     private function cacheInjector(Injector\InjectorInterface $injector, $packageType)
     {
         $this->cachedInjectors[$packageType] = $injector;
+    }
+
+    /**
+     * Iterate through each autoloader type to find dependencies.
+     *
+     * @param array $autoload List of autoloader types and associated autoloader definitions.
+     * @param ArrayObject $dependencies Module dependencies defined by the module.
+     * @param string $packagePath Path to the package on the filesystem.
+     * @return void
+     */
+    private function mapAutoloaders(array $autoload, ArrayObject $dependencies, $packagePath)
+    {
+        foreach ($autoload as $type => $map) {
+            $this->mapType($map, $type, $dependencies, $packagePath);
+        }
+    }
+
+    /**
+     * Iterate through a single autolaoder type to find dependencies.
+     *
+     * @param array $map Map of namespace => path(s) pairs.
+     * @param string $type Type of autoloader being iterated.
+     * @param ArrayObject $dependencies Module dependencies defined by the module.
+     * @param string $packagePath Path to the package on the filesystem.
+     * @return void
+     */
+    private function mapType(array $map, $type, ArrayObject $dependencies, $packagePath)
+    {
+        foreach ($map as $namespace => $paths) {
+            $paths = (array) $paths;
+            $this->mapNamespacePaths($paths, $namespace, $type, $dependencies, $packagePath);
+        }
+    }
+
+    /**
+     * Iterate through the paths defined for a given namespace.
+     *
+     * @param array $paths Paths defined for the given namespace.
+     * @param string $namespace PHP namespace to which the paths map.
+     * @param string $type Type of autoloader being iterated.
+     * @param ArrayObject $dependencies Module dependencies defined by the module.
+     * @param string $packagePath Path to the package on the filesystem.
+     * @return void
+     */
+    private function mapNamespacePaths(array $paths, $namespace, $type, ArrayObject $dependencies, $packagePath)
+    {
+        foreach ($paths as $path) {
+            $this->mapPath($path, $namespace, $type, $dependencies, $packagePath);
+        }
+    }
+
+    /**
+     * Find module dependencies for a given namespace for a given path.
+     *
+     * @param string $path Path to inspect.
+     * @param string $namespace PHP namespace to which the paths map.
+     * @param string $type Type of autoloader being iterated.
+     * @param ArrayObject $dependencies Module dependencies defined by the module.
+     * @param string $packagePath Path to the package on the filesystem.
+     * @return void
+     */
+    private function mapPath($path, $namespace, $type, ArrayObject $dependencies, $packagePath)
+    {
+        switch ($type) {
+            case 'classmap':
+                $fullPath = sprintf('%s/%s', $packagePath, $path);
+                if (substr($path, -10) === 'Module.php') {
+                    $modulePath = $fullPath;
+                    break;
+                }
+
+                $modulePath = sprintf('%s/Module.php', rtrim($fullPath, '/'));
+                break;
+            case 'files':
+                if (substr($path, -10) !== 'Module.php') {
+                    return;
+                }
+                $modulePath = sprintf('%s/%s', $packagePath, $path);
+                break;
+            case 'psr-0':
+                $modulePath = sprintf(
+                    '%s/%s%s%s',
+                    $packagePath,
+                    $path,
+                    str_replace('\\', '/', $namespace),
+                    'Module.php'
+                );
+                break;
+            case 'psr-4':
+                $modulePath = sprintf(
+                    '%s/%s%s',
+                    $packagePath,
+                    $path,
+                    'Module.php'
+                );
+                break;
+            default:
+                return;
+        }
+
+        if (! file_exists($modulePath)) {
+            return;
+        }
+
+        $result = $this->getModuleDependencies($modulePath);
+
+        if (empty($result)) {
+            return;
+        }
+
+        // Mimic array + array operation in ArrayObject
+        $dependencies->exchangeArray($dependencies->getArrayCopy() + $result);
+    }
+
+    /**
+     * @param string $file
+     * @return array
+     */
+    private function getModuleDependencies($file)
+    {
+        $content = file_get_contents($file);
+        if (preg_match('/namespace\s+([^\s]+)\s*;/', $content, $m)) {
+            $moduleName = $m[1];
+
+            // @codingStandardsIgnoreStart
+            $regExp = '/public\s+function\s+getModuleDependencies\s*\(\s*\)\s*{[^}]*return\s*(?:array\(|\[)([^})\]]*)(\)|\])/';
+            // @codingStandardsIgnoreEnd
+            if (preg_match($regExp, $content, $m)) {
+                $dependencies = array_filter(
+                    explode(',', stripslashes(rtrim(preg_replace('/[\s"\']/', '', $m[1]), ',')))
+                );
+
+                if ($dependencies) {
+                    return [$moduleName => $dependencies];
+                }
+            }
+        }
+
+        return [];
     }
 }

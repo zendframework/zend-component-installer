@@ -2,11 +2,12 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 1.0.1 - TBD
+## 1.1.0 - 2017-11-06
 
 ### Added
 
-- Nothing.
+- [#42](https://github.com/zendframework/zend-component-installer/pull/42)
+  adds support for PHP 7.2.
 
 ### Deprecated
 
@@ -14,11 +15,16 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Removed
 
-- Nothing.
+- [#42](https://github.com/zendframework/zend-component-installer/pull/42)
+  removes support for HHVM.
 
 ### Fixed
 
-- Nothing.
+- [#40](https://github.com/zendframework/zend-component-installer/pull/40) and
+  [#44](https://github.com/zendframework/zend-component-installer/pull/44) fix
+  an issue whereby packages that define an array of paths for a PSR-0 or PSR-4
+  autoloader would cause the installer to error. The installer now properly
+  handles these situations.
 
 ## 1.0.0 - 2017-04-25
 
