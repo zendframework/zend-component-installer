@@ -62,7 +62,6 @@
         "cs-fix": "phpcbf",
         "test": "phpunit --colors=always",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
-        "upload-coverage": "coveralls -v",
         "license-check": "vendor/bin/docheader check src/"
     }
 }
