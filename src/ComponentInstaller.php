@@ -554,27 +554,39 @@ class ComponentInstaller implements
     /**
      * @param InjectorInterface $injector
      * @return string
+     * @todo remove after InjectorInterface has getConfigName defined
      */
     private function getInjectorConfigFileName(InjectorInterface $injector)
     {
-        $fileName = '';
         if ($injector instanceof ConfigInjectorChain) {
-            // obtain all included names from injectors chain
-            $chain = $injector->getCollection();
-            $names = [];
-            foreach ($chain as $item) {
-                $names[] = $this->getInjectorConfigFileName($item);
-            }
-            $fileName = implode(', ', $names);
-        } elseif ($injector instanceof NoopInjector) {
-            // virtual file name for stub
-            $fileName = 'no-op.conf';
+            return $this->getInjectorChainConfigFileName($injector);
         } elseif ($injector instanceof AbstractInjector) {
-            // default flow
-            $fileName = $injector->getConfigFile();
+            return $this->getAbstractInjectorConfigFileName($injector);
         }
 
-        return $fileName;
+        return '';
+    }
+
+    /**
+     * @param ConfigInjectorChain $injector
+     * @return string
+     * @todo remove after InjectorInterface has getConfigName defined
+     */
+    private function getInjectorChainConfigFileName(ConfigInjectorChain $injector)
+    {
+        return implode(', ', array_map(function ($item) {
+            return $this->getInjectorConfigFileName($item);
+        }, $injector->getCollection()->toArray()));
+    }
+
+    /**
+     * @param AbstractInjector $injector
+     * @return string
+     * @todo remove after InjectorInterface has getConfigName defined
+     */
+    private function getAbstractInjectorConfigFileName(AbstractInjector $injector)
+    {
+        return $injector->getConfigFile();
     }
 
     /**

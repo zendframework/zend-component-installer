@@ -131,14 +131,14 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'SomeComponent' into"
-            )) {
+                    $argument[0],
+                    "Please select which config file you wish to inject 'SomeComponent' into"
+                )) {
                 return false;
             }
 
@@ -154,7 +154,7 @@ CONTENT
         }), 0)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
             if (false === strpos($argument[0], 'Remember')) {
@@ -505,14 +505,14 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) use ($packageName) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
-                sprintf("Please select which config file you wish to inject '%s' into", $packageName)
-            )) {
+                    $argument[0],
+                    sprintf("Please select which config file you wish to inject '%s' into", $packageName)
+                )) {
                 return false;
             }
 
@@ -528,7 +528,7 @@ CONTENT
         }), 0)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
             if (false === strpos($argument[0], 'Remember')) {
@@ -627,14 +627,14 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'SomeModule' into"
-            )) {
+                    $argument[0],
+                    "Please select which config file you wish to inject 'SomeModule' into"
+                )) {
                 return false;
             }
 
@@ -650,7 +650,7 @@ CONTENT
         }), 0)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
             if (false === strpos($argument[0], 'Remember')) {
@@ -674,7 +674,7 @@ CONTENT
     public function testSubscribesToExpectedEvents()
     {
         $this->assertEquals([
-            'post-package-install'   => 'onPostPackageInstall',
+            'post-package-install' => 'onPostPackageInstall',
             'post-package-uninstall' => 'onPostPackageUninstall',
         ], $this->installer->getSubscribedEvents());
     }
@@ -708,11 +708,13 @@ CONTENT
     {
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['zf' => [
-            'component' => 'Some\\Component',
-            'config-provider' => 'Some\\Component\\ConfigProvider',
-            'module' => 'Some\\Component',
-        ]]);
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'component' => 'Some\\Component',
+                'config-provider' => 'Some\\Component\\ConfigProvider',
+                'module' => 'Some\\Component',
+            ]
+        ]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
@@ -748,9 +750,11 @@ CONTENT
 
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['zf' => [
-            'component' => 'Some\\Component',
-        ]]);
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'component' => 'Some\\Component',
+            ]
+        ]);
         $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
@@ -773,9 +777,11 @@ CONTENT
 
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['zf' => [
-            'component' => 'Some\\Component',
-        ]]);
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'component' => 'Some\\Component',
+            ]
+        ]);
         $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
@@ -786,14 +792,14 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'Some\Component' into"
-            )) {
+                    $argument[0],
+                    "Please select which config file you wish to inject 'Some\Component' into"
+                )) {
                 return false;
             }
 
@@ -809,7 +815,7 @@ CONTENT
         }), 0)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
             if (false === strpos($argument[0], 'Remember')) {
@@ -834,12 +840,14 @@ CONTENT
 
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['zf' => [
-            'component' => [
-                'Some\\Component',
-                'Other\\Component',
-            ],
-        ]]);
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'component' => [
+                    'Some\\Component',
+                    'Other\\Component',
+                ],
+            ]
+        ]);
         $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
@@ -850,14 +858,14 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'Some\Component' into"
-            )) {
+                    $argument[0],
+                    "Please select which config file you wish to inject 'Some\Component' into"
+                )) {
                 return false;
             }
 
@@ -873,14 +881,14 @@ CONTENT
         }), 0)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'Other\Component' into"
-            )) {
+                    $argument[0],
+                    "Please select which config file you wish to inject 'Other\Component' into"
+                )) {
                 return false;
             }
 
@@ -896,7 +904,7 @@ CONTENT
         }), 0)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
             if (false === strpos($argument[0], 'Remember')) {
@@ -927,9 +935,11 @@ CONTENT
 
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['zf' => [
-            'component' => 'Some\\Component',
-        ]]);
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'component' => 'Some\\Component',
+            ]
+        ]);
         $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
@@ -940,14 +950,14 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'Some\Component' into"
-            )) {
+                    $argument[0],
+                    "Please select which config file you wish to inject 'Some\Component' into"
+                )) {
                 return false;
             }
 
@@ -963,7 +973,7 @@ CONTENT
         }), 0)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
             if (false === strpos($argument[0], 'Remember')) {
@@ -984,9 +994,11 @@ CONTENT
         // Now do a second pass, with another package
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('other/component');
-        $package->getExtra()->willReturn(['zf' => [
-            'component' => 'Other\\Component',
-        ]]);
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'component' => 'Other\\Component',
+            ]
+        ]);
         $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
@@ -997,14 +1009,14 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'Other\Component' into"
-            )) {
+                    $argument[0],
+                    "Please select which config file you wish to inject 'Other\Component' into"
+                )) {
                 return false;
             }
 
@@ -1020,7 +1032,7 @@ CONTENT
         }), 0)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
             if (false === strpos($argument[0], 'Remember')) {
@@ -1046,9 +1058,11 @@ CONTENT
 
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['zf' => [
-            'component' => 'Some\\Component',
-        ]]);
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'component' => 'Some\\Component',
+            ]
+        ]);
         $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
@@ -1059,14 +1073,14 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'Some\Component' into"
-            )) {
+                    $argument[0],
+                    "Please select which config file you wish to inject 'Some\Component' into"
+                )) {
                 return false;
             }
 
@@ -1082,7 +1096,7 @@ CONTENT
         }), 0)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
             if (false === strpos($argument[0], 'Remember')) {
@@ -1103,9 +1117,11 @@ CONTENT
         // Now do a second pass, with another package
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('other/component');
-        $package->getExtra()->willReturn(['zf' => [
-            'component' => 'Other\\Component',
-        ]]);
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'component' => 'Other\\Component',
+            ]
+        ]);
         $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
@@ -1150,9 +1166,11 @@ CONTENT
 
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['zf' => [
-            'component' => 'Some\\Component',
-        ]]);
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'component' => 'Some\\Component',
+            ]
+        ]);
         $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
@@ -1168,7 +1186,7 @@ CONTENT
 
         $this->io
             ->write(Argument::that(function ($argument) {
-                return (bool) preg_match(
+                return (bool)preg_match(
                     '#Removed package from .*?config/application.config.php#',
                     $argument
                 );
@@ -1189,12 +1207,14 @@ CONTENT
 
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/component');
-        $package->getExtra()->willReturn(['zf' => [
-            'component' => [
-                'Some\\Component',
-                'Other\\Component',
-            ],
-        ]]);
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'component' => [
+                    'Some\\Component',
+                    'Other\\Component',
+                ],
+            ]
+        ]);
         $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
@@ -1213,7 +1233,7 @@ CONTENT
 
         $this->io
             ->write(Argument::that(function ($argument) {
-                return (bool) preg_match(
+                return (bool)preg_match(
                     '#Removed package from .*?config/application.config.php#',
                     $argument
                 );
@@ -1235,9 +1255,11 @@ CONTENT
 
         $package = $this->prophesize(PackageInterface::class);
         $package->getName()->willReturn('some/module');
-        $package->getExtra()->willReturn(['zf' => [
-            'module' => 'Some\\Module',
-        ]]);
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'module' => 'Some\\Module',
+            ]
+        ]);
         $package->getAutoload()->willReturn([]);
 
         $operation = $this->prophesize(InstallOperation::class);
@@ -1248,14 +1270,14 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'Some\Module' into"
-            )) {
+                    $argument[0],
+                    "Please select which config file you wish to inject 'Some\Module' into"
+                )) {
                 return false;
             }
 
@@ -1271,7 +1293,7 @@ CONTENT
         }), 0)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
             if (false === strpos($argument[0], 'Remember')) {
@@ -1303,10 +1325,12 @@ CONTENT
         $package = $this->prophesize(PackageInterface::class);
         $package->getAutoload()->willReturn([]);
         $package->getName()->willReturn('some/package');
-        $package->getExtra()->willReturn(['zf' => [
-            'module' => 'Some\\Module',
-            'component' => 'Some\\Component',
-        ]]);
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'module' => 'Some\\Module',
+                'component' => 'Some\\Component',
+            ]
+        ]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
@@ -1316,14 +1340,14 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'Some\Module' into"
-            )) {
+                    $argument[0],
+                    "Please select which config file you wish to inject 'Some\Module' into"
+                )) {
                 return false;
             }
 
@@ -1339,14 +1363,14 @@ CONTENT
         }), 0)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'Some\Component' into"
-            )) {
+                    $argument[0],
+                    "Please select which config file you wish to inject 'Some\Component' into"
+                )) {
                 return false;
             }
 
@@ -1362,7 +1386,7 @@ CONTENT
         }), 0)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
             if (false === strpos($argument[0], 'Remember')) {
@@ -1399,10 +1423,12 @@ CONTENT
         $package = $this->prophesize(PackageInterface::class);
         $package->getAutoload()->willReturn([]);
         $package->getName()->willReturn('some/package');
-        $package->getExtra()->willReturn(['zf' => [
-            'component' => 'Some\\Component',
-            'module' => 'Some\\Module',
-        ]]);
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'component' => 'Some\\Component',
+                'module' => 'Some\\Module',
+            ]
+        ]);
 
         $operation = $this->prophesize(InstallOperation::class);
         $operation->getPackage()->willReturn($package->reveal());
@@ -1412,14 +1438,14 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'Some\Module' into"
-            )) {
+                    $argument[0],
+                    "Please select which config file you wish to inject 'Some\Module' into"
+                )) {
                 return false;
             }
 
@@ -1435,14 +1461,14 @@ CONTENT
         }), 0)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'Some\Component' into"
-            )) {
+                    $argument[0],
+                    "Please select which config file you wish to inject 'Some\Component' into"
+                )) {
                 return false;
             }
 
@@ -1458,7 +1484,7 @@ CONTENT
         }), 0)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (!is_array($argument)) {
                 return false;
             }
             if (false === strpos($argument[0], 'Remember')) {
@@ -1555,10 +1581,10 @@ CONTENT
 
         $dependencies = $rm->invoke($this->installer, $package->reveal());
         $this->assertEquals([
-            'DoesNotExist'       => ['DoesNotExistDependency'],
+            'DoesNotExist' => ['DoesNotExistDependency'],
             'DoesNotExistEither' => ['DoesNotExistEitherDependency'],
-            'ClassmappedToo'     => ['ClassmappedTooDependency'],
-            'File'               => ['FileDependency'],
+            'ClassmappedToo' => ['ClassmappedTooDependency'],
+            'File' => ['FileDependency'],
         ], $dependencies);
     }
 
@@ -1628,5 +1654,94 @@ class Module
 }
 CONTENT
         );
+    }
+
+    /**
+     * @dataProvider injectorConfigProvider
+     *
+     * @param string $configContents
+     * @param array $configNames
+     * @param string $expectedName
+     */
+    public function testUninstallMessageWithDifferentInjectors($configContents, array $configNames, $expectedName)
+    {
+        foreach ($configNames as $configName) {
+            $this->createConfigFile($configName, $configContents);
+        }
+
+        $package = $this->prophesize(PackageInterface::class);
+        $package->getName()->willReturn('some/component');
+        $package->getExtra()->willReturn([
+            'zf' => [
+                'component' => [
+                    'Some\\Component',
+                ],
+            ]
+        ]);
+        $package->getAutoload()->willReturn([]);
+
+        $operation = $this->prophesize(InstallOperation::class);
+        $operation->getPackage()->willReturn($package->reveal());
+
+        $event = $this->prophesize(PackageEvent::class);
+        $event->isDevMode()->willReturn(true);
+        $event->getOperation()->willReturn($operation->reveal());
+
+        $this->io
+            ->write('<info>Removing Some\Component from package some/component</info>')
+            ->shouldBeCalled();
+
+        // assertion
+        $this->io
+            ->write(Argument::that(function ($argument) use ($expectedName) {
+                return (bool)preg_match(
+                    sprintf('#Removed package from %s#', $expectedName),
+                    $argument
+                );
+            }))
+            ->shouldBeCalled();
+
+        $this->installer->onPostPackageUninstall($event->reveal());
+    }
+
+    /**
+     * @return array
+     */
+    public function injectorConfigProvider()
+    {
+        $config = <<<'CONFIG'
+<?php
+return [
+    'modules' => [
+        'Some\Component'
+    ]
+];
+CONFIG;
+
+        return [
+            [
+                $config,
+                ['application.config.php'],
+                '.*?config/application.config.php'
+            ],
+            [
+                $config,
+                ['development.config.php.dist', 'development.config.php'],
+                '.*?config/development.config.php.dist.*?config/development.config.php'
+            ],
+        ];
+    }
+
+    /**
+     * Create config on demand
+     *
+     * @param string $name
+     * @param string $contents
+     */
+    private function createConfigFile($name, $contents)
+    {
+        vfsStream::newFile('config/' . $name)
+            ->at($this->projectRoot)
+            ->setContent($contents);
     }
 }

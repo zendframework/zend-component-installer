@@ -9,6 +9,9 @@ namespace Zend\ComponentInstaller\Injector;
 
 use Zend\ComponentInstaller\Exception;
 
+/**
+ * @todo add getConfigFile() method in 2.0
+ */
 interface InjectorInterface
 {
     const TYPE_CONFIG_PROVIDER = 0;
