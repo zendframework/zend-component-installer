@@ -15,6 +15,10 @@ use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginInterface;
 use DirectoryIterator;
+use Zend\ComponentInstaller\Injector\AbstractInjector;
+use Zend\ComponentInstaller\Injector\ConfigInjectorChain;
+use Zend\ComponentInstaller\Injector\InjectorInterface;
+use Zend\ComponentInstaller\Injector\NoopInjector;
 
 /**
  * If a package represents a component module, update the application configuration.
@@ -535,16 +539,42 @@ class ComponentInstaller implements
      */
     private function removeModuleFromConfig($module, $package, Collection $injectors)
     {
-        $injectors->each(function ($injector) use ($module, $package) {
+        $injectors->each(function (InjectorInterface $injector) use ($module, $package) {
             $this->io->write(sprintf('<info>Removing %s from package %s</info>', $module, $package));
 
             if ($injector->remove($module)) {
                 $this->io->write(sprintf(
                     '<info>    Removed package from %s</info>',
-                    $injector->getConfigFile()
+                    $this->getInjectorConfigFileName($injector)
                 ));
             }
         });
+    }
+
+    /**
+     * @param InjectorInterface $injector
+     * @return string
+     */
+    private function getInjectorConfigFileName(InjectorInterface $injector)
+    {
+        $fileName = '';
+        if ($injector instanceof ConfigInjectorChain) {
+            // obtain all included names from injectors chain
+            $chain = $injector->getCollection();
+            $names = [];
+            foreach ($chain as $item) {
+                $names[] = $this->getInjectorConfigFileName($item);
+            }
+            $fileName = implode(', ', $names);
+        } elseif ($injector instanceof NoopInjector) {
+            // virtual file name for stub
+            $fileName = 'no-op.conf';
+        } elseif ($injector instanceof AbstractInjector) {
+            // default flow
+            $fileName = $injector->getConfigFile();
+        }
+
+        return $fileName;
     }
 
     /**
