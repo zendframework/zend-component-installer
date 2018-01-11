@@ -24,7 +24,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 - Nothing.
 
-## 1.1.1 - TBD
+## 1.1.1 - 2018-01-11
 
 ### Added
 
@@ -44,7 +44,11 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#47](https://github.com/zendframework/zend-component-installer/pull/47) fixes
+  an issue during package removal when a package defines multiple targets (e.g.,
+  both "component" and "config-provider") and a `ConfigInjectorChain` is thus
+  used by the plugin; previously, an error was raised due to an attempt to call
+  a method the `ConfigInjectorChain` does not define.
 
 ## 1.1.0 - 2017-11-06
 
