@@ -1693,12 +1693,12 @@ return [
 CONFIG;
 
         return [
-            [
+            'application.config.php' => [
                 $config,
                 ['application.config.php'],
                 '.*?config/application.config.php'
             ],
-            [
+            'development.config.php' => [
                 $config,
                 ['development.config.php.dist', 'development.config.php'],
                 '.*?config/development.config.php.dist.*?config/development.config.php'
