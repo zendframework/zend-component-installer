@@ -15,6 +15,10 @@ use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginInterface;
 use DirectoryIterator;
+use Zend\ComponentInstaller\Injector\AbstractInjector;
+use Zend\ComponentInstaller\Injector\ConfigInjectorChain;
+use Zend\ComponentInstaller\Injector\InjectorInterface;
+use Zend\ComponentInstaller\Injector\NoopInjector;
 
 /**
  * If a package represents a component module, update the application configuration.
@@ -535,16 +539,54 @@ class ComponentInstaller implements
      */
     private function removeModuleFromConfig($module, $package, Collection $injectors)
     {
-        $injectors->each(function ($injector) use ($module, $package) {
+        $injectors->each(function (InjectorInterface $injector) use ($module, $package) {
             $this->io->write(sprintf('<info>Removing %s from package %s</info>', $module, $package));
 
             if ($injector->remove($module)) {
                 $this->io->write(sprintf(
                     '<info>    Removed package from %s</info>',
-                    $injector->getConfigFile()
+                    $this->getInjectorConfigFileName($injector)
                 ));
             }
         });
+    }
+
+    /**
+     * @param InjectorInterface $injector
+     * @return string
+     * @todo remove after InjectorInterface has getConfigName defined
+     */
+    private function getInjectorConfigFileName(InjectorInterface $injector)
+    {
+        if ($injector instanceof ConfigInjectorChain) {
+            return $this->getInjectorChainConfigFileName($injector);
+        } elseif ($injector instanceof AbstractInjector) {
+            return $this->getAbstractInjectorConfigFileName($injector);
+        }
+
+        return '';
+    }
+
+    /**
+     * @param ConfigInjectorChain $injector
+     * @return string
+     * @todo remove after InjectorInterface has getConfigName defined
+     */
+    private function getInjectorChainConfigFileName(ConfigInjectorChain $injector)
+    {
+        return implode(', ', array_map(function ($item) {
+            return $this->getInjectorConfigFileName($item);
+        }, $injector->getCollection()->toArray()));
+    }
+
+    /**
+     * @param AbstractInjector $injector
+     * @return string
+     * @todo remove after InjectorInterface has getConfigName defined
+     */
+    private function getAbstractInjectorConfigFileName(AbstractInjector $injector)
+    {
+        return $injector->getConfigFile();
     }
 
     /**
