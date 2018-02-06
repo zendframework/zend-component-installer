@@ -22,7 +22,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Removed
 
-- Nothing.
+- [#50](https://github.com/zendframework/zend-component-installer/pull/50)
+  removes support for PHP versions 5.6 and 7.0.
 
 ### Fixed
 
