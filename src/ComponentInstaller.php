@@ -455,10 +455,10 @@ class ComponentInstaller implements
      */
     private function promptToRememberOption(Injector\InjectorInterface $injector, $packageType)
     {
-        $ask = ["\n  <question>Remember this option for other packages of the same type? (y/N)</question>"];
+        $ask = ["\n  <question>Remember this option for other packages of the same type? (Y/n)</question>"];
 
         while (true) {
-            $answer = strtolower($this->io->ask($ask, 'n'));
+            $answer = strtolower($this->io->ask($ask, 'y'));
 
             switch ($answer) {
                 case 'y':
