@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.0.0 - TBD
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- [#49](https://github.com/zendframework/zend-component-installer/pull/49)
+  modifies the default options for installer prompts. If providers and/or
+  modules are discovered, the installer uses the first discovered as the default
+  option, instead of the "Do not inject" option. Additionally, the "remember
+  this selection" prompt now defaults to "y" instead of "n".
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- [#50](https://github.com/zendframework/zend-component-installer/pull/50)
+  removes support for PHP versions 5.6 and 7.0.
+
+### Fixed
+
+- Nothing.
+
 ## 1.1.2 - TBD
 
 ### Added

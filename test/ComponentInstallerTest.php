@@ -151,7 +151,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -162,7 +162,7 @@ CONTENT
             }
 
             return true;
-        }), 'n')->willReturn('n');
+        }), 'y')->willReturn('y');
 
         $this->io->write(Argument::that(function ($argument) {
             return strstr($argument, 'Installing SomeComponent from package some/component');
@@ -525,7 +525,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -536,7 +536,7 @@ CONTENT
             }
 
             return true;
-        }), 'n')->willReturn('n');
+        }), 'y')->willReturn('y');
 
         $this->io->write(Argument::that(function ($argument) use ($packageName) {
             return strstr($argument, sprintf('Installing %s from package some/component', $packageName));
@@ -647,7 +647,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -658,7 +658,7 @@ CONTENT
             }
 
             return true;
-        }), 'n')->willReturn('n');
+        }), 'y')->willReturn('y');
 
         $this->io->write(Argument::that(function ($argument) {
             return strstr($argument, 'Installing SomeModule from package some/module');
@@ -806,7 +806,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -817,7 +817,7 @@ CONTENT
             }
 
             return true;
-        }), 'n')->willReturn('n');
+        }), 'y')->willReturn('y');
 
         $this->io->write(Argument::that(function ($argument) {
             return strstr($argument, 'Installing Some\Component from package some/component');
@@ -870,7 +870,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -893,24 +893,33 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
-        $this->io->ask(Argument::that(function ($argument) {
+        $io = $this->io;
+        $askValidator = function ($argument) {
             if (! is_array($argument)) {
-                return false;
+                    return false;
             }
             if (false === strpos($argument[0], 'Remember')) {
                 return false;
             }
 
             return true;
-        }), 'n')->willReturn('n')->shouldBeCalledTimes(2);
+        };
+        $io
+            ->ask(Argument::that($askValidator), 'y')
+            ->will(function () use ($io, $askValidator) {
+                $io
+                    ->ask(Argument::that($askValidator), 'y')
+                    ->willReturn('y');
+                return 'n';
+            });
 
-        $this->io->write(Argument::that(function ($argument) {
+        $io->write(Argument::that(function ($argument) {
             return strstr($argument, 'Installing Some\Component from package some/component');
         }))->shouldBeCalled();
 
-        $this->io->write(Argument::that(function ($argument) {
+        $io->write(Argument::that(function ($argument) {
             return strstr($argument, 'Installing Other\Component from package some/component');
         }))->shouldBeCalled();
 
@@ -960,7 +969,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -971,7 +980,7 @@ CONTENT
             }
 
             return true;
-        }), 'n')->willReturn('n');
+        }), 'y')->willReturn('n');
 
         $this->io->write(Argument::that(function ($argument) {
             return strstr($argument, 'Installing Some\Component from package some/component');
@@ -1017,7 +1026,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -1028,7 +1037,7 @@ CONTENT
             }
 
             return true;
-        }), 'n')->willReturn('n');
+        }), 'y')->willReturn('y');
 
         $this->io->write(Argument::that(function ($argument) {
             return strstr($argument, 'Installing Other\Component from package other/component');
@@ -1079,7 +1088,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -1090,7 +1099,7 @@ CONTENT
             }
 
             return true;
-        }), 'n')->willReturn('y');
+        }), 'y')->willReturn('y')->shouldBeCalledTimes(1);
 
         $this->io->write(Argument::that(function ($argument) {
             return strstr($argument, 'Installing Some\Component from package some/component');
@@ -1268,7 +1277,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -1279,7 +1288,7 @@ CONTENT
             }
 
             return true;
-        }), 'n')->willReturn('n');
+        }), 'y')->willReturn('y');
 
         $this->io->write(Argument::that(function ($argument) {
             return strstr($argument, 'Installing Some\Module from package some/module');
@@ -1336,7 +1345,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -1359,7 +1368,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -1370,7 +1379,7 @@ CONTENT
             }
 
             return true;
-        }), 'n')->willReturn('n');
+        }), 'y')->willReturn('n');
 
         $this->io->write(Argument::that(function ($argument) {
             return strstr($argument, 'Installing Some\Module from package some/package');
@@ -1432,7 +1441,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -1455,7 +1464,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -1466,7 +1475,7 @@ CONTENT
             }
 
             return true;
-        }), 'n')->willReturn('n');
+        }), 'y')->willReturn('n');
 
         $this->io->write(Argument::that(function ($argument) {
             return strstr($argument, 'Installing Some\Module from package some/package');
