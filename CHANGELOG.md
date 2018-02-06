@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 1.2.0 - TBD
+## 2.0.0 - TBD
 
 ### Added
 
@@ -10,7 +10,11 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Changed
 
-- Nothing.
+- [#49](https://github.com/zendframework/zend-component-installer/pull/49)
+  modifies the default options for installer prompts. If providers and/or
+  modules are discovered, the installer uses the first discovered as the default
+  option, instead of the "Do not inject" option. Additionally, the "remember
+  this selection" prompt now defaults to "y" instead of "n".
 
 ### Deprecated
 
