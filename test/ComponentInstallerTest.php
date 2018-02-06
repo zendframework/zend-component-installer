@@ -151,7 +151,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -525,7 +525,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -647,7 +647,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -806,7 +806,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -870,7 +870,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -893,7 +893,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -960,7 +960,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -1017,7 +1017,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -1079,7 +1079,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -1268,7 +1268,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -1336,7 +1336,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -1359,7 +1359,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -1432,7 +1432,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {
@@ -1455,7 +1455,7 @@ CONTENT
             }
 
             return true;
-        }), 0)->willReturn(1);
+        }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
             if (! is_array($argument)) {

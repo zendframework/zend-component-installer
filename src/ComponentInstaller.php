@@ -415,6 +415,8 @@ class ComponentInstaller implements
             return $cachedInjector;
         }
 
+        // Default to first discovered option; index 0 is always "Do not inject"
+        $default = $options->count() > 1 ? 1 : 0;
         $ask = $options->reduce(function ($ask, $option, $index) {
             $ask[] = sprintf(
                 "  [<comment>%d</comment>] %s\n",
@@ -428,10 +430,10 @@ class ComponentInstaller implements
             "\n  <question>Please select which config file you wish to inject '%s' into:</question>\n",
             $name
         ));
-        $ask[] = '  Make your selection (default is <comment>0</comment>):';
+        $ask[] = sprintf('  Make your selection (default is <comment>%d</comment>):', $default);
 
         while (true) {
-            $answer = $this->io->ask($ask, 0);
+            $answer = $this->io->ask($ask, $default);
 
             if (is_numeric($answer) && isset($options[(int) $answer])) {
                 $injector = $options[(int) $answer]->getInjector();
