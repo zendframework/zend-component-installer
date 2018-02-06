@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.0.0 - TBD
+## 2.0.0 - 2018-02-06
 
 ### Added
 
@@ -24,28 +24,6 @@ All notable changes to this project will be documented in this file, in reverse 
 
 - [#50](https://github.com/zendframework/zend-component-installer/pull/50)
   removes support for PHP versions 5.6 and 7.0.
-
-### Fixed
-
-- Nothing.
-
-## 1.1.2 - TBD
-
-### Added
-
-- Nothing.
-
-### Changed
-
-- Nothing.
-
-### Deprecated
-
-- Nothing.
-
-### Removed
-
-- Nothing.
 
 ### Fixed
 
