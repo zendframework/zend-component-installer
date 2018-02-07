@@ -1,7 +1,7 @@
 <?php
 /**
  * @see       https://github.com/zendframework/zend-component-installer for the canonical source repository
- * @copyright Copyright (c) 2015-2017 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2015-2018 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   https://github.com/zendframework/zend-component-installer/blob/master/LICENSE.md New BSD License
  */
 
@@ -191,8 +191,8 @@ class ComponentInstaller implements
             ->each(function ($module) use ($name) {
             })
             // Create injectors
-            ->reduce(function ($injectors, $module) use ($options, $packageTypes) {
-                $injectors[$module] = $this->promptForConfigOption($module, $options, $packageTypes[$module]);
+            ->reduce(function ($injectors, $module) use ($options, $packageTypes, $extra) {
+                $injectors[$module] = $this->promptForConfigOption($module, $options, $packageTypes[$module], $extra);
                 return $injectors;
             }, new Collection([]))
             // Inject modules into configuration
@@ -407,12 +407,18 @@ class ComponentInstaller implements
      * @param string $name
      * @param Collection $options
      * @param int $packageType
+     * @param array $extra
      * @return Injector\InjectorInterface
      */
-    private function promptForConfigOption($name, Collection $options, $packageType)
+    private function promptForConfigOption($name, Collection $options, $packageType, array $extra)
     {
         if ($cachedInjector = $this->getCachedInjector($packageType)) {
             return $cachedInjector;
+        }
+
+        // If package is whitelisted, don't ask...
+        if (array_key_exists('component-whitelist', $extra) && in_array($name, $extra['component-whitelist'])) {
+            return $options[1]->getInjector();
         }
 
         // Default to first discovered option; index 0 is always "Do not inject"
