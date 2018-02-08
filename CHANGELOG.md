@@ -2,11 +2,25 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.0.1 - TBD
+## 2.1.0 - 2018-02-08
 
 ### Added
 
-- Nothing.
+- [#52](https://github.com/zendframework/zend-component-installer/pull/52) adds
+  the ability to whitelist packages exposing config providers and/or modules.
+  When whitelisted, the installer will not prompt to inject configuration, but
+  instead do it automatically. This is done at the root package level, using the
+  following configuration:
+
+  ```json
+  "extra": {
+    "zf": {
+      "component-whitelist": [
+        "some/package"
+      ]
+    }
+  }
+  ```
 
 ### Changed
 

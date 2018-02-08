@@ -218,6 +218,39 @@ class ConfigProvider
         </div>
       </div>
 
+      <div class="panel panel-success">
+        <div class="panel-heading">
+          <h2 class="panel-title">Whitelisting packages to autoinstall</h2>
+        </div>
+
+        <div class="panel-body">
+          <p>
+            At the root package level, you can indicate that certain packages
+            that supply config providers and/or modules should automatically
+            inject configuration, instead of prompting for installation, via
+            the "component-whitelist" setting. This value should be an array
+            of package names.
+          </p>
+
+          <pre><code class="lang-json" data-trim>
+"extra": {
+  "zf": {
+    "component-whitelist": [
+      "zendframework/zend-expressive",
+      "zendframework/zend-expressive-helper",
+      "zendframework/zend-expressive-fastrouterouter",
+      "zendframework/zend-expressive-platesrenderer"
+    ]
+  }
+}
+          </code></pre>
+
+          <p>
+            This setting only works in the root package.
+          </p>
+        </div>
+      </div>
+
       <div class="panel panel-info">
         <div class="panel-heading">
           <h2 class="panel-title">Why?</h2>

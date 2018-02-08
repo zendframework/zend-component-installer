@@ -1,7 +1,7 @@
 <?php
 /**
  * @see       https://github.com/zendframework/zend-component-installer for the canonical source repository
- * @copyright Copyright (c) 2015-2017 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2015-2018 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   https://github.com/zendframework/zend-component-installer/blob/master/LICENSE.md New BSD License
  */
 
@@ -191,8 +191,12 @@ class ComponentInstaller implements
             ->each(function ($module) use ($name) {
             })
             // Create injectors
-            ->reduce(function ($injectors, $module) use ($options, $packageTypes) {
-                $injectors[$module] = $this->promptForConfigOption($module, $options, $packageTypes[$module]);
+            ->reduce(function ($injectors, $module) use ($options, $packageTypes, $name) {
+                // Get extra from root package
+                $rootExtra = $this->getExtraMetadata($this->composer->getPackage()->getExtra());
+                $whitelist = $rootExtra['component-whitelist'] ?? [];
+                $packageType = $packageTypes[$module];
+                $injectors[$module] = $this->promptForConfigOption($module, $options, $packageType, $name, $whitelist);
                 return $injectors;
             }, new Collection([]))
             // Inject modules into configuration
@@ -407,12 +411,24 @@ class ComponentInstaller implements
      * @param string $name
      * @param Collection $options
      * @param int $packageType
+     * @param string $packageName
+     * @param array $whitelist
      * @return Injector\InjectorInterface
      */
-    private function promptForConfigOption($name, Collection $options, $packageType)
-    {
+    private function promptForConfigOption(
+        string $name,
+        Collection $options,
+        int $packageType,
+        string $packageName,
+        array $whitelist
+    ) {
         if ($cachedInjector = $this->getCachedInjector($packageType)) {
             return $cachedInjector;
+        }
+
+        // If package is whitelisted, don't ask...
+        if (in_array($packageName, $whitelist, true)) {
+            return $options[1]->getInjector();
         }
 
         // Default to first discovered option; index 0 is always "Do not inject"
@@ -483,7 +499,7 @@ class ComponentInstaller implements
      */
     private function injectModuleIntoConfig($package, $module, Injector\InjectorInterface $injector, $packageType)
     {
-        $this->io->write(sprintf('<info>Installing %s from package %s</info>', $module, $package));
+        $this->io->write(sprintf('<info>    Installing %s from package %s</info>', $module, $package));
 
         try {
             if (! $injector->inject($module, $packageType)) {
@@ -542,7 +558,7 @@ class ComponentInstaller implements
     private function removeModuleFromConfig($module, $package, Collection $injectors)
     {
         $injectors->each(function (InjectorInterface $injector) use ($module, $package) {
-            $this->io->write(sprintf('<info>Removing %s from package %s</info>', $module, $package));
+            $this->io->write(sprintf('<info>    Removing %s from package %s</info>', $module, $package));
 
             if ($injector->remove($module)) {
                 $this->io->write(sprintf(
