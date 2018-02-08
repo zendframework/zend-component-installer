@@ -500,7 +500,7 @@ class ComponentInstaller implements
      */
     private function injectModuleIntoConfig($package, $module, Injector\InjectorInterface $injector, $packageType)
     {
-        $this->io->write(sprintf('<info>Installing %s from package %s</info>', $module, $package));
+        $this->io->write(sprintf('<info>    Installing %s from package %s</info>', $module, $package));
 
         try {
             if (! $injector->inject($module, $packageType)) {
@@ -559,7 +559,7 @@ class ComponentInstaller implements
     private function removeModuleFromConfig($module, $package, Collection $injectors)
     {
         $injectors->each(function (InjectorInterface $injector) use ($module, $package) {
-            $this->io->write(sprintf('<info>Removing %s from package %s</info>', $module, $package));
+            $this->io->write(sprintf('<info>    Removing %s from package %s</info>', $module, $package));
 
             if ($injector->remove($module)) {
                 $this->io->write(sprintf(
