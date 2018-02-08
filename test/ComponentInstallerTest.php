@@ -777,6 +777,37 @@ CONTENT
         $this->assertContains("'Some\Component'", $config);
     }
 
+    public function testOnPostPackageInstallDoesNotPromptForWhitelistedPackages()
+    {
+        $this->createApplicationConfig();
+
+        $package = $this->prophesize(PackageInterface::class);
+        $package->getName()->willReturn('some/component');
+        $package->getExtra()->willReturn(['zf' => [
+            'component' => 'Some\\Component',
+        ]]);
+        $package->getAutoload()->willReturn([]);
+
+        $operation = $this->prophesize(InstallOperation::class);
+        $operation->getPackage()->willReturn($package->reveal());
+
+        $event = $this->prophesize(PackageEvent::class);
+        $event->isDevMode()->willReturn(true);
+        $event->getOperation()->willReturn($operation->reveal());
+
+        $this->rootPackage->getExtra()->willReturn(['zf' => [
+            'component-whitelist' => ['some/component'],
+        ]]);
+
+        $this->io->write(Argument::that(function ($argument) {
+            return strstr($argument, 'Installing Some\Component from package some/component');
+        }))->shouldBeCalled();
+
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
+        $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
+        $this->assertContains("'Some\Component'", $config);
+    }
+
     public function testOnPostPackageInstallPromptsForConfigOptions()
     {
         $this->createApplicationConfig();
