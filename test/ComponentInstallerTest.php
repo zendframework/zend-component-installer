@@ -1,7 +1,7 @@
 <?php
 /**
  * @see       https://github.com/zendframework/zend-component-installer for the canonical source repository
- * @copyright Copyright (c) 2015-2017 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2015-2018 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   https://github.com/zendframework/zend-component-installer/blob/master/LICENSE.md New BSD License
  */
 
@@ -13,6 +13,7 @@ use Composer\Installer\InstallationManager;
 use Composer\Installer\PackageEvent;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
+use Composer\Package\RootPackageInterface;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamWrapper;
@@ -40,6 +41,11 @@ class ComponentInstallerTest extends TestCase
     private $composer;
 
     /**
+     * @var RootPackageInterface|ObjectProphecy
+     */
+    private $rootPackage;
+
+    /**
      * @var IOInterface|ObjectProphecy
      */
     private $io;
@@ -55,7 +61,11 @@ class ComponentInstallerTest extends TestCase
         $this->installer = new ComponentInstaller(vfsStream::url('project'));
 
         $this->composer = $this->prophesize(Composer::class);
+        $this->rootPackage = $this->prophesize(RootPackageInterface::class);
         $this->io = $this->prophesize(IOInterface::class);
+
+        $this->composer->getPackage()->willReturn($this->rootPackage->reveal());
+        $this->rootPackage->getExtra()->willReturn([]);
 
         $this->installer->activate(
             $this->composer->reveal(),
@@ -767,6 +777,37 @@ CONTENT
         $this->assertContains("'Some\Component'", $config);
     }
 
+    public function testOnPostPackageInstallDoesNotPromptForWhitelistedPackages()
+    {
+        $this->createApplicationConfig();
+
+        $package = $this->prophesize(PackageInterface::class);
+        $package->getName()->willReturn('some/component');
+        $package->getExtra()->willReturn(['zf' => [
+            'component' => 'Some\\Component',
+        ]]);
+        $package->getAutoload()->willReturn([]);
+
+        $operation = $this->prophesize(InstallOperation::class);
+        $operation->getPackage()->willReturn($package->reveal());
+
+        $event = $this->prophesize(PackageEvent::class);
+        $event->isDevMode()->willReturn(true);
+        $event->getOperation()->willReturn($operation->reveal());
+
+        $this->rootPackage->getExtra()->willReturn(['zf' => [
+            'component-whitelist' => ['some/component'],
+        ]]);
+
+        $this->io->write(Argument::that(function ($argument) {
+            return strpos($argument, 'Installing Some\Component from package some/component');
+        }))->shouldBeCalled();
+
+        $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
+        $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
+        $this->assertContains("'Some\Component'", $config);
+    }
+
     public function testOnPostPackageInstallPromptsForConfigOptions()
     {
         $this->createApplicationConfig();
@@ -1172,7 +1213,7 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io
-            ->write('<info>Removing Some\Component from package some/component</info>')
+            ->write('<info>    Removing Some\Component from package some/component</info>')
             ->shouldBeCalled();
 
         $this->io
@@ -1214,10 +1255,10 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io
-            ->write('<info>Removing Some\Component from package some/component</info>')
+            ->write('<info>    Removing Some\Component from package some/component</info>')
             ->shouldBeCalled();
         $this->io
-            ->write('<info>Removing Other\Component from package some/component</info>')
+            ->write('<info>    Removing Other\Component from package some/component</info>')
             ->shouldBeCalled();
 
         $this->io
@@ -1671,7 +1712,7 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io
-            ->write('<info>Removing Some\Component from package some/component</info>')
+            ->write('<info>    Removing Some\Component from package some/component</info>')
             ->shouldBeCalled();
 
         // assertion

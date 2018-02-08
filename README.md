@@ -64,3 +64,23 @@ one or more of the following keys under the `extra.zf` configuration in their
   invokable that returns an array of configuration, and will be injected at the
   top of:
   - `config/config.php`
+
+## Whitelisting packages to install automatically
+
+At the project level, you can mark packages that expose configuration providers
+and modules that you want to automatically inject via the `component-whitelist`
+key:
+
+```json
+"extra": {
+  "zf": {
+    "component-whitelist": [
+      "zendframework/zend-expressive",
+      "zendframework/zend-expressive-helpers"
+    ]
+  }
+}
+```
+
+This configuration must be made at the root package level (the package
+_consuming_ configuration providing packages).
