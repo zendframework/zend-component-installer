@@ -186,13 +186,18 @@ class ComponentInstaller implements
 
         $dependencies = $this->loadModuleClassesDependencies($package);
         $applicationModules = $this->findApplicationModules();
+        $composer = $this->composer;
 
         $this->marshalInstallableModules($extra, $options)
             ->each(function ($module) use ($name) {
             })
             // Create injectors
-            ->reduce(function ($injectors, $module) use ($options, $packageTypes, $extra) {
-                $injectors[$module] = $this->promptForConfigOption($module, $options, $packageTypes[$module], $extra);
+            ->reduce(function ($injectors, $module) use ($options, $packageTypes, $name, $composer) {
+                // Get extra from root package
+                $rootExtra = $this->getExtraMetadata($composer->getPackage()->getExtra());
+                $whitelist = $rootExtra['component-whitelist'] ?? [];
+                $packageType = $packageTypes[$module];
+                $injectors[$module] = $this->promptForConfigOption($module, $options, $packageType, $name, $whitelist);
                 return $injectors;
             }, new Collection([]))
             // Inject modules into configuration
@@ -407,17 +412,23 @@ class ComponentInstaller implements
      * @param string $name
      * @param Collection $options
      * @param int $packageType
-     * @param array $extra
+     * @param string $packageName
+     * @param array $whitelist
      * @return Injector\InjectorInterface
      */
-    private function promptForConfigOption($name, Collection $options, $packageType, array $extra)
-    {
+    private function promptForConfigOption(
+        string $name,
+        Collection $options,
+        int $packageType,
+        string $packageName,
+        array $whitelist
+    ) {
         if ($cachedInjector = $this->getCachedInjector($packageType)) {
             return $cachedInjector;
         }
 
         // If package is whitelisted, don't ask...
-        if (array_key_exists('component-whitelist', $extra) && in_array($name, $extra['component-whitelist'])) {
+        if (in_array($packageName, $whitelist, false)) {
             return $options[1]->getInjector();
         }
 
