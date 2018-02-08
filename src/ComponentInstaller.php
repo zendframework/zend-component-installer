@@ -186,15 +186,14 @@ class ComponentInstaller implements
 
         $dependencies = $this->loadModuleClassesDependencies($package);
         $applicationModules = $this->findApplicationModules();
-        $composer = $this->composer;
 
         $this->marshalInstallableModules($extra, $options)
             ->each(function ($module) use ($name) {
             })
             // Create injectors
-            ->reduce(function ($injectors, $module) use ($options, $packageTypes, $name, $composer) {
+            ->reduce(function ($injectors, $module) use ($options, $packageTypes, $name) {
                 // Get extra from root package
-                $rootExtra = $this->getExtraMetadata($composer->getPackage()->getExtra());
+                $rootExtra = $this->getExtraMetadata($this->composer->getPackage()->getExtra());
                 $whitelist = $rootExtra['component-whitelist'] ?? [];
                 $packageType = $packageTypes[$module];
                 $injectors[$module] = $this->promptForConfigOption($module, $options, $packageType, $name, $whitelist);
@@ -428,7 +427,7 @@ class ComponentInstaller implements
         }
 
         // If package is whitelisted, don't ask...
-        if (in_array($packageName, $whitelist, false)) {
+        if (in_array($packageName, $whitelist, true)) {
             return $options[1]->getInjector();
         }
 

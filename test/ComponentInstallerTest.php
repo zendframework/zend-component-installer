@@ -41,7 +41,7 @@ class ComponentInstallerTest extends TestCase
     private $composer;
 
     /**
-     * @var RootPackageInterface
+     * @var RootPackageInterface|ObjectProphecy
      */
     private $rootPackage;
 
@@ -800,7 +800,7 @@ CONTENT
         ]]);
 
         $this->io->write(Argument::that(function ($argument) {
-            return strstr($argument, 'Installing Some\Component from package some/component');
+            return strpos($argument, 'Installing Some\Component from package some/component');
         }))->shouldBeCalled();
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
