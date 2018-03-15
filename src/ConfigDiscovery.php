@@ -7,6 +7,8 @@
 
 namespace Zend\ComponentInstaller;
 
+use function is_array;
+
 class ConfigDiscovery
 {
     /**

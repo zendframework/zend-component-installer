@@ -9,6 +9,9 @@ namespace Zend\ComponentInstaller\Injector;
 
 use Zend\ComponentInstaller\ConfigDiscovery\ConfigAggregator as ConfigAggregatorDiscovery;
 
+use function preg_quote;
+use function sprintf;
+
 class ConfigAggregatorInjector extends AbstractInjector
 {
     use ConditionalDiscoveryTrait;

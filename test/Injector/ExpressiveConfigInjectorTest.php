@@ -9,6 +9,8 @@ namespace ZendTest\ComponentInstaller\Injector;
 
 use Zend\ComponentInstaller\Injector\ExpressiveConfigInjector;
 
+use function preg_replace;
+
 class ExpressiveConfigInjectorTest extends AbstractInjectorTestCase
 {
     /** @var string */

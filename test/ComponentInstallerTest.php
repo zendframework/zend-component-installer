@@ -16,12 +16,21 @@ use Composer\Package\PackageInterface;
 use Composer\Package\RootPackageInterface;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use org\bovigo\vfs\vfsStreamWrapper;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use ReflectionObject;
 use Zend\ComponentInstaller\ComponentInstaller;
+
+use function dirname;
+use function file_get_contents;
+use function implode;
+use function is_array;
+use function mkdir;
+use function preg_match;
+use function sprintf;
+use function strpos;
+use function strstr;
 
 class ComponentInstallerTest extends TestCase
 {

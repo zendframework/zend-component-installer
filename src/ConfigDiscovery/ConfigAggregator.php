@@ -7,6 +7,9 @@
 
 namespace Zend\ComponentInstaller\ConfigDiscovery;
 
+use function preg_quote;
+use function sprintf;
+
 class ConfigAggregator extends AbstractDiscovery
 {
     /**

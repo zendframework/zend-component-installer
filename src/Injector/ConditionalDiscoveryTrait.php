@@ -7,6 +7,8 @@
 
 namespace Zend\ComponentInstaller\Injector;
 
+use function str_replace;
+
 trait ConditionalDiscoveryTrait
 {
     /**
