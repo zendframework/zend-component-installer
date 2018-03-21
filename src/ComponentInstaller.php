@@ -18,7 +18,6 @@ use DirectoryIterator;
 use Zend\ComponentInstaller\Injector\AbstractInjector;
 use Zend\ComponentInstaller\Injector\ConfigInjectorChain;
 use Zend\ComponentInstaller\Injector\InjectorInterface;
-use Zend\ComponentInstaller\Injector\NoopInjector;
 
 /**
  * If a package represents a component module, update the application configuration.
