@@ -12,6 +12,8 @@ use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 use Zend\ComponentInstaller\Injector\AbstractInjector;
 
+use function file_get_contents;
+
 abstract class AbstractInjectorTestCase extends TestCase
 {
     /** @var vfsStreamDirectory */

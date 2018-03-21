@@ -7,6 +7,12 @@
 
 namespace Zend\ComponentInstaller\ConfigDiscovery;
 
+use function file_get_contents;
+use function is_dir;
+use function is_file;
+use function preg_match;
+use function sprintf;
+
 abstract class AbstractDiscovery implements DiscoveryInterface
 {
     /**

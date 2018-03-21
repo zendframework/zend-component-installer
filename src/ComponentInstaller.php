@@ -19,6 +19,29 @@ use Zend\ComponentInstaller\Injector\AbstractInjector;
 use Zend\ComponentInstaller\Injector\ConfigInjectorChain;
 use Zend\ComponentInstaller\Injector\InjectorInterface;
 
+use function array_filter;
+use function array_flip;
+use function array_keys;
+use function array_map;
+use function array_unshift;
+use function explode;
+use function file_exists;
+use function file_get_contents;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_dir;
+use function is_numeric;
+use function is_string;
+use function preg_match;
+use function preg_replace;
+use function rtrim;
+use function sprintf;
+use function str_replace;
+use function stripslashes;
+use function strtolower;
+use function substr;
+
 /**
  * If a package represents a component module, update the application configuration.
  *

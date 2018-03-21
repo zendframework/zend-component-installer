@@ -9,6 +9,19 @@ namespace Zend\ComponentInstaller\Injector;
 
 use Zend\ComponentInstaller\Exception;
 
+use function addslashes;
+use function count;
+use function file_get_contents;
+use function file_put_contents;
+use function in_array;
+use function is_string;
+use function preg_match;
+use function preg_quote;
+use function preg_replace;
+use function reset;
+use function sprintf;
+use function strlen;
+
 abstract class AbstractInjector implements InjectorInterface
 {
     /**
