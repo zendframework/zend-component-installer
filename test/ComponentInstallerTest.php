@@ -16,7 +16,6 @@ use Composer\Package\PackageInterface;
 use Composer\Package\RootPackageInterface;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use org\bovigo\vfs\vfsStreamWrapper;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -74,6 +73,38 @@ class ComponentInstallerTest extends TestCase
 
         $this->installationManager = $this->prophesize(InstallationManager::class);
         $this->composer->getInstallationManager()->willReturn($this->installationManager->reveal());
+    }
+
+    public static function assertPrompt($argument, $packageName = null)
+    {
+        if (! is_string($argument)) {
+            return false;
+        }
+
+        if (false !== strpos($argument, 'Remember this option for other packages of the same type?')) {
+            return true;
+        }
+
+        if (! $packageName) {
+            return false;
+        }
+
+        if (false === strpos(
+                $argument,
+                sprintf("Please select which config file you wish to inject '%s' into", $packageName)
+            )) {
+            return false;
+        }
+
+        if (false === strpos($argument, 'Do not inject')) {
+            return false;
+        }
+
+        if (false === strpos($argument, 'application.config.php')) {
+            return false;
+        }
+
+        return true;
     }
 
     public function createApplicationConfig($contents = null)
@@ -141,37 +172,11 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
-                return false;
-            }
-
-            if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'SomeComponent' into"
-            )) {
-                return false;
-            }
-
-            if (false === strpos($argument[1], 'Do not inject')) {
-                return false;
-            }
-
-            if (false === strpos($argument[2], 'application.config.php')) {
-                return false;
-            }
-
-            return true;
+            return ComponentInstallerTest::assertPrompt($argument, 'SomeComponent');
         }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
-                return false;
-            }
-            if (false === strpos($argument[0], 'Remember')) {
-                return false;
-            }
-
-            return true;
+            return ComponentInstallerTest::assertPrompt($argument);
         }), 'y')->willReturn('y');
 
         $this->io->write(Argument::that(function ($argument) {
@@ -515,37 +520,11 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) use ($packageName) {
-            if (! is_array($argument)) {
-                return false;
-            }
-
-            if (false === strpos(
-                $argument[0],
-                sprintf("Please select which config file you wish to inject '%s' into", $packageName)
-            )) {
-                return false;
-            }
-
-            if (false === strpos($argument[1], 'Do not inject')) {
-                return false;
-            }
-
-            if (false === strpos($argument[2], 'application.config.php')) {
-                return false;
-            }
-
-            return true;
+            return ComponentInstallerTest::assertPrompt($argument, $packageName);
         }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
-                return false;
-            }
-            if (false === strpos($argument[0], 'Remember')) {
-                return false;
-            }
-
-            return true;
+            return ComponentInstallerTest::assertPrompt($argument);
         }), 'y')->willReturn('y');
 
         $this->io->write(Argument::that(function ($argument) use ($packageName) {
@@ -637,37 +616,11 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
-                return false;
-            }
-
-            if (false === strpos(
-                $argument[0],
-                "Please select which config file you wish to inject 'SomeModule' into"
-            )) {
-                return false;
-            }
-
-            if (false === strpos($argument[1], 'Do not inject')) {
-                return false;
-            }
-
-            if (false === strpos($argument[2], 'application.config.php')) {
-                return false;
-            }
-
-            return true;
+            return ComponentInstallerTest::assertPrompt($argument, 'SomeModule');
         }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
-                return false;
-            }
-            if (false === strpos($argument[0], 'Remember')) {
-                return false;
-            }
-
-            return true;
+            return ComponentInstallerTest::assertPrompt($argument);
         }), 'y')->willReturn('y');
 
         $this->io->write(Argument::that(function ($argument) {
@@ -827,22 +780,22 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
+                $argument,
                 "Please select which config file you wish to inject 'Some\Component' into"
             )) {
                 return false;
             }
 
-            if (false === strpos($argument[1], 'Do not inject')) {
+            if (false === strpos($argument, 'Do not inject')) {
                 return false;
             }
 
-            if (false === strpos($argument[2], 'application.config.php')) {
+            if (false === strpos($argument, 'application.config.php')) {
                 return false;
             }
 
@@ -850,10 +803,10 @@ CONTENT
         }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
-            if (false === strpos($argument[0], 'Remember')) {
+            if (false === strpos($argument, 'Remember')) {
                 return false;
             }
 
@@ -891,22 +844,22 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
+                $argument,
                 "Please select which config file you wish to inject 'Some\Component' into"
             )) {
                 return false;
             }
 
-            if (false === strpos($argument[1], 'Do not inject')) {
+            if (false === strpos($argument, 'Do not inject')) {
                 return false;
             }
 
-            if (false === strpos($argument[2], 'application.config.php')) {
+            if (false === strpos($argument, 'application.config.php')) {
                 return false;
             }
 
@@ -914,22 +867,22 @@ CONTENT
         }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
+                $argument,
                 "Please select which config file you wish to inject 'Other\Component' into"
             )) {
                 return false;
             }
 
-            if (false === strpos($argument[1], 'Do not inject')) {
+            if (false === strpos($argument, 'Do not inject')) {
                 return false;
             }
 
-            if (false === strpos($argument[2], 'application.config.php')) {
+            if (false === strpos($argument, 'application.config.php')) {
                 return false;
             }
 
@@ -938,10 +891,10 @@ CONTENT
 
         $io = $this->io;
         $askValidator = function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                     return false;
             }
-            if (false === strpos($argument[0], 'Remember')) {
+            if (false === strpos($argument, 'Remember')) {
                 return false;
             }
 
@@ -990,22 +943,22 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
+                $argument,
                 "Please select which config file you wish to inject 'Some\Component' into"
             )) {
                 return false;
             }
 
-            if (false === strpos($argument[1], 'Do not inject')) {
+            if (false === strpos($argument, 'Do not inject')) {
                 return false;
             }
 
-            if (false === strpos($argument[2], 'application.config.php')) {
+            if (false === strpos($argument, 'application.config.php')) {
                 return false;
             }
 
@@ -1013,10 +966,10 @@ CONTENT
         }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
-            if (false === strpos($argument[0], 'Remember')) {
+            if (false === strpos($argument, 'Remember')) {
                 return false;
             }
 
@@ -1047,22 +1000,22 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
+                $argument,
                 "Please select which config file you wish to inject 'Other\Component' into"
             )) {
                 return false;
             }
 
-            if (false === strpos($argument[1], 'Do not inject')) {
+            if (false === strpos($argument, 'Do not inject')) {
                 return false;
             }
 
-            if (false === strpos($argument[2], 'application.config.php')) {
+            if (false === strpos($argument, 'application.config.php')) {
                 return false;
             }
 
@@ -1070,10 +1023,10 @@ CONTENT
         }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
-            if (false === strpos($argument[0], 'Remember')) {
+            if (false === strpos($argument, 'Remember')) {
                 return false;
             }
 
@@ -1109,22 +1062,22 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
+                $argument,
                 "Please select which config file you wish to inject 'Some\Component' into"
             )) {
                 return false;
             }
 
-            if (false === strpos($argument[1], 'Do not inject')) {
+            if (false === strpos($argument, 'Do not inject')) {
                 return false;
             }
 
-            if (false === strpos($argument[2], 'application.config.php')) {
+            if (false === strpos($argument, 'application.config.php')) {
                 return false;
             }
 
@@ -1132,10 +1085,10 @@ CONTENT
         }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
-            if (false === strpos($argument[0], 'Remember')) {
+            if (false === strpos($argument, 'Remember')) {
                 return false;
             }
 
@@ -1298,22 +1251,22 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
+                $argument,
                 "Please select which config file you wish to inject 'Some\Module' into"
             )) {
                 return false;
             }
 
-            if (false === strpos($argument[1], 'Do not inject')) {
+            if (false === strpos($argument, 'Do not inject')) {
                 return false;
             }
 
-            if (false === strpos($argument[2], 'application.config.php')) {
+            if (false === strpos($argument, 'application.config.php')) {
                 return false;
             }
 
@@ -1321,10 +1274,10 @@ CONTENT
         }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
-            if (false === strpos($argument[0], 'Remember')) {
+            if (false === strpos($argument, 'Remember')) {
                 return false;
             }
 
@@ -1366,22 +1319,22 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
+                $argument,
                 "Please select which config file you wish to inject 'Some\Module' into"
             )) {
                 return false;
             }
 
-            if (false === strpos($argument[1], 'Do not inject')) {
+            if (false === strpos($argument, 'Do not inject')) {
                 return false;
             }
 
-            if (false === strpos($argument[2], 'application.config.php')) {
+            if (false === strpos($argument, 'application.config.php')) {
                 return false;
             }
 
@@ -1389,22 +1342,22 @@ CONTENT
         }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
+                $argument,
                 "Please select which config file you wish to inject 'Some\Component' into"
             )) {
                 return false;
             }
 
-            if (false === strpos($argument[1], 'Do not inject')) {
+            if (false === strpos($argument, 'Do not inject')) {
                 return false;
             }
 
-            if (false === strpos($argument[2], 'application.config.php')) {
+            if (false === strpos($argument, 'application.config.php')) {
                 return false;
             }
 
@@ -1412,10 +1365,10 @@ CONTENT
         }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
-            if (false === strpos($argument[0], 'Remember')) {
+            if (false === strpos($argument, 'Remember')) {
                 return false;
             }
 
@@ -1462,22 +1415,22 @@ CONTENT
         $event->getOperation()->willReturn($operation->reveal());
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
+                $argument,
                 "Please select which config file you wish to inject 'Some\Module' into"
             )) {
                 return false;
             }
 
-            if (false === strpos($argument[1], 'Do not inject')) {
+            if (false === strpos($argument, 'Do not inject')) {
                 return false;
             }
 
-            if (false === strpos($argument[2], 'application.config.php')) {
+            if (false === strpos($argument, 'application.config.php')) {
                 return false;
             }
 
@@ -1485,22 +1438,22 @@ CONTENT
         }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
 
             if (false === strpos(
-                $argument[0],
+                $argument,
                 "Please select which config file you wish to inject 'Some\Component' into"
             )) {
                 return false;
             }
 
-            if (false === strpos($argument[1], 'Do not inject')) {
+            if (false === strpos($argument, 'Do not inject')) {
                 return false;
             }
 
-            if (false === strpos($argument[2], 'application.config.php')) {
+            if (false === strpos($argument, 'application.config.php')) {
                 return false;
             }
 
@@ -1508,10 +1461,10 @@ CONTENT
         }), 1)->willReturn(1);
 
         $this->io->ask(Argument::that(function ($argument) {
-            if (! is_array($argument)) {
+            if (! is_string($argument)) {
                 return false;
             }
-            if (false === strpos($argument[0], 'Remember')) {
+            if (false === strpos($argument, 'Remember')) {
                 return false;
             }
 

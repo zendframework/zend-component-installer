@@ -18,7 +18,6 @@ use DirectoryIterator;
 use Zend\ComponentInstaller\Injector\AbstractInjector;
 use Zend\ComponentInstaller\Injector\ConfigInjectorChain;
 use Zend\ComponentInstaller\Injector\InjectorInterface;
-use Zend\ComponentInstaller\Injector\NoopInjector;
 
 /**
  * If a package represents a component module, update the application configuration.
@@ -449,7 +448,7 @@ class ComponentInstaller implements
         $ask[] = sprintf('  Make your selection (default is <comment>%d</comment>):', $default);
 
         while (true) {
-            $answer = $this->io->ask($ask, $default);
+            $answer = $this->io->ask(implode($ask), $default);
 
             if (is_numeric($answer) && isset($options[(int) $answer])) {
                 $injector = $options[(int) $answer]->getInjector();
@@ -474,7 +473,7 @@ class ComponentInstaller implements
         $ask = ["\n  <question>Remember this option for other packages of the same type? (Y/n)</question>"];
 
         while (true) {
-            $answer = strtolower($this->io->ask($ask, 'y'));
+            $answer = strtolower($this->io->ask(implode($ask), 'y'));
 
             switch ($answer) {
                 case 'y':

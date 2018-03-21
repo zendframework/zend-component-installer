@@ -24,7 +24,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 - Nothing.
 
-## 2.1.1 - TBD
+## 2.1.1 - 2018-03-21
 
 ### Added
 
@@ -44,7 +44,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#54](https://github.com/zendframework/zend-component-installer/pull/54) fixes
+  issues when run with symfony/console v4 releases.
 
 ## 2.1.0 - 2018-02-08
 
