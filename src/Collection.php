@@ -15,6 +15,15 @@ use IteratorAggregate;
 use OutOfRangeException;
 use Traversable;
 
+use function array_key_exists;
+use function array_merge;
+use function array_unique;
+use function array_unshift;
+use function count;
+use function is_array;
+use function iterator_to_array;
+use function sprintf;
+
 class Collection implements
     ArrayAccess,
     Countable,

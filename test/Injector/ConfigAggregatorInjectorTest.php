@@ -10,6 +10,9 @@ namespace ZendTest\ComponentInstaller\Injector;
 use org\bovigo\vfs\vfsStream;
 use Zend\ComponentInstaller\Injector\ConfigAggregatorInjector;
 
+use function file_get_contents;
+use function preg_replace;
+
 class ConfigAggregatorInjectorTest extends AbstractInjectorTestCase
 {
     /** @var string */

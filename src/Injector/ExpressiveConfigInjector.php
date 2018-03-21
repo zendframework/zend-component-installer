@@ -9,6 +9,9 @@ namespace Zend\ComponentInstaller\Injector;
 
 use Zend\ComponentInstaller\ConfigDiscovery\ExpressiveConfig as ExpressiveConfigDiscovery;
 
+use function preg_quote;
+use function sprintf;
+
 class ExpressiveConfigInjector extends AbstractInjector
 {
     use ConditionalDiscoveryTrait;
