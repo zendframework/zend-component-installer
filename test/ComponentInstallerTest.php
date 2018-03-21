@@ -90,9 +90,9 @@ class ComponentInstallerTest extends TestCase
         }
 
         if (false === strpos(
-                $argument,
-                sprintf("Please select which config file you wish to inject '%s' into", $packageName)
-            )) {
+            $argument,
+            sprintf("Please select which config file you wish to inject '%s' into", $packageName)
+        )) {
             return false;
         }
 
