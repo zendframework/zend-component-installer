@@ -22,6 +22,16 @@ use Prophecy\Prophecy\ObjectProphecy;
 use ReflectionObject;
 use Zend\ComponentInstaller\ComponentInstaller;
 
+use function dirname;
+use function file_get_contents;
+use function implode;
+use function is_array;
+use function mkdir;
+use function preg_match;
+use function sprintf;
+use function strpos;
+use function strstr;
+
 class ComponentInstallerTest extends TestCase
 {
     /**
