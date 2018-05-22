@@ -1,341 +1,337 @@
-<div class="container">
-  <div class="jumbotron">
-    <h1>zend-component-installer</h1>
-    
-    <p>Composer plugin for injecting modules and configuration providers into application configuration.</p>
+<div class="row jumbotron">
+  <h1>zend-component-installer</h1>
+  
+  <p>Composer plugin for injecting modules and configuration providers into application configuration.</p>
 
-    <pre><code class="language-bash">$ composer require --dev zendframework/zend-component-installer</code></pre>
-  </div>
+  <pre><code class="language-bash">$ composer require --dev zendframework/zend-component-installer</code></pre>
 </div>
 
-<div class="container features">
-  <div class="row">
-    <div class="col-xs-12 col-sm-6">
-      <h2>Installable Packages</h2>
+<div class="row features">
+  <div class="col-xs-12 col-sm-6">
+    <h2>Installable Packages</h2>
 
-      <p>
-        How do you define a package for which zend-component-installer will
-        install configuration?
-      </p>
+    <p>
+      How do you define a package for which zend-component-installer will
+      install configuration?
+    </p>
 
-      <h3>Components</h3>
+    <h3>Components</h3>
 
-      <p>
-        Components are Zend Framework modules that deliver low-level
-        functionality; examples include the various Zend Framework components
-        themselves. These require the following:
-      </p>
+    <p>
+      Components are Zend Framework modules that deliver low-level
+      functionality; examples include the various Zend Framework components
+      themselves. These require the following:
+    </p>
 
-      <ul>
-        <li>A <code>Module</code> class in the package namespace.</li>
-        <li>An <code>extra.zf.component</code> entry listing the package
-          namespace in your <code>composer.json</code>.</li>
-      </ul>
+    <ul>
+      <li>A <code>Module</code> class in the package namespace.</li>
+      <li>An <code>extra.zf.component</code> entry listing the package
+        namespace in your <code>composer.json</code>.</li>
+    </ul>
 
-      <pre><code class="lang-json" data-trim>
+    <pre><code class="lang-json" data-trim>
 "extra": {
-  "zf": {
-    "component": "Some\\Component"
-  }
+"zf": {
+  "component": "Some\\Component"
 }
-      </code></pre>
+}
+    </code></pre>
 
-      <p>
-        You may also specify multiple components as an array:
-      </p>
+    <p>
+      You may also specify multiple components as an array:
+    </p>
 
-      <pre><code class="lang-json" data-trim>
+    <pre><code class="lang-json" data-trim>
 "extra": {
-  "zf": {
-    "component": [
-      "Some\\Component",
-      "Other\\Component"
-    ]
-  }
+"zf": {
+  "component": [
+    "Some\\Component",
+    "Other\\Component"
+  ]
 }
-      </code></pre>
+}
+    </code></pre>
 
-      <p>
-        Your application will need to have one or more of the following
-        configuration files, from which you will be prompted to choose which one
-        in which to inject the component:
-      </p>
+    <p>
+      Your application will need to have one or more of the following
+      configuration files, from which you will be prompted to choose which one
+      in which to inject the component:
+    </p>
 
-      <ul>
-        <li><code>config/application.config.php</code> (vanilla ZF2 application)</li>
-        <li><code>config/modules.config.php</code> (<a href="https://apigility.org">Apigility</a>
-          application)</li>
-        <li><code>config/development.config.php.dist</code> and
-          <code>config/development.config.php</code> (applications using
-          <a href="https://github.com/zendframework/zend-development-mode">zend-development-mode</a>)</li>
-      </ul>
+    <ul>
+      <li><code>config/application.config.php</code> (vanilla ZF2 application)</li>
+      <li><code>config/modules.config.php</code> (<a href="https://apigility.org">Apigility</a>
+        application)</li>
+      <li><code>config/development.config.php.dist</code> and
+        <code>config/development.config.php</code> (applications using
+        <a href="https://github.com/zendframework/zend-development-mode">zend-development-mode</a>)</li>
+    </ul>
 
-      <p>
-        Components are added at the <strong>top</strong> of the application's
-        list of modules.
-      </p>
+    <p>
+      Components are added at the <strong>top</strong> of the application's
+      list of modules.
+    </p>
 
-      <h3>Modules</h3>
+    <h3>Modules</h3>
 
-      <p>
-        Zend Framework modules typically deliver functionality around the
-        <a href="https://docs.zendframework.com/zend-mvc/">zend-mvc</a>
-        workflow, including MVC event listeners, controllers, etc.
-        To enable the installer workflow, they require the following:
-      </p>
+    <p>
+      Zend Framework modules typically deliver functionality around the
+      <a href="https://docs.zendframework.com/zend-mvc/">zend-mvc</a>
+      workflow, including MVC event listeners, controllers, etc.
+      To enable the installer workflow, they require the following:
+    </p>
 
-      <ul>
-        <li>A <code>Module</code> class in the package namespace.</li>
-        <li>An <code>extra.zf.module</code> entry listing the package
-          namespace in your <code>composer.json</code>.</li>
-      </ul>
+    <ul>
+      <li>A <code>Module</code> class in the package namespace.</li>
+      <li>An <code>extra.zf.module</code> entry listing the package
+        namespace in your <code>composer.json</code>.</li>
+    </ul>
 
-      <pre><code class="lang-json" data-trim>
+    <pre><code class="lang-json" data-trim>
 "extra": {
-  "zf": {
-    "module": "Some\\Component"
-  }
+"zf": {
+  "module": "Some\\Component"
 }
-      </code></pre>
+}
+    </code></pre>
 
-      <p>
-        You may also specify multiple modules as an array:
-      </p>
+    <p>
+      You may also specify multiple modules as an array:
+    </p>
 
-      <pre><code class="lang-json" data-trim>
+    <pre><code class="lang-json" data-trim>
 "extra": {
-  "zf": {
-    "module": [
-      "Some\\Component",
-      "Other\\Component"
-    ]
-  }
+"zf": {
+  "module": [
+    "Some\\Component",
+    "Other\\Component"
+  ]
 }
-      </code></pre>
+}
+    </code></pre>
 
-      <p>
-        Your application will need to have one or more of the following
-        configuration files, from which you will be prompted to choose which one
-        in which to inject the module:
-      </p>
+    <p>
+      Your application will need to have one or more of the following
+      configuration files, from which you will be prompted to choose which one
+      in which to inject the module:
+    </p>
 
-      <ul>
-        <li><code>config/application.config.php</code> (vanilla ZF2 application)</li>
-        <li><code>config/modules.config.php</code> (<a href="https://apigility.org">Apigility</a>
-          application)</li>
-        <li><code>config/development.config.php.dist</code> and
-          <code>config/development.config.php</code> (applications using
-          <a href="https://github.com/zendframework/zend-development-mode">zend-development-mode</a>)</li>
-      </ul>
+    <ul>
+      <li><code>config/application.config.php</code> (vanilla ZF2 application)</li>
+      <li><code>config/modules.config.php</code> (<a href="https://apigility.org">Apigility</a>
+        application)</li>
+      <li><code>config/development.config.php.dist</code> and
+        <code>config/development.config.php</code> (applications using
+        <a href="https://github.com/zendframework/zend-development-mode">zend-development-mode</a>)</li>
+    </ul>
 
-      <p>
-        Modules are added at the <strong>bottom</strong> of the application's
-        list of modules.
-      </p>
+    <p>
+      Modules are added at the <strong>bottom</strong> of the application's
+      list of modules.
+    </p>
 
-      <h3>Config Providers</h3>
+    <h3>Config Providers</h3>
 
-      <p>
-        Configuration providers work with
-        <a href="https://github.com/mtymek/expressive-config-manager">expressive-config-manager</a>
-        and <a href="https://github.com/zendframework/zend-config-aggregator">zend-config-aggregator</a>,
-        which provides generic functionality for aggregating and merging
-        application configuration. Packages that provide configuration will
-        provide an invokable class that returns configuration for the package.
-        To enable the installer workflow, you will need:
-      </p>
+    <p>
+      Configuration providers work with
+      <a href="https://github.com/mtymek/expressive-config-manager">expressive-config-manager</a>
+      and <a href="https://github.com/zendframework/zend-config-aggregator">zend-config-aggregator</a>,
+      which provides generic functionality for aggregating and merging
+      application configuration. Packages that provide configuration will
+      provide an invokable class that returns configuration for the package.
+      To enable the installer workflow, you will need:
+    </p>
 
-      <ul>
-        <li>A configuration provider class. This is a class with no constructor
-          arguments defining an <code>__invoke()</code> method returning a
-          configuration array.</li>
-        <li>An <code>extra.zf.config-provider</code> entry listing the
-          configuration provider class in your <code>composer.json</code>.</li>
-      </ul>
+    <ul>
+      <li>A configuration provider class. This is a class with no constructor
+        arguments defining an <code>__invoke()</code> method returning a
+        configuration array.</li>
+      <li>An <code>extra.zf.config-provider</code> entry listing the
+        configuration provider class in your <code>composer.json</code>.</li>
+    </ul>
 
-      <pre><code class="lang-php" data-trim>
+    <pre><code class="lang-php" data-trim>
 namespace Some\Component;
 
 class ConfigProvider
 {
-    public function __invoke()
-    {
-        return [ /* ... */ ];
-    }
-}
-      </code></pre>
-
-      <pre><code class="lang-json" data-trim>
-"extra": {
-  "zf": {
-    "config-provider": "Some\\Component\\ConfigProvider"
+  public function __invoke()
+  {
+      return [ /* ... */ ];
   }
 }
-      </code></pre>
+    </code></pre>
 
-      <p>
-        You may also specify multiple configuration providers as an array:
-      </p>
-
-      <pre><code class="lang-json" data-trim>
+    <pre><code class="lang-json" data-trim>
 "extra": {
-  "zf": {
-    "config-provider": [
-      "Some\\Component\\ConfigProvider",
-      "Some\\Component\\PluginConfigProvider",
-    ]
-  }
+"zf": {
+  "config-provider": "Some\\Component\\ConfigProvider"
 }
-      </code></pre>
+}
+    </code></pre>
 
-      <p>
-        Your application will need to define a <code>config/config.php</code>
-        file, and that file will need to have a line that instantiates either a
-        <code>Zend\Expressive\ConfigManager\ConfigManager</code> instance
-        (deprecated) or <code>Zend\ConfigAggregator\ConfigAggregator</code>
-        instance.
-      </p>
+    <p>
+      You may also specify multiple configuration providers as an array:
+    </p>
 
-      <p>
-        Configuration providers are added at the <strong>top</strong> of the
-        <code>ConfigManager</code>/<code>ConfigAggregator</code> provider array.
-      </p>
+    <pre><code class="lang-json" data-trim>
+"extra": {
+"zf": {
+  "config-provider": [
+    "Some\\Component\\ConfigProvider",
+    "Some\\Component\\PluginConfigProvider",
+  ]
+}
+}
+    </code></pre>
+
+    <p>
+      Your application will need to define a <code>config/config.php</code>
+      file, and that file will need to have a line that instantiates either a
+      <code>Zend\Expressive\ConfigManager\ConfigManager</code> instance
+      (deprecated) or <code>Zend\ConfigAggregator\ConfigAggregator</code>
+      instance.
+    </p>
+
+    <p>
+      Configuration providers are added at the <strong>top</strong> of the
+      <code>ConfigManager</code>/<code>ConfigAggregator</code> provider array.
+    </p>
+  </div>
+
+  <div class="col-xs-12 col-sm-6">
+    <div class="panel panel-success">
+      <div class="panel-heading">
+        <h2 class="panel-title">Global Installation</h2>
+      </div>
+
+      <div class="panel-body">
+        <p>
+          You can also install the plugin globally, in which case it will be
+          active for every project you manage on your machine.
+        </p>
+
+        <pre><code class="language-bash">$ composer global require zendframework/zend-component-installer</code></pre>
+      </div>
     </div>
 
-    <div class="col-xs-12 col-sm-6">
-      <div class="panel panel-success">
-        <div class="panel-heading">
-          <h2 class="panel-title">Global Installation</h2>
-        </div>
-
-        <div class="panel-body">
-          <p>
-            You can also install the plugin globally, in which case it will be
-            active for every project you manage on your machine.
-          </p>
-
-          <pre><code class="language-bash">$ composer global require zendframework/zend-component-installer</code></pre>
-        </div>
+    <div class="panel panel-success">
+      <div class="panel-heading">
+        <h2 class="panel-title">Whitelisting packages to autoinstall</h2>
       </div>
 
-      <div class="panel panel-success">
-        <div class="panel-heading">
-          <h2 class="panel-title">Whitelisting packages to autoinstall</h2>
-        </div>
+      <div class="panel-body">
+        <p>
+          At the root package level, you can indicate that certain packages
+          that supply config providers and/or modules should automatically
+          inject configuration, instead of prompting for installation, via
+          the "component-whitelist" setting. This value should be an array
+          of package names.
+        </p>
 
-        <div class="panel-body">
-          <p>
-            At the root package level, you can indicate that certain packages
-            that supply config providers and/or modules should automatically
-            inject configuration, instead of prompting for installation, via
-            the "component-whitelist" setting. This value should be an array
-            of package names.
-          </p>
-
-          <pre><code class="lang-json" data-trim>
+        <pre><code class="lang-json" data-trim>
 "extra": {
-  "zf": {
-    "component-whitelist": [
-      "zendframework/zend-expressive",
-      "zendframework/zend-expressive-helper",
-      "zendframework/zend-expressive-fastrouterouter",
-      "zendframework/zend-expressive-platesrenderer"
-    ]
-  }
+"zf": {
+  "component-whitelist": [
+    "zendframework/zend-expressive",
+    "zendframework/zend-expressive-helper",
+    "zendframework/zend-expressive-fastrouterouter",
+    "zendframework/zend-expressive-platesrenderer"
+  ]
 }
-          </code></pre>
+}
+        </code></pre>
 
-          <p>
-            This setting only works in the root package.
-          </p>
-        </div>
+        <p>
+          This setting only works in the root package.
+        </p>
+      </div>
+    </div>
+
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h2 class="panel-title">Why?</h2>
       </div>
 
-      <div class="panel panel-info">
-        <div class="panel-heading">
-          <h2 class="panel-title">Why?</h2>
-        </div>
+      <div class="panel-body">
+        <p>
+          When preparing zend-mvc's version 3 release, we wanted to reduce the
+          number of components required by the package. To do so, we moved
+          integration code, such as factories, plugin managers, and event
+          listeners into the components they consumed. This had a side effect:
+          the components were no longer wired automatically.
+        </p>
 
-        <div class="panel-body">
-          <p>
-            When preparing zend-mvc's version 3 release, we wanted to reduce the
-            number of components required by the package. To do so, we moved
-            integration code, such as factories, plugin managers, and event
-            listeners into the components they consumed. This had a side effect:
-            the components were no longer wired automatically.
-          </p>
+        <p>
+          To provide service and event wiring, we added <code>Module</code>
+          classes (and configuration providers) to all Zend Framework components.
+          This exposed a new problem, however: how could we ensure that those
+          components are added to the application module list as you add them
+          to your application?
+        </p>
 
-          <p>
-            To provide service and event wiring, we added <code>Module</code>
-            classes (and configuration providers) to all Zend Framework components.
-            This exposed a new problem, however: how could we ensure that those
-            components are added to the application module list as you add them
-            to your application?
-          </p>
+        <p>
+          This package provides the answer to that problem. As soon as you add
+          this package to your application, whenever you add a component or module
+          that exposes itself as such, the plugin will prompt you, asking where
+          you want to inject it.
+        </p>
+      </div>
+    </div>
 
-          <p>
-            This package provides the answer to that problem. As soon as you add
-            this package to your application, whenever you add a component or module
-            that exposes itself as such, the plugin will prompt you, asking where
-            you want to inject it.
-          </p>
-        </div>
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h2 class="panel-title">When are multiple items required?</h2>
       </div>
 
-      <div class="panel panel-info">
-        <div class="panel-heading">
-          <h2 class="panel-title">When are multiple items required?</h2>
-        </div>
+      <div class="panel-body">
+        <p>
+          As noted under each of the component, module, and config-provider
+          sections, you can optionally specify an <em>array</em> of items. When
+          would you do this?
+        </p>
 
-        <div class="panel-body">
-          <p>
-            As noted under each of the component, module, and config-provider
-            sections, you can optionally specify an <em>array</em> of items. When
-            would you do this?
-          </p>
+        <p>
+          The primary reason is for <a href="https://getcomposer.org/doc/04-schema.md#type">metapackages</a>.
+          Composer does not trigger either <code>post-package-install</code>
+          or <code>post-package-uninstall</code> events for packages defined
+          as metapackage requirements. As such, you would define the metadata
+          for such packages in the metapackage as well, to ensure that the
+          component installer can update the configuration accordingly.
+        </p>
 
-          <p>
-            The primary reason is for <a href="https://getcomposer.org/doc/04-schema.md#type">metapackages</a>.
-            Composer does not trigger either <code>post-package-install</code>
-            or <code>post-package-uninstall</code> events for packages defined
-            as metapackage requirements. As such, you would define the metadata
-            for such packages in the metapackage as well, to ensure that the
-            component installer can update the configuration accordingly.
-          </p>
+        <p>
+          The other use case is to allow specifying multiple configuration
+          providers from the same package. As an example, you might define
+          default configuration, plus configuration for plugins; specifying
+          these as separate configuration providers allows the consumer to
+          choose if they want both enabled in their application.
+        </p>
 
-          <p>
-            The other use case is to allow specifying multiple configuration
-            providers from the same package. As an example, you might define
-            default configuration, plus configuration for plugins; specifying
-            these as separate configuration providers allows the consumer to
-            choose if they want both enabled in their application.
-          </p>
+        <div class="panel panel-warning">
+          <div class="panel-heading">
+            <h2 class="panel-title">Removing individual packages</h2>
+          </div>
 
-          <div class="panel panel-warning">
-            <div class="panel-heading">
-              <h2 class="panel-title">Removing individual packages</h2>
-            </div>
+          <div class="panel-body">
+            <p>
+              When removing individual packages that were originally installed
+              via a metapackage, <em>the component installer will not
+              trigger</em>. As such, you will need to manually remove such
+              packages from your configuration.
+            </p>
 
-            <div class="panel-body">
-              <p>
-                When removing individual packages that were originally installed
-                via a metapackage, <em>the component installer will not
-                trigger</em>. As such, you will need to manually remove such
-                packages from your configuration.
-              </p>
+            <p>
+              Additionally, a later update may actually <em>re-install</em>
+              the package, as it's a requirement of the metapackage. As such,
+              it's typically safer to:
+            </p>
 
-              <p>
-                Additionally, a later update may actually <em>re-install</em>
-                the package, as it's a requirement of the metapackage. As such,
-                it's typically safer to:
-              </p>
-
-              <ul>
-                <li>Remove the metapackage</li>
-                <li>Individually install the packages from the metapackage that
-                  you wish to keep.</li>
-              </ul>
-            </div>
+            <ul>
+              <li>Remove the metapackage</li>
+              <li>Individually install the packages from the metapackage that
+                you wish to keep.</li>
+            </ul>
           </div>
         </div>
       </div>
