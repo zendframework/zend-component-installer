@@ -12,7 +12,8 @@
     <title>Component Installer for Zend Framework 3 Applications - zend-component-installer</title>
 
     <link rel="stylesheet" href="./css/styles-18b942728f.css">
-        <link href="./zend-component-installer.css" rel="stylesheet">
+        <link href="zend-component-installer.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.2.0/anchor.min.js"></script>
 </head>
 <body id="page-top">
 
@@ -553,9 +554,8 @@ class ConfigProvider
         var base_url = '.',
             siteName = 'zend-component-installer';
     </script>
-    <script src="./js/scripts-0bcb0a3bb3.js"></script>
-        <script src="./search/require.js"></script>
-        <script src="./search/search.js"></script>
+    <script src="./js/scripts-edc4cfa790.js"></script>
+        <script src="search/main.js"></script>
 
     
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
@@ -585,6 +585,14 @@ class ConfigProvider
         </div>
     </div>
 
+<script>
+// Anchors
+anchors.options.placement = 'left';
+anchors.add(
+    '.content h1:not(.content__title), .content h2, .content > h3, .content h4, .content h5'
+);
+</script>
+
 
 
 </body>
@@ -593,6 +601,6 @@ class ConfigProvider
 </html>
 
 <!--
-MkDocs version : 0.17.2
-Build Date UTC : 2019-04-17 14:21:40
+MkDocs version : 1.0.4
+Build Date UTC : 2019-04-18 03:08:48
 -->
