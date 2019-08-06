@@ -25,7 +25,7 @@
     "require-dev": {
         "composer/composer": "^1.5.2",
         "malukenho/docheader": "^0.1.6",
-        "mikey179/vfsStream": "^1.6.5",
+        "mikey179/vfsstream": "^1.6.7",
         "phpunit/phpunit": "^5.7.23 || ^6.4.3",
         "zendframework/zend-coding-standard": "~1.0.0"
     },
