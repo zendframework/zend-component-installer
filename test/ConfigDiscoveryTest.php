@@ -38,7 +38,7 @@ class ConfigDiscoveryTest extends TestCase
     /** @var string[] */
     private $injectorTypes;
 
-    public function setUp()
+    protected function setUp() : void
     {
         $this->projectRoot = vfsStream::setup('project');
         $this->discovery = new ConfigDiscovery();

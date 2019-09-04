@@ -1,6 +1,6 @@
 {
     "name": "zendframework/zend-component-installer",
-    "description": "Composer plugin for automating component registration in zend-mvc and Expressive applications",
+    "description": "Composer plugin for injecting modules and configuration providers into application configuration",
     "type": "composer-plugin",
     "license": "BSD-3-Clause",
     "keywords": [
@@ -15,7 +15,7 @@
         "issues": "https://github.com/zendframework/zend-component-installer/issues",
         "source": "https://github.com/zendframework/zend-component-installer",
         "rss": "https://github.com/zendframework/zend-component-installer/releases.atom",
-        "slack": "https://zendframework-slack.herokuapp.com",
+        "chat": "https://zendframework-slack.herokuapp.com",
         "forum": "https://discourse.zendframework.com/c/questions/components"
     },
     "require": {
@@ -26,7 +26,7 @@
         "composer/composer": "^1.5.2",
         "malukenho/docheader": "^0.1.6",
         "mikey179/vfsstream": "^1.6.7",
-        "phpunit/phpunit": "^5.7.23 || ^6.4.3",
+        "phpunit/phpunit": "^7.5.15 || ^8.3.4",
         "zendframework/zend-coding-standard": "~1.0.0"
     },
     "autoload": {
@@ -37,10 +37,7 @@
     "autoload-dev": {
         "psr-4": {
             "ZendTest\\ComponentInstaller\\": "test/"
-        },
-        "files": [
-            "test/_autoload.php"
-        ]
+        }
     },
     "config": {
         "sort-packages": true
@@ -62,6 +59,6 @@
         "cs-fix": "phpcbf",
         "test": "phpunit --colors=always",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
-        "license-check": "vendor/bin/docheader check src/"
+        "license-check": "docheader check src/"
     }
 }
