@@ -1,10 +1,9 @@
 docs_dir: docs/book
 site_dir: docs/html
 pages:
-    - index.md
+    - Home: index.md
 site_name: zend-component-installer
-site_description: Zend\Component\Installer
+site_description: 'Composer plugin for injecting modules and configuration providers into application configuration'
 repo_url: 'https://github.com/zendframework/zend-component-installer'
-copyright: 'Copyright (c) 2017-2018 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a>'
 extra_css:
   - zend-component-installer.css
