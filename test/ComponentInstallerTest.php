@@ -737,7 +737,7 @@ CONTENT
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
         $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
-        $this->assertContains("'Some\Component'", $config);
+        $this->assertStringContainsString("'Some\Component'", $config);
     }
 
     public function testOnPostPackageInstallDoesNotPromptForWhitelistedPackages()
@@ -768,7 +768,7 @@ CONTENT
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
         $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
-        $this->assertContains("'Some\Component'", $config);
+        $this->assertStringContainsString("'Some\Component'", $config);
     }
 
     public function testOnPostPackageInstallPromptsForConfigOptions()
@@ -829,7 +829,7 @@ CONTENT
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
         $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
-        $this->assertContains("'Some\Component'", $config);
+        $this->assertStringContainsString("'Some\Component'", $config);
     }
 
     public function testOnPostPackageInstallPromptsForConfigOptionsWhenDefinedAsArrays()
@@ -929,8 +929,8 @@ CONTENT
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
         $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
-        $this->assertContains("'Some\Component'", $config);
-        $this->assertContains("'Other\Component'", $config);
+        $this->assertStringContainsString("'Some\Component'", $config);
+        $this->assertStringContainsString("'Other\Component'", $config);
     }
 
     public function testMultipleInvocationsOfOnPostPackageInstallCanPromptMultipleTimes()
@@ -992,7 +992,7 @@ CONTENT
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
         $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
-        $this->assertContains("'Some\Component'", $config);
+        $this->assertStringContainsString("'Some\Component'", $config);
 
         // Now do a second pass, with another package
         $package = $this->prophesize(PackageInterface::class);
@@ -1049,7 +1049,7 @@ CONTENT
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
         $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
-        $this->assertContains("'Other\Component'", $config);
+        $this->assertStringContainsString("'Other\Component'", $config);
     }
 
     public function testMultipleInvocationsOfOnPostPackageInstallCanReuseOptions()
@@ -1111,7 +1111,7 @@ CONTENT
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
         $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
-        $this->assertContains("'Some\Component'", $config);
+        $this->assertStringContainsString("'Some\Component'", $config);
 
         // Now do a second pass, with another package
         $package = $this->prophesize(PackageInterface::class);
@@ -1134,7 +1134,7 @@ CONTENT
 
         $this->assertNull($this->installer->onPostPackageInstall($event->reveal()));
         $config = file_get_contents(vfsStream::url('project/config/application.config.php'));
-        $this->assertContains("'Other\Component'", $config);
+        $this->assertStringContainsString("'Other\Component'", $config);
     }
 
     public function testOnPostPackageUninstallReturnsEarlyIfEventIsNotInDevMode()
