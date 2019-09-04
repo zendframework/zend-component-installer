@@ -64,7 +64,7 @@ class ComponentInstallerTest extends TestCase
      */
     private $installationManager;
 
-    public function setUp()
+    protected function setUp() : void
     {
         $this->projectRoot = vfsStream::setup('project');
         $this->installer = new ComponentInstaller(vfsStream::url('project'));

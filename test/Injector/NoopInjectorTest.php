@@ -15,7 +15,7 @@ class NoopInjectorTest extends TestCase
     /** @var NoopInjector */
     private $injector;
 
-    public function setUp()
+    protected function setUp() : void
     {
         $this->injector = new NoopInjector();
     }

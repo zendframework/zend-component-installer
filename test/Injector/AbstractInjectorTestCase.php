@@ -31,7 +31,7 @@ abstract class AbstractInjectorTestCase extends TestCase
     /** @var int[] */
     protected $injectorTypesAllowed = [];
 
-    public function setUp()
+    protected function setUp() : void
     {
         $this->configDir = vfsStream::setup('project');
 
