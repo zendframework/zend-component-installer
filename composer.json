@@ -1,6 +1,6 @@
 {
     "name": "zendframework/zend-component-installer",
-    "description": "Composer plugin for automating component registration in zend-mvc and Expressive applications",
+    "description": "Composer plugin for injecting modules and configuration providers into application configuration",
     "type": "composer-plugin",
     "license": "BSD-3-Clause",
     "keywords": [
@@ -62,6 +62,6 @@
         "cs-fix": "phpcbf",
         "test": "phpunit --colors=always",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
-        "license-check": "vendor/bin/docheader check src/"
+        "license-check": "docheader check src/"
     }
 }
