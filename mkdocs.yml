@@ -1,6 +1,6 @@
 docs_dir: docs/book
 site_dir: docs/html
-pages:
+nav:
     - Home: index.md
 site_name: zend-component-installer
 site_description: 'Composer plugin for injecting modules and configuration providers into application configuration'
