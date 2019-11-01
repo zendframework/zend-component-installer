@@ -512,7 +512,7 @@ tagged releases now make more sense, as plugins are installed via composer
   - to act as a Composer plugin.
   - to add awareness of additional configuration locations:
     - `modules.config.php` (Apigility)
-    - `development.config.php` (zend-development-mode)
+    - `development.config.php` (zf-development-mode)
     - `config.php` (Expressive with expressive-config-manager)
   - to discover and prompt for known configuration locations when installing a
     package.
