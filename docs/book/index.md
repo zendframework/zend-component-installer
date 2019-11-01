@@ -111,20 +111,21 @@ workflow, you will need:
 
 * A configuration provider class. This is a class with no constructor
   arguments defining an `__invoke()` method returning a configuration array.
-* An `extra.zf.config-provider` entry listing the configuration provider class
-  in your `composer.json`.
 
 ```php
 namespace Some\Component;
 
 class ConfigProvider
 {
-  public function __invoke()
-  {
-      return [ /* ... */ ];
-  }
+    public function __invoke()
+    {
+        return [ /* ... */ ];
+    }
 }
 ```
+
+* An `extra.zf.config-provider` entry listing the configuration provider class
+  in your `composer.json`.
 
 ```json
 "extra": {
