@@ -37,8 +37,6 @@ themselves. These require the following:
 You may also specify multiple components as an array:
 
 ```json
-
-
 "extra": {
     "zf": {
         "component": [
