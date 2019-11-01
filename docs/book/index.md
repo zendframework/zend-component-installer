@@ -54,7 +54,7 @@ the component:
 * `config/application.config.php` (vanilla ZF2 application)
 * `config/modules.config.php` ([Apigility](https://apigility.org) application)
 * `config/development.config.php.dist` and `config/development.config.php`
-  (applications using [zend-development-mode](https://github.com/zendframework/zend-development-mode))
+  (applications using [zf-development-mode](https://github.com/zfcampus/zf-development-mode))
 
 Components are added at the **top** of the application's list of modules.
 
@@ -96,7 +96,7 @@ the module:
 * `config/application.config.php` (vanilla ZF2 application)
 * `config/modules.config.php` ([Apigility](https://apigility.org) application)
 * `config/development.config.php.dist` and `config/development.config.php`
-  (applications using [zend-development-mode](https://github.com/zendframework/zend-development-mode))
+  (applications using [zf-development-mode](https://github.com/zfcampus/zf-development-mode))
 
 Modules are added at the **bottom** of the application's list of modules.
 
