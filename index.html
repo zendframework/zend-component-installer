@@ -195,7 +195,7 @@ the component:</p>
 <li><code>config/application.config.php</code> (vanilla ZF2 application)</li>
 <li><code>config/modules.config.php</code> (<a href="https://apigility.org">Apigility</a> application)</li>
 <li><code>config/development.config.php.dist</code> and <code>config/development.config.php</code>
-  (applications using <a href="https://github.com/zendframework/zend-development-mode">zend-development-mode</a>)</li>
+  (applications using <a href="https://github.com/zfcampus/zf-development-mode">zf-development-mode</a>)</li>
 </ul>
 <p>Components are added at the <strong>top</strong> of the application's list of modules.</p>
 <h3>Modules</h3>
@@ -228,7 +228,7 @@ the module:</p>
 <li><code>config/application.config.php</code> (vanilla ZF2 application)</li>
 <li><code>config/modules.config.php</code> (<a href="https://apigility.org">Apigility</a> application)</li>
 <li><code>config/development.config.php.dist</code> and <code>config/development.config.php</code>
-  (applications using <a href="https://github.com/zendframework/zend-development-mode">zend-development-mode</a>)</li>
+  (applications using <a href="https://github.com/zfcampus/zf-development-mode">zf-development-mode</a>)</li>
 </ul>
 <p>Modules are added at the <strong>bottom</strong> of the application's list of modules.</p>
 <h3>Config Providers</h3>
@@ -241,23 +241,25 @@ workflow, you will need:</p>
 <ul>
 <li>A configuration provider class. This is a class with no constructor
   arguments defining an <code>__invoke()</code> method returning a configuration array.</li>
-<li>An <code>extra.zf.config-provider</code> entry listing the configuration provider class
-  in your <code>composer.json</code>.</li>
 </ul>
-<div class=md-fenced-code-tabs id=tab-tab-group-5><ul class="nav nav-tabs"><li class="nav-item active"><a href=#tab-group-5-0_php role=tab data-toggle=tab data-lang=php>Php</a></li><li class="nav-item "><a href=#tab-group-5-1_json role=tab data-toggle=tab data-lang=json>Json</a></li></ul><div class=tab-content><div id=tab-group-5-0_php class="tab-pane active" role=tabpanel><pre class=codehilite><code class=language-php>namespace Some\Component;
+<p> <pre class=codehilite><code class=language-php>namespace Some\Component;
 
 class ConfigProvider
 {
-  public function __invoke()
-  {
-      return [ /* ... */ ];
-  }
-}</code></pre></div><div id=tab-group-5-1_json class="tab-pane " role=tabpanel><pre class=codehilite><code class=language-json>&quot;extra&quot;: {
+    public function __invoke()
+    {
+        return [ /* ... */ ];
+    }
+}</code></pre></p>
+<ul>
+<li>An <code>extra.zf.config-provider</code> entry listing the configuration provider class
+  in your <code>composer.json</code>.</li>
+</ul>
+<p> <pre class=codehilite><code class=language-json>&quot;extra&quot;: {
     &quot;zf&quot;: {
         &quot;config-provider&quot;: &quot;Some\\Component\\ConfigProvider&quot;
     }
-}</code></pre></div></div></div>
-
+}</code></pre></p>
 <p>You may also specify multiple configuration providers as an array:</p>
 <p> <pre class=codehilite><code class=language-json>&quot;extra&quot;: {
     &quot;zf&quot;: {
@@ -477,5 +479,5 @@ requirement of the metapackage. As such, it's typically safer to:</p>
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2019-11-01 11:33:33
+Build Date UTC : 2019-11-01 17:41:41
 -->
