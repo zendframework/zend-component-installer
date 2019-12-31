@@ -2,6 +2,10 @@
 [![Build Status](https://secure.travis-ci.org/zendframework/zend-component-installer.svg?branch=master)](https://secure.travis-ci.org/zendframework/zend-component-installer)
 [![Coverage Status](https://coveralls.io/repos/github/zendframework/zend-component-installer/badge.svg?branch=master)](https://coveralls.io/github/zendframework/zend-component-installer?branch=master)
 
+> ## Repository abandoned 2019-12-31
+>
+> This repository has moved to laminas/laminas-component-installer.
+
 This repository contains the Composer plugin class `Zend\ComponentInstaller\ComponentInstaller`,
 which provides Composer event hooks for the events:
 
