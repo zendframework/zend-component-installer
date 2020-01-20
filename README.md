@@ -4,7 +4,7 @@
 
 > ## Repository abandoned 2019-12-31
 >
-> This repository has moved to laminas/laminas-component-installer.
+> This repository has moved to [laminas/laminas-component-installer](https://github.com/laminas/laminas-component-installer).
 
 This repository contains the Composer plugin class `Zend\ComponentInstaller\ComponentInstaller`,
 which provides Composer event hooks for the events:
